@@ -1,0 +1,1411 @@
+// Fumibug — schema de datos. Fuente: docs/spec/08-modelo-datos.md (§H).
+//
+// Convenciones (§H.1, CLAUDE.md §5):
+//  - snake_case en DB (via @map/@@map), camelCase en el cliente TS generado.
+//  - UUID como PK salvo tablas de log (BIGSERIAL: audit_logs, cash_movements,
+//    inventory_movements — mejor localidad de índice en append masivo).
+//  - TIMESTAMPTZ siempre. Soft delete con archived_at, nunca DELETE de negocio.
+//  - Dinero: BIGINT en centavos. Nunca Float/Decimal para montos.
+//  - Cantidades físicas: NUMERIC(12,4). Geo: NUMERIC(10,7).
+//  - Todo índice de tabla multi-tenant empieza por tenant_id.
+//
+// Lo que Prisma NO puede expresar en este archivo (índices únicos parciales con WHERE,
+// UNIQUE ... DEFERRABLE, EXCLUDE USING gist, triggers, RLS, extensiones) vive en
+// prisma/migrations/<ts>_partial_indexes_triggers_rls/migration.sql, generado a mano
+// después del `prisma migrate dev` inicial. Cada lugar donde aplica está marcado acá
+// con un comentario "// SQL:".
+//
+// created_by/updated_by (§H.1) se agregan como columnas UUID simples, SIN relación de
+// Prisma, para no explotar el modelo `User` con ~30 arrays de back-relation sin uso real
+// de query. La FK a users(id) igual se agrega en la migración manual (raw SQL). Se omiten
+// en tablas puente (contract_locations, role_permissions) y en tablas de log que ya tienen
+// su propio actor (audit_logs.actor_user_id, cash_movements/inventory_movements.performed_by),
+// siguiendo el mismo criterio que usa el propio §H.2 al listar los campos de esas tablas.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS — deben reflejar packages/contracts/src/enums.ts (ver ADR 0005)
+// ============================================================================
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  TRIAL
+}
+
+enum TenantPlan {
+  CORE
+  PRO
+  ENTERPRISE
+}
+
+enum CustomerType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum TaxCondition {
+  RESPONSABLE_INSCRIPTO
+  MONOTRIBUTO
+  EXENTO
+  CONSUMIDOR_FINAL
+  NO_RESPONSABLE
+}
+
+enum PaymentTerms {
+  CASH
+  ACCOUNT
+  CONTRACT
+}
+
+enum CustomerContactRole {
+  OWNER
+  ONSITE
+  BILLING
+}
+
+enum GeocodeStatus {
+  PENDING
+  OK
+  MANUAL
+  FAILED
+}
+
+enum EstablishmentType {
+  HOME
+  GASTRO
+  FOOD_INDUSTRY
+  WAREHOUSE
+  SCHOOL
+  OFFICE
+  OTHER
+}
+
+enum LicenseType {
+  SANITARY_BOOK
+  TECHNICAL_DIRECTOR
+}
+
+enum ServiceStatus {
+  DRAFT
+  SCHEDULED
+  ASSIGNED
+  DISPATCHED
+  IN_EXECUTION
+  PENDING_VALIDATION
+  COMPLETED
+  PARTIALLY_COMPLETED
+  RESCHEDULED
+  CANCELLED
+}
+
+enum ServiceOrigin {
+  MANUAL
+  CONTRACT
+  WARRANTY
+  RESCHEDULE
+  PARTIAL_FOLLOWUP
+}
+
+enum ServicePriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum CancellationReason {
+  CUSTOMER_REQUESTED
+  WEATHER
+  DATA_ENTRY_ERROR
+  DUPLICATE
+  OUT_OF_ZONE
+  NON_PAYMENT
+  OTHER
+}
+
+enum ContractBillingMode {
+  PER_VISIT
+  MONTHLY_FEE
+}
+
+enum ContractStatus {
+  ACTIVE
+  PAUSED
+  CANCELLED
+}
+
+enum RouteStatus {
+  DRAFT
+  READY
+  PUBLISHED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum RouteStopStatus {
+  PENDING
+  EN_ROUTE
+  ARRIVED
+  IN_PROGRESS
+  DONE
+  NO_SHOW
+  INACCESSIBLE
+  SKIPPED
+  CANCELLED
+}
+
+enum GpsStatus {
+  OK
+  DENIED
+  UNAVAILABLE
+  TIMEOUT
+}
+
+enum StopOutcomeReason {
+  CUSTOMER_ABSENT
+  PREMISES_CLOSED
+  CONSTRUCTION_WORK
+  LOOSE_ANIMAL
+  NO_WATER_SUPPLY
+  WEATHER
+  RAN_OUT_OF_TIME
+  POWER_OUTAGE
+  OTHER
+}
+
+enum ServiceSessionStatus {
+  OPEN
+  CLOSED
+}
+
+enum EvidenceType {
+  PHOTO
+  SIGNATURE
+  DOCUMENT
+}
+
+enum EvidenceCategory {
+  BEFORE
+  DURING
+  AFTER
+  FACADE
+  RECEIPT
+  ISSUE
+}
+
+enum NoSignatureReason {
+  CUSTOMER_UNAVAILABLE
+  CUSTOMER_REFUSED
+  MINOR_ON_SITE
+  OTHER
+}
+
+enum SupplyCategory {
+  INSECTICIDE
+  RODENTICIDE
+  DISINFECTANT
+  BAIT
+  TRAP
+  PPE
+  OTHER
+}
+
+enum RegistryAuthority {
+  ANMAT
+  SENASA
+  OTHER
+}
+
+enum MeasurementUnit {
+  L
+  ML
+  KG
+  G
+  UNIT
+}
+
+enum StockLocationType {
+  WAREHOUSE
+  VEHICLE
+}
+
+enum InventoryMovementType {
+  PURCHASE
+  TRANSFER_IN
+  TRANSFER_OUT
+  CONSUMPTION
+  RETURN
+  ADJUSTMENT
+  LOSS
+  EXPIRY_WRITE_OFF
+}
+
+enum ApplicationMethod {
+  SPRAY
+  GEL
+  BAIT_STATION
+  FOG
+  DUST
+  GRANULE
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  MERCADOPAGO
+  CARD
+  CHECK
+  ACCOUNT
+}
+
+enum PaymentStatus {
+  CONFIRMED
+  VOIDED
+}
+
+enum PaymentVarianceReason {
+  CHANGE_SHORTFALL
+  UNRECORDED_DISCOUNT
+  COLLECTION_ERROR
+  OTHER
+}
+
+enum CashAccountType {
+  TECHNICIAN
+  OFFICE
+}
+
+enum CashMovementType {
+  SERVICE_PAYMENT
+  EXPENSE
+  HANDOVER
+  ADJUSTMENT
+  OPENING_BALANCE
+  REVERSAL
+}
+
+enum CashClosureStatus {
+  OPEN
+  DECLARED
+  RECONCILED
+  DISPUTED
+}
+
+enum CertificateStatus {
+  DRAFT
+  ISSUED
+  SIGNED
+  VOIDED
+}
+
+enum StationConsumptionLevel {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum StationCondition {
+  OK
+  DAMAGED
+  MISSING
+  NEEDS_REPLACEMENT
+}
+
+enum AuditSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum MembershipStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+// ============================================================================
+// Tenancy, identidad y permisos — §H.2
+// ============================================================================
+
+model Tenant {
+  id                        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                      String       @db.VarChar(150)
+  slug                      String       @unique @db.VarChar(60)
+  legalName                 String?      @map("legal_name") @db.VarChar(200)
+  taxId                     String?      @map("tax_id") @db.VarChar(20)
+  healthAuthorizationNumber String?      @map("health_authorization_number") @db.VarChar(60)
+  logoUrl                   String?      @map("logo_url")
+  address                   String?
+  phone                     String?      @db.VarChar(40)
+  email                     String?      @db.VarChar(200)
+  timezone                  String       @default("America/Argentina/Buenos_Aires") @db.VarChar(40)
+  plan                      TenantPlan   @default(CORE)
+  status                    TenantStatus @default(ACTIVE)
+  settings                  Json         @default("{}")
+  archivedAt                DateTime?    @map("archived_at") @db.Timestamptz(6)
+  createdAt                 DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                 DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  memberships         Membership[]
+  roles               Role[]
+  rolePermissions     RolePermission[]
+  contractLocations   ContractLocation[]
+  technicianProfiles  TechnicianProfile[]
+  customers           Customer[]
+  customerContacts    CustomerContact[]
+  serviceLocations    ServiceLocation[]
+  serviceTypes        ServiceType[]
+  serviceContracts    ServiceContract[]
+  services            Service[]
+  routes              Route[]
+  routeStops          RouteStop[]
+  serviceSessions     ServiceSession[]
+  serviceEvidence     ServiceEvidence[]
+  supplies            Supply[]
+  stockLocations      StockLocation[]
+  supplyLots          SupplyLot[]
+  inventory           Inventory[]
+  inventoryMovements  InventoryMovement[]
+  serviceSupplyUsages ServiceSupplyUsage[]
+  payments            Payment[]
+  cashAccounts        CashAccount[]
+  cashMovements       CashMovement[]
+  cashClosures        CashClosure[]
+  certificates        Certificate[]
+  priceLists          PriceList[]
+  priceListItems      PriceListItem[]
+  notifications       Notification[]
+  pushSubscriptions   PushSubscription[]
+  auditLogs           AuditLog[]
+  syncEvents          SyncEvent[]
+  zones               Zone[]
+  vehicles            Vehicle[]
+  monitoringStations  MonitoringStation[]
+  stationReadings     StationReading[]
+
+  @@map("tenants")
+}
+
+/// Sin tenant_id: la relación con el tenant va por Membership (un usuario puede estar en
+/// varios tenants — soporte de Fumibug, y Fase 3 SaaS). id == auth.users.id de Supabase.
+model User {
+  id          String    @id @db.Uuid
+  email       String    @unique @db.Citext
+  username    String?   @unique @db.VarChar(40) // Postgres no colisiona NULLs en UNIQUE: equivalente a "WHERE username IS NOT NULL" sin necesitar índice parcial
+  fullName    String?   @map("full_name") @db.VarChar(150)
+  phone       String?   @db.VarChar(40)
+  avatarUrl   String?   @map("avatar_url")
+  color       String?   @db.Char(7)
+  isActive    Boolean   @default(true) @map("is_active")
+  lastLoginAt DateTime? @map("last_login_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  memberships              Membership[]
+  technicianProfile        TechnicianProfile?
+  routesAsTechnician       Route[]            @relation("RouteTechnician")
+  sessionsAsTechnician     ServiceSession[]   @relation("SessionTechnician")
+  paymentsReceived         Payment[]          @relation("PaymentReceivedBy")
+  cashAccounts             CashAccount[]      @relation("CashAccountOwner")
+  certificatesAsDirector   Certificate[]      @relation("CertificateTechnicalDirector")
+  certificatesAsTechnician Certificate[]      @relation("CertificateTechnician")
+  notifications            Notification[]
+  pushSubscriptions        PushSubscription[]
+  auditLogsAsActor         AuditLog[]         @relation("AuditLogActor")
+  syncEvents               SyncEvent[]
+
+  @@map("users")
+}
+
+model Membership {
+  id       String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId String           @map("tenant_id") @db.Uuid
+  userId   String           @map("user_id") @db.Uuid
+  roleId   String           @map("role_id") @db.Uuid
+  status   MembershipStatus @default(ACTIVE)
+  joinedAt DateTime         @default(now()) @map("joined_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  @@unique([tenantId, userId])
+  @@index([tenantId, userId])
+  @@index([userId])
+  @@map("memberships")
+}
+
+/// No hay tabla de roles global: cada tenant tiene los suyos, aunque arranquen idénticos
+/// (§H.4.5, evita un retrofit doloroso en Fase 3).
+model Role {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  key         String   @db.VarChar(40)
+  name        String   @db.VarChar(80)
+  isSystem    Boolean  @default(false) @map("is_system")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  memberships     Membership[]
+  rolePermissions RolePermission[]
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+  @@map("roles")
+}
+
+/// Catálogo global, sin tenant_id (§H.2): es dato del sistema, no de negocio.
+model Permission {
+  key         String  @id @db.VarChar(60)
+  resource    String  @db.VarChar(40)
+  action      String  @db.VarChar(40)
+  description String?
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+/// Tabla puente sin id/timestamps propios (§H.2: "role_id FK, permission_key FK, scope").
+/// tenant_id se agrega — desnormalizado desde role.tenant_id — pese a que §H.2 no lo lista
+/// para esta tabla puntual: es lo que permite que la extensión de Prisma y las RLS policies
+/// (§H.1 "toda tabla de negocio lleva tenant_id, sin excepción") no necesiten un caso
+/// especial para las dos tablas puente del modelo. La consistencia con role.tenant_id la
+/// garantiza la capa de servicio al crear la fila (siempre en la misma transacción que Role).
+model RolePermission {
+  tenantId      String @map("tenant_id") @db.Uuid
+  roleId        String @map("role_id") @db.Uuid
+  permissionKey String @map("permission_key") @db.VarChar(60)
+  scope         String @default("tenant") @db.VarChar(10) // own | team | tenant — ver packages/contracts PermissionScopeSchema
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id])
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionKey], references: [key])
+
+  @@id([roleId, permissionKey])
+  @@index([tenantId])
+  @@map("role_permissions")
+}
+
+/// Extensión de User para operarios y DT.
+model TechnicianProfile {
+  userId           String      @id @map("user_id") @db.Uuid
+  tenantId         String      @map("tenant_id") @db.Uuid
+  licenseNumber    String?     @map("license_number") @db.VarChar(60)
+  licenseType      LicenseType @map("license_type")
+  licenseExpiresAt DateTime?   @map("license_expires_at") @db.Date
+  signatureUrl     String?     @map("signature_url")
+  vehicleId        String?     @map("vehicle_id") @db.Uuid
+  stockLocationId  String?     @map("stock_location_id") @db.Uuid
+  createdAt        DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user          User           @relation(fields: [userId], references: [id])
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  vehicle       Vehicle?       @relation(fields: [vehicleId], references: [id])
+  stockLocation StockLocation? @relation(fields: [stockLocationId], references: [id])
+
+  @@index([tenantId, licenseExpiresAt])
+  @@map("technician_profiles")
+}
+
+// ============================================================================
+// Clientes / ubicaciones — §H.2
+// ============================================================================
+
+model Customer {
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String        @map("tenant_id") @db.Uuid
+  type             CustomerType
+  legalName        String        @map("legal_name") @db.VarChar(200)
+  tradeName        String?       @map("trade_name") @db.VarChar(200)
+  taxId            String?       @map("tax_id") @db.VarChar(20)
+  taxCondition     TaxCondition? @map("tax_condition")
+  paymentTerms     PaymentTerms  @default(CASH) @map("payment_terms")
+  creditLimitCents BigInt?       @map("credit_limit_cents")
+  notes            String?
+  tags             String[]      @default([])
+  archivedAt       DateTime?     @map("archived_at") @db.Timestamptz(6)
+  createdBy        String?       @map("created_by") @db.Uuid
+  updatedBy        String?       @map("updated_by") @db.Uuid
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant           Tenant            @relation(fields: [tenantId], references: [id])
+  contacts         CustomerContact[]
+  serviceLocations ServiceLocation[]
+  serviceContracts ServiceContract[]
+  services         Service[]
+  payments         Payment[]
+
+  @@index([tenantId, archivedAt])
+  @@index([tenantId, taxId])
+  // SQL: índice GIN full-text — to_tsvector('spanish', coalesce(legal_name,'')||' '||coalesce(trade_name,''))
+  @@map("customers")
+}
+
+model CustomerContact {
+  id         String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String              @map("tenant_id") @db.Uuid
+  customerId String              @map("customer_id") @db.Uuid
+  name       String              @db.VarChar(150)
+  role       CustomerContactRole
+  phone      String?             @db.VarChar(40)
+  email      String?             @db.VarChar(200)
+  isPrimary  Boolean             @default(false) @map("is_primary")
+  createdAt  DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([tenantId, customerId])
+  @@map("customer_contacts")
+}
+
+model ServiceLocation {
+  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId           String            @map("tenant_id") @db.Uuid
+  customerId         String            @map("customer_id") @db.Uuid
+  label              String?           @db.VarChar(80)
+  addressLine        String            @map("address_line")
+  city               String?           @db.VarChar(100)
+  province           String?           @db.VarChar(100)
+  postalCode         String?           @map("postal_code") @db.VarChar(20)
+  lat                Decimal?          @db.Decimal(10, 7)
+  lng                Decimal?          @db.Decimal(10, 7)
+  geocodeStatus      GeocodeStatus     @default(PENDING) @map("geocode_status")
+  accessNotes        String?           @map("access_notes")
+  hazardNotes        String?           @map("hazard_notes")
+  establishmentType  EstablishmentType @default(OTHER) @map("establishment_type")
+  areaSqm            Decimal?          @map("area_sqm") @db.Decimal(10, 2)
+  serviceWindowStart DateTime?         @map("service_window_start") @db.Time
+  serviceWindowEnd   DateTime?         @map("service_window_end") @db.Time
+  zoneId             String?           @map("zone_id") @db.Uuid
+  archivedAt         DateTime?         @map("archived_at") @db.Timestamptz(6)
+  createdAt          DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  customer           Customer            @relation(fields: [customerId], references: [id])
+  zone               Zone?               @relation(fields: [zoneId], references: [id])
+  services           Service[]
+  contractLocations  ContractLocation[]
+  monitoringStations MonitoringStation[]
+  certificates       Certificate[]
+
+  @@index([tenantId, customerId])
+  @@index([tenantId, zoneId])
+  @@index([tenantId, lat, lng])
+  @@map("service_locations")
+}
+
+/// Catálogo por tenant (§H.2).
+model ServiceType {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId               String   @map("tenant_id") @db.Uuid
+  key                    String   @db.VarChar(60)
+  name                   String   @db.VarChar(150)
+  defaultDurationMinutes Int?     @map("default_duration_minutes")
+  checklist              Json     @default("[]")
+  requiredSupplyIds      String[] @map("required_supply_ids") @db.Uuid
+  certificateTemplateKey String?  @map("certificate_template_key") @db.VarChar(60)
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant           Tenant            @relation(fields: [tenantId], references: [id])
+  serviceContracts ServiceContract[]
+  services         Service[]
+  priceListItems   PriceListItem[]
+
+  @@unique([tenantId, key])
+  @@index([tenantId])
+  @@map("service_types")
+}
+
+model ServiceContract {
+  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId           String              @map("tenant_id") @db.Uuid
+  customerId         String              @map("customer_id") @db.Uuid
+  serviceTypeId      String              @map("service_type_id") @db.Uuid
+  recurrence         Json
+  startsOn           DateTime            @map("starts_on") @db.Date
+  endsOn             DateTime?           @map("ends_on") @db.Date
+  autoRenew          Boolean             @default(false) @map("auto_renew")
+  priceCents         BigInt              @map("price_cents")
+  billingMode        ContractBillingMode @map("billing_mode")
+  status             ContractStatus      @default(ACTIVE)
+  generateAheadDays  Int                 @default(30) @map("generate_ahead_days")
+  lastGeneratedUntil DateTime?           @map("last_generated_until") @db.Date
+  createdBy          String?             @map("created_by") @db.Uuid
+  updatedBy          String?             @map("updated_by") @db.Uuid
+  createdAt          DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant      Tenant             @relation(fields: [tenantId], references: [id])
+  customer    Customer           @relation(fields: [customerId], references: [id])
+  serviceType ServiceType        @relation(fields: [serviceTypeId], references: [id])
+  locations   ContractLocation[]
+  services    Service[]
+
+  @@index([tenantId, customerId])
+  @@index([tenantId, status])
+  @@map("service_contracts")
+}
+
+/// Tabla puente sin id/timestamps propios (§H.2). tenant_id agregado por el mismo motivo
+/// que en RolePermission — ver comentario ahí.
+model ContractLocation {
+  tenantId          String @map("tenant_id") @db.Uuid
+  contractId        String @map("contract_id") @db.Uuid
+  serviceLocationId String @map("service_location_id") @db.Uuid
+
+  tenant          Tenant          @relation(fields: [tenantId], references: [id])
+  contract        ServiceContract @relation(fields: [contractId], references: [id])
+  serviceLocation ServiceLocation @relation(fields: [serviceLocationId], references: [id])
+
+  @@id([contractId, serviceLocationId])
+  @@index([tenantId])
+  @@map("contract_locations")
+}
+
+// ============================================================================
+// Servicios, rutas, ejecución — §H.2, §D
+// ============================================================================
+
+model Service {
+  id                       String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId                 String              @map("tenant_id") @db.Uuid
+  code                     String              @db.VarChar(20)
+  customerId               String              @map("customer_id") @db.Uuid
+  serviceLocationId        String              @map("service_location_id") @db.Uuid
+  serviceTypeId            String              @map("service_type_id") @db.Uuid
+  contractId               String?             @map("contract_id") @db.Uuid
+  parentServiceId          String?             @map("parent_service_id") @db.Uuid
+  origin                   ServiceOrigin       @default(MANUAL)
+  status                   ServiceStatus       @default(DRAFT)
+  targetPests              String[]            @default([]) @map("target_pests")
+  scheduledDate            DateTime?           @map("scheduled_date") @db.Date
+  windowStart              DateTime?           @map("window_start") @db.Time
+  windowEnd                DateTime?           @map("window_end") @db.Time
+  estimatedDurationMinutes Int?                @map("estimated_duration_minutes")
+  requiredTechnicians      Int                 @default(1) @map("required_technicians")
+  priceCents               BigInt              @map("price_cents")
+  currency                 String              @default("ARS") @db.Char(3)
+  priceListId              String?             @map("price_list_id") @db.Uuid
+  isWarrantyVisit          Boolean             @default(false) @map("is_warranty_visit")
+  warrantyUntil            DateTime?           @map("warranty_until") @db.Date
+  priority                 ServicePriority     @default(NORMAL)
+  notesInternal            String?             @map("notes_internal")
+  notesForTechnician       String?             @map("notes_for_technician")
+  cancellationReason       CancellationReason? @map("cancellation_reason")
+  cancelledBillable        Boolean?            @map("cancelled_billable")
+  version                  Int                 @default(1)
+  createdBy                String?             @map("created_by") @db.Uuid
+  updatedBy                String?             @map("updated_by") @db.Uuid
+  createdAt                DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  customer        Customer         @relation(fields: [customerId], references: [id])
+  serviceLocation ServiceLocation  @relation(fields: [serviceLocationId], references: [id])
+  serviceType     ServiceType      @relation(fields: [serviceTypeId], references: [id])
+  contract        ServiceContract? @relation(fields: [contractId], references: [id])
+  priceList       PriceList?       @relation(fields: [priceListId], references: [id])
+  parentService   Service?         @relation("ServiceParent", fields: [parentServiceId], references: [id])
+  childServices   Service[]        @relation("ServiceParent")
+  routeStops      RouteStop[]
+  serviceSessions ServiceSession[]
+  payments        Payment[]
+  certificates    Certificate[]
+
+  @@unique([tenantId, code])
+  @@unique([contractId, scheduledDate]) // idempotencia del generador de contratos — solo aplica WHERE contract_id IS NOT NULL, ver SQL
+  @@index([tenantId, status, scheduledDate])
+  @@index([tenantId, customerId])
+  @@index([tenantId, serviceLocationId])
+  @@index([tenantId, contractId])
+  // SQL: CHECK (price_cents >= 0), CHECK (window_start < window_end)
+  @@map("services")
+}
+
+model Route {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String      @map("tenant_id") @db.Uuid
+  code         String      @db.VarChar(20)
+  technicianId String      @map("technician_id") @db.Uuid
+  vehicleId    String?     @map("vehicle_id") @db.Uuid
+  routeDate    DateTime    @map("route_date") @db.Date
+  status       RouteStatus @default(DRAFT)
+  publishedAt  DateTime?   @map("published_at") @db.Timestamptz(6)
+  publishedBy  String?     @map("published_by") @db.Uuid
+  startedAt    DateTime?   @map("started_at") @db.Timestamptz(6)
+  completedAt  DateTime?   @map("completed_at") @db.Timestamptz(6)
+  notes        String?
+  version      Int         @default(1)
+  createdBy    String?     @map("created_by") @db.Uuid
+  updatedBy    String?     @map("updated_by") @db.Uuid
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id])
+  technician User        @relation("RouteTechnician", fields: [technicianId], references: [id])
+  vehicle    Vehicle?    @relation(fields: [vehicleId], references: [id])
+  stops      RouteStop[]
+
+  // SQL: UNIQUE(tenant_id, technician_id, route_date) WHERE status <> 'CANCELLED'
+  @@index([tenantId, routeDate, status])
+  @@index([tenantId, technicianId, routeDate])
+  @@map("routes")
+}
+
+model RouteStop {
+  id                    String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId              String             @map("tenant_id") @db.Uuid
+  routeId               String             @map("route_id") @db.Uuid
+  serviceId             String             @map("service_id") @db.Uuid
+  sequence              Int
+  status                RouteStopStatus    @default(PENDING)
+  eta                   DateTime?          @db.Time
+  travelMinutes         Int?               @map("travel_minutes")
+  enRouteAt             DateTime?          @map("en_route_at") @db.Timestamptz(6)
+  arrivedAt             DateTime?          @map("arrived_at") @db.Timestamptz(6)
+  arrivalLat            Decimal?           @map("arrival_lat") @db.Decimal(10, 7)
+  arrivalLng            Decimal?           @map("arrival_lng") @db.Decimal(10, 7)
+  arrivalAccuracyM      Decimal?           @map("arrival_accuracy_m") @db.Decimal(8, 2)
+  gpsStatus             GpsStatus?         @map("gps_status")
+  distanceFromLocationM Int?               @map("distance_from_location_m")
+  outcomeReason         StopOutcomeReason? @map("outcome_reason")
+  wastedTrip            Boolean            @default(false) @map("wasted_trip")
+  version               Int                @default(1)
+  createdBy             String?            @map("created_by") @db.Uuid
+  updatedBy             String?            @map("updated_by") @db.Uuid
+  createdAt             DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  route   Route   @relation(fields: [routeId], references: [id])
+  service Service @relation(fields: [serviceId], references: [id])
+
+  serviceSessions ServiceSession[]
+
+  // SQL: UNIQUE(route_id, sequence) DEFERRABLE INITIALLY DEFERRED — crítico para reordenar en una tx
+  // SQL: UNIQUE(service_id) WHERE status NOT IN ('CANCELLED','SKIPPED')
+  @@index([tenantId, routeId, sequence])
+  @@index([tenantId, status])
+  @@map("route_stops")
+}
+
+model ServiceSession {
+  id                 String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId           String               @map("tenant_id") @db.Uuid
+  serviceId          String               @map("service_id") @db.Uuid
+  routeStopId        String               @map("route_stop_id") @db.Uuid
+  technicianId       String               @map("technician_id") @db.Uuid
+  status             ServiceSessionStatus @default(OPEN)
+  startedAt          DateTime             @map("started_at") @db.Timestamptz(6)
+  endedAt            DateTime?            @map("ended_at") @db.Timestamptz(6)
+  startLat           Decimal?             @map("start_lat") @db.Decimal(10, 7)
+  startLng           Decimal?             @map("start_lng") @db.Decimal(10, 7)
+  startAccuracyM     Decimal?             @map("start_accuracy_m") @db.Decimal(8, 2)
+  endLat             Decimal?             @map("end_lat") @db.Decimal(10, 7)
+  endLng             Decimal?             @map("end_lng") @db.Decimal(10, 7)
+  endAccuracyM       Decimal?             @map("end_accuracy_m") @db.Decimal(8, 2)
+  pausedIntervals    Json                 @default("[]") @map("paused_intervals")
+  closureChecklist   Json?                @map("closure_checklist")
+  clientSignatureUrl String?              @map("client_signature_url")
+  signerName         String?              @map("signer_name") @db.VarChar(150)
+  signerIdNumber     String?              @map("signer_id_number") @db.VarChar(20)
+  noSignatureReason  NoSignatureReason?   @map("no_signature_reason")
+  technicianNotes    String?              @map("technician_notes")
+  reopenedCount      Int                  @default(0) @map("reopened_count")
+  autoClosed         Boolean              @default(false) @map("auto_closed")
+  clientEventId      String?              @map("client_event_id") @db.Uuid
+  createdAt          DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
+  service    Service   @relation(fields: [serviceId], references: [id])
+  routeStop  RouteStop @relation(fields: [routeStopId], references: [id])
+  technician User      @relation("SessionTechnician", fields: [technicianId], references: [id])
+
+  evidence     ServiceEvidence[]
+  supplyUsages ServiceSupplyUsage[]
+  certificates Certificate[]
+
+  // effective_minutes es GENERATED en Postgres — se agrega en la migración manual (raw SQL),
+  // Prisma no soporta generated columns portables entre versiones todavía.
+  // SQL: UNIQUE(technician_id) WHERE status = 'OPEN'
+  @@unique([tenantId, clientEventId])
+  @@index([tenantId, serviceId])
+  @@index([tenantId, technicianId, startedAt])
+  @@map("service_sessions")
+}
+
+model ServiceEvidence {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String           @map("tenant_id") @db.Uuid
+  serviceSessionId String           @map("service_session_id") @db.Uuid
+  type             EvidenceType
+  category         EvidenceCategory
+  storagePath      String           @map("storage_path")
+  mimeType         String?          @map("mime_type") @db.VarChar(100)
+  sizeBytes        Int?             @map("size_bytes")
+  width            Int?
+  height           Int?
+  sha256           String?          @db.Char(64)
+  takenAt          DateTime?        @map("taken_at") @db.Timestamptz(6)
+  uploadedAt       DateTime         @default(now()) @map("uploaded_at") @db.Timestamptz(6)
+  lat              Decimal?         @db.Decimal(10, 7)
+  lng              Decimal?         @db.Decimal(10, 7)
+  accuracyM        Decimal?         @map("accuracy_m") @db.Decimal(8, 2)
+  clientEventId    String           @map("client_event_id") @db.Uuid
+
+  tenant         Tenant         @relation(fields: [tenantId], references: [id])
+  serviceSession ServiceSession @relation(fields: [serviceSessionId], references: [id])
+
+  @@unique([tenantId, clientEventId])
+  @@index([tenantId, serviceSessionId])
+  // SQL: CHECK (size_bytes <= 8388608)
+  @@map("service_evidence")
+}
+
+// ============================================================================
+// Insumos e inventario — §H.2, §N
+// ============================================================================
+
+model Supply {
+  id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId            String            @map("tenant_id") @db.Uuid
+  sku                 String            @db.VarChar(40)
+  name                String            @db.VarChar(150)
+  category            SupplyCategory
+  activeIngredient    String?           @map("active_ingredient") @db.VarChar(150)
+  concentration       String?           @db.VarChar(60)
+  registryAuthority   RegistryAuthority @map("registry_authority")
+  registryNumber      String            @map("registry_number") @db.VarChar(40)
+  purchaseUnit        MeasurementUnit   @map("purchase_unit")
+  applicationUnit     MeasurementUnit   @map("application_unit")
+  dilutionRateMlPerL  Decimal?          @map("dilution_rate_ml_per_l") @db.Decimal(8, 3)
+  dosePerSqm          Decimal?          @map("dose_per_sqm") @db.Decimal(8, 3)
+  reentryHours        Int?              @map("reentry_hours")
+  msdsUrl             String?           @map("msds_url")
+  unitCostCents       BigInt?           @map("unit_cost_cents")
+  requiresLotTracking Boolean           @default(true) @map("requires_lot_tracking")
+  minStock            Decimal?          @map("min_stock") @db.Decimal(12, 4)
+  archivedAt          DateTime?         @map("archived_at") @db.Timestamptz(6)
+  createdBy           String?           @map("created_by") @db.Uuid
+  updatedBy           String?           @map("updated_by") @db.Uuid
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant             Tenant               @relation(fields: [tenantId], references: [id])
+  lots               SupplyLot[]
+  inventory          Inventory[]
+  inventoryMovements InventoryMovement[]
+  supplyUsages       ServiceSupplyUsage[]
+
+  @@unique([tenantId, sku])
+  @@map("supplies")
+}
+
+model StockLocation {
+  id           String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String            @map("tenant_id") @db.Uuid
+  type         StockLocationType
+  name         String            @db.VarChar(100)
+  technicianId String?           @map("technician_id") @db.Uuid
+  vehicleId    String?           @map("vehicle_id") @db.Uuid
+  isActive     Boolean           @default(true) @map("is_active")
+  createdBy    String?           @map("created_by") @db.Uuid
+  updatedBy    String?           @map("updated_by") @db.Uuid
+  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  vehicle            Vehicle?            @relation(fields: [vehicleId], references: [id])
+  technicianProfiles TechnicianProfile[]
+  inventory          Inventory[]
+  inventoryMovements InventoryMovement[]
+
+  // SQL: UNIQUE(tenant_id, technician_id) WHERE type='VEHICLE'
+  @@map("stock_locations")
+}
+
+model SupplyLot {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId      String    @map("tenant_id") @db.Uuid
+  supplyId      String    @map("supply_id") @db.Uuid
+  lotCode       String    @map("lot_code") @db.VarChar(40)
+  expiresOn     DateTime? @map("expires_on") @db.Date
+  receivedAt    DateTime  @default(now()) @map("received_at") @db.Timestamptz(6)
+  unitCostCents BigInt?   @map("unit_cost_cents")
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant             Tenant               @relation(fields: [tenantId], references: [id])
+  supply             Supply               @relation(fields: [supplyId], references: [id])
+  inventory          Inventory[]
+  inventoryMovements InventoryMovement[]
+  supplyUsages       ServiceSupplyUsage[]
+
+  @@unique([tenantId, supplyId, lotCode])
+  @@index([tenantId, expiresOn])
+  @@map("supply_lots")
+}
+
+/// Proyección por performance (§H.4.1). La verdad son los inventory_movements.
+/// §H.2 pide PK compuesta (stock_location_id, supply_id, lot_id); Prisma no acepta una
+/// @@id/@@unique como única criteria de un modelo si incluye un campo nullable (lot_id sí
+/// lo es — hay stock sin trazabilidad de lote). Se agrega un id UUID surrogate para que
+/// Prisma tenga una criteria 100% requerida, y se preserva la unicidad real de negocio
+/// con @@unique([stockLocationId, supplyId, lotId]) — Postgres no colisiona NULLs en un
+/// UNIQUE, que es exactamente la semántica que pedía la PK original.
+model Inventory {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId        String   @map("tenant_id") @db.Uuid
+  stockLocationId String   @map("stock_location_id") @db.Uuid
+  supplyId        String   @map("supply_id") @db.Uuid
+  lotId           String?  @map("lot_id") @db.Uuid
+  quantity        Decimal  @default(0) @db.Decimal(12, 4)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant        Tenant        @relation(fields: [tenantId], references: [id])
+  stockLocation StockLocation @relation(fields: [stockLocationId], references: [id])
+  supply        Supply        @relation(fields: [supplyId], references: [id])
+  lot           SupplyLot?    @relation(fields: [lotId], references: [id])
+
+  @@unique([stockLocationId, supplyId, lotId])
+  @@map("inventory")
+}
+
+model InventoryMovement {
+  id                 BigInt                @id @default(autoincrement())
+  tenantId           String                @map("tenant_id") @db.Uuid
+  stockLocationId    String                @map("stock_location_id") @db.Uuid
+  supplyId           String                @map("supply_id") @db.Uuid
+  lotId              String?               @map("lot_id") @db.Uuid
+  quantityDelta      Decimal               @map("quantity_delta") @db.Decimal(12, 4)
+  type               InventoryMovementType
+  referenceType      String?               @map("reference_type") @db.VarChar(40)
+  referenceId        String?               @map("reference_id") @db.Uuid
+  reason             String?
+  unitCostCents      BigInt?               @map("unit_cost_cents")
+  requiresAdjustment Boolean               @default(false) @map("requires_adjustment") // R19
+  performedBy        String?               @map("performed_by") @db.Uuid
+  createdAt          DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  reversalOfId       BigInt?               @map("reversal_of_id")
+
+  tenant        Tenant              @relation(fields: [tenantId], references: [id])
+  stockLocation StockLocation       @relation(fields: [stockLocationId], references: [id])
+  supply        Supply              @relation(fields: [supplyId], references: [id])
+  lot           SupplyLot?          @relation(fields: [lotId], references: [id])
+  reversalOf    InventoryMovement?  @relation("InventoryMovementReversal", fields: [reversalOfId], references: [id])
+  reversals     InventoryMovement[] @relation("InventoryMovementReversal")
+
+  // SQL: trigger que rechaza UPDATE/DELETE (append-only, R42)
+  @@index([tenantId, supplyId, createdAt])
+  @@index([tenantId, stockLocationId, createdAt])
+  @@index([referenceType, referenceId])
+  @@map("inventory_movements")
+}
+
+model ServiceSupplyUsage {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId              String            @map("tenant_id") @db.Uuid
+  serviceSessionId      String            @map("service_session_id") @db.Uuid
+  supplyId              String            @map("supply_id") @db.Uuid
+  lotId                 String?           @map("lot_id") @db.Uuid
+  quantityApplied       Decimal           @map("quantity_applied") @db.Decimal(12, 4)
+  unit                  MeasurementUnit
+  isDilutedMix          Boolean           @default(false) @map("is_diluted_mix")
+  concentrateEquivalent Decimal           @map("concentrate_equivalent") @db.Decimal(12, 4)
+  applicationMethod     ApplicationMethod @map("application_method")
+  treatedAreaSqm        Decimal?          @map("treated_area_sqm") @db.Decimal(10, 2)
+  inventoryMovementId   BigInt?           @map("inventory_movement_id")
+  clientEventId         String            @map("client_event_id") @db.Uuid
+
+  tenant         Tenant         @relation(fields: [tenantId], references: [id])
+  serviceSession ServiceSession @relation(fields: [serviceSessionId], references: [id])
+  supply         Supply         @relation(fields: [supplyId], references: [id])
+  lot            SupplyLot?     @relation(fields: [lotId], references: [id])
+
+  @@unique([tenantId, clientEventId])
+  @@index([tenantId, serviceSessionId])
+  @@map("service_supply_usage")
+}
+
+// ============================================================================
+// Dinero — §H.2, §O
+// ============================================================================
+
+model Payment {
+  id             String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String                 @map("tenant_id") @db.Uuid
+  serviceId      String?                @map("service_id") @db.Uuid
+  customerId     String                 @map("customer_id") @db.Uuid
+  amountCents    BigInt                 @map("amount_cents")
+  currency       String                 @default("ARS") @db.Char(3)
+  method         PaymentMethod
+  status         PaymentStatus          @default(CONFIRMED)
+  paidAt         DateTime               @map("paid_at") @db.Timestamptz(6)
+  receivedBy     String                 @map("received_by") @db.Uuid
+  receiptUrl     String?                @map("receipt_url")
+  varianceReason PaymentVarianceReason? @map("variance_reason")
+  reversalOfId   String?                @map("reversal_of_id") @db.Uuid
+  voidReason     String?                @map("void_reason")
+  clientEventId  String?                @map("client_event_id") @db.Uuid
+
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
+  service    Service?  @relation(fields: [serviceId], references: [id])
+  customer   Customer  @relation(fields: [customerId], references: [id])
+  receiver   User      @relation("PaymentReceivedBy", fields: [receivedBy], references: [id])
+  reversalOf Payment?  @relation("PaymentReversal", fields: [reversalOfId], references: [id])
+  reversals  Payment[] @relation("PaymentReversal")
+
+  cashMovements CashMovement[]
+
+  @@unique([tenantId, clientEventId])
+  // SQL: CHECK (amount_cents <> 0)
+  @@index([tenantId, paidAt])
+  @@index([tenantId, serviceId])
+  @@index([tenantId, receivedBy, paidAt])
+  @@index([tenantId, method, paidAt])
+  @@map("payments")
+}
+
+model CashAccount {
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String          @map("tenant_id") @db.Uuid
+  ownerUserId String          @map("owner_user_id") @db.Uuid
+  type        CashAccountType
+  currency    String          @default("ARS") @db.Char(3)
+  isActive    Boolean         @default(true) @map("is_active")
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant    Tenant         @relation(fields: [tenantId], references: [id])
+  owner     User           @relation("CashAccountOwner", fields: [ownerUserId], references: [id])
+  movements CashMovement[]
+  closures  CashClosure[]
+
+  @@unique([tenantId, ownerUserId, currency])
+  @@map("cash_accounts")
+}
+
+model CashMovement {
+  id            BigInt           @id @default(autoincrement())
+  tenantId      String           @map("tenant_id") @db.Uuid
+  cashAccountId String           @map("cash_account_id") @db.Uuid
+  amountCents   BigInt           @map("amount_cents") // signo: + ingreso, - egreso
+  type          CashMovementType
+  referenceType String?          @map("reference_type") @db.VarChar(40)
+  referenceId   String?          @map("reference_id") @db.Uuid
+  closureId     String?          @map("closure_id") @db.Uuid
+  description   String?
+  performedBy   String?          @map("performed_by") @db.Uuid
+  createdAt     DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  reversalOfId  BigInt?          @map("reversal_of_id")
+  paymentId     String?          @map("payment_id") @db.Uuid
+
+  tenant      Tenant         @relation(fields: [tenantId], references: [id])
+  cashAccount CashAccount    @relation(fields: [cashAccountId], references: [id])
+  closure     CashClosure?   @relation(fields: [closureId], references: [id])
+  payment     Payment?       @relation(fields: [paymentId], references: [id])
+  reversalOf  CashMovement?  @relation("CashMovementReversal", fields: [reversalOfId], references: [id])
+  reversals   CashMovement[] @relation("CashMovementReversal")
+
+  // SQL: trigger que rechaza UPDATE/DELETE (append-only, R42)
+  @@index([tenantId, cashAccountId, createdAt])
+  @@index([closureId])
+  @@map("cash_movements")
+}
+
+model CashClosure {
+  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String            @map("tenant_id") @db.Uuid
+  cashAccountId    String            @map("cash_account_id") @db.Uuid
+  periodStart      DateTime          @map("period_start") @db.Timestamptz(6)
+  periodEnd        DateTime?         @map("period_end") @db.Timestamptz(6)
+  expectedCents    BigInt?           @map("expected_cents")
+  declaredCents    BigInt?           @map("declared_cents")
+  receivedCents    BigInt?           @map("received_cents")
+  status           CashClosureStatus @default(OPEN)
+  differenceReason String?           @map("difference_reason")
+  declaredBy       String?           @map("declared_by") @db.Uuid
+  declaredAt       DateTime?         @map("declared_at") @db.Timestamptz(6)
+  approvedBy       String?           @map("approved_by") @db.Uuid
+  approvedAt       DateTime?         @map("approved_at") @db.Timestamptz(6)
+  selfApproved     Boolean           @default(false) @map("self_approved")
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant      Tenant         @relation(fields: [tenantId], references: [id])
+  cashAccount CashAccount    @relation(fields: [cashAccountId], references: [id])
+  movements   CashMovement[]
+
+  // difference_cents es GENERATED (received - expected) — raw SQL en la migración manual.
+  // SQL: UNIQUE(cash_account_id) WHERE status IN ('OPEN','DECLARED')
+  @@map("cash_closures")
+}
+
+// ============================================================================
+// Certificados — §H.2
+// ============================================================================
+
+model Certificate {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId              String            @map("tenant_id") @db.Uuid
+  number                Int
+  formattedNumber       String            @map("formatted_number") @db.VarChar(30)
+  serviceId             String            @map("service_id") @db.Uuid
+  serviceSessionId      String            @map("service_session_id") @db.Uuid
+  customerId            String?           @map("customer_id") @db.Uuid
+  serviceLocationId     String?           @map("service_location_id") @db.Uuid
+  technicalDirectorId   String            @map("technical_director_id") @db.Uuid
+  technicianId          String?           @map("technician_id") @db.Uuid
+  status                CertificateStatus @default(DRAFT)
+  snapshot              Json
+  pdfStoragePath        String?           @map("pdf_storage_path")
+  verificationToken     String            @default(dbgenerated("gen_random_uuid()")) @map("verification_token") @db.Uuid
+  issuedAt              DateTime?         @map("issued_at") @db.Timestamptz(6)
+  signedAt              DateTime?         @map("signed_at") @db.Timestamptz(6)
+  voidedAt              DateTime?         @map("voided_at") @db.Timestamptz(6)
+  voidReason            String?           @map("void_reason")
+  replacesCertificateId String?           @map("replaces_certificate_id") @db.Uuid
+  createdBy             String?           @map("created_by") @db.Uuid
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant            Tenant           @relation(fields: [tenantId], references: [id])
+  service           Service          @relation(fields: [serviceId], references: [id])
+  serviceSession    ServiceSession   @relation(fields: [serviceSessionId], references: [id])
+  serviceLocation   ServiceLocation? @relation(fields: [serviceLocationId], references: [id])
+  technicalDirector User             @relation("CertificateTechnicalDirector", fields: [technicalDirectorId], references: [id])
+  technician        User?            @relation("CertificateTechnician", fields: [technicianId], references: [id])
+  replaces          Certificate?     @relation("CertificateReplaces", fields: [replacesCertificateId], references: [id])
+  replacedBy        Certificate[]    @relation("CertificateReplaces")
+
+  @@unique([tenantId, number])
+  // Numeración correlativa por SELECT ... FOR UPDATE sobre un contador de tenant — no MAX()+1 (R34)
+  @@map("certificates")
+}
+
+// ============================================================================
+// Precios
+// ============================================================================
+
+model PriceList {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String    @map("tenant_id") @db.Uuid
+  name      String    @db.VarChar(100)
+  validFrom DateTime  @map("valid_from") @db.Date
+  validTo   DateTime? @map("valid_to") @db.Date
+  isDefault Boolean   @default(false) @map("is_default")
+  createdBy String?   @map("created_by") @db.Uuid
+  updatedBy String?   @map("updated_by") @db.Uuid
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant   Tenant          @relation(fields: [tenantId], references: [id])
+  items    PriceListItem[]
+  services Service[]
+
+  // SQL: EXCLUDE USING gist (tenant_id WITH =, daterange(valid_from, valid_to) WITH &&)
+  @@map("price_lists")
+}
+
+model PriceListItem {
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId          String             @map("tenant_id") @db.Uuid
+  priceListId       String             @map("price_list_id") @db.Uuid
+  serviceTypeId     String             @map("service_type_id") @db.Uuid
+  establishmentType EstablishmentType? @map("establishment_type")
+  priceCents        BigInt             @map("price_cents")
+  pricePerSqmCents  BigInt?            @map("price_per_sqm_cents")
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime           @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  priceList   PriceList   @relation(fields: [priceListId], references: [id])
+  serviceType ServiceType @relation(fields: [serviceTypeId], references: [id])
+
+  @@index([tenantId, priceListId])
+  @@map("price_list_items")
+}
+
+// ============================================================================
+// Notificaciones
+// ============================================================================
+
+model Notification {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String    @map("tenant_id") @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  type         String    @db.VarChar(60)
+  title        String    @db.VarChar(150)
+  body         String?
+  payload      Json      @default("{}")
+  readAt       DateTime? @map("read_at") @db.Timestamptz(6)
+  sentChannels String[]  @default([]) @map("sent_channels")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([tenantId, userId, readAt])
+  @@map("notifications")
+}
+
+model PushSubscription {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  userAgent  String?  @map("user_agent")
+  lastSeenAt DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([tenantId, userId])
+  @@map("push_subscriptions")
+}
+
+// ============================================================================
+// Auditoría — §H.2, §K.10, particionable por rango mensual (§R.3)
+// ============================================================================
+
+model AuditLog {
+  id          BigInt        @id @default(autoincrement())
+  tenantId    String        @map("tenant_id") @db.Uuid
+  actorUserId String?       @map("actor_user_id") @db.Uuid
+  actorRole   String?       @map("actor_role") @db.VarChar(40)
+  action      String        @db.VarChar(60)
+  entityType  String        @map("entity_type") @db.VarChar(60)
+  entityId    String?       @map("entity_id") @db.Uuid
+  before      Json?
+  after       Json?
+  diff        Json?
+  severity    AuditSeverity @default(INFO)
+  ip          String?       @db.Inet
+  userAgent   String?       @map("user_agent")
+  requestId   String?       @map("request_id") @db.Uuid
+  createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  actor  User?  @relation("AuditLogActor", fields: [actorUserId], references: [id])
+
+  // SQL: trigger que rechaza UPDATE/DELETE (append-only, R42); particionado mensual (§R.3)
+  @@index([tenantId, createdAt(sort: Desc)])
+  @@index([tenantId, entityType, entityId])
+  @@index([tenantId, actorUserId, createdAt])
+  @@map("audit_logs")
+}
+
+/// Idempotencia offline (ADR 0006). TTL de 30 días — job de limpieza, no FK con cascada.
+model SyncEvent {
+  clientEventId String   @id @map("client_event_id") @db.Uuid
+  tenantId      String   @map("tenant_id") @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  entityType    String   @map("entity_type") @db.VarChar(60)
+  entityId      String?  @map("entity_id") @db.Uuid
+  receivedAt    DateTime @default(now()) @map("received_at") @db.Timestamptz(6)
+  result        Json
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([tenantId, receivedAt])
+  @@map("sync_events")
+}
+
+// ============================================================================
+// Catálogos varios y Fase 2
+// ============================================================================
+
+model Zone {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  name      String   @db.VarChar(100)
+  color     String?  @db.Char(7)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant           Tenant            @relation(fields: [tenantId], references: [id])
+  serviceLocations ServiceLocation[]
+
+  @@index([tenantId])
+  @@map("zones")
+}
+
+model Vehicle {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  plate      String?  @db.VarChar(20)
+  model      String?  @db.VarChar(100)
+  assignedTo String?  @map("assigned_to") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  routes             Route[]
+  stockLocations     StockLocation[]
+  technicianProfiles TechnicianProfile[]
+
+  @@index([tenantId])
+  @@map("vehicles")
+}
+
+/// Fase 2 (§H.2) — modelo listo desde Fase 0 para no migrar en caliente, sin endpoints todavía.
+model MonitoringStation {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId          String    @map("tenant_id") @db.Uuid
+  serviceLocationId String    @map("service_location_id") @db.Uuid
+  number            String    @db.VarChar(20)
+  type              String    @db.VarChar(40)
+  mapX              Decimal?  @map("map_x") @db.Decimal(10, 4)
+  mapY              Decimal?  @map("map_y") @db.Decimal(10, 4)
+  installedAt       DateTime? @map("installed_at") @db.Date
+  status            String    @default("ACTIVE") @db.VarChar(20)
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  serviceLocation ServiceLocation  @relation(fields: [serviceLocationId], references: [id])
+  readings        StationReading[]
+
+  @@index([tenantId, serviceLocationId])
+  @@map("monitoring_stations")
+}
+
+model StationReading {
+  id               String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String                  @map("tenant_id") @db.Uuid
+  serviceSessionId String?                 @map("service_session_id") @db.Uuid
+  stationId        String                  @map("station_id") @db.Uuid
+  consumptionLevel StationConsumptionLevel @map("consumption_level")
+  captures         Int?
+  replaced         Boolean                 @default(false)
+  condition        StationCondition?
+  notes            String?
+
+  tenant  Tenant            @relation(fields: [tenantId], references: [id])
+  station MonitoringStation @relation(fields: [stationId], references: [id])
+
+  @@index([tenantId, stationId])
+  @@map("station_readings")
+}
