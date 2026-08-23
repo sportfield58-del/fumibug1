@@ -1,0 +1,22 @@
+{
+  "name": "@fumibug/config",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Presets compartidos de ESLint, TypeScript y Prettier. Propiedad del humano — ver CLAUDE.md §3.",
+  "exports": {
+    "./eslint/base": "./eslint/base.js",
+    "./eslint/nestjs": "./eslint/nestjs.js",
+    "./eslint/nextjs": "./eslint/nextjs.js",
+    "./eslint/contracts": "./eslint/contracts.js",
+    "./prettier": "./prettier/index.js",
+    "./tsconfig/base.json": "./tsconfig/base.json",
+    "./tsconfig/nestjs.json": "./tsconfig/nestjs.json",
+    "./tsconfig/nextjs.json": "./tsconfig/nextjs.json"
+  },
+  "devDependencies": {
+    "eslint": "^9.12.0",
+    "@eslint/js": "^9.12.0",
+    "typescript-eslint": "^8.8.1",
+    "eslint-config-prettier": "^9.1.0"
+  }
+}
