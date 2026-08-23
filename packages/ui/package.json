@@ -1,0 +1,11 @@
+{
+  "name": "@fumibug/ui",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Design system. Propiedad exclusiva de OpenCode (ver AGENTS.md). Claude Code solo crea este stub en Fase 0 para que el workspace resuelva.",
+  "main": "./src/index.ts",
+  "devDependencies": {
+    "@fumibug/config": "workspace:*",
+    "typescript": "^5.6.3"
+  }
+}

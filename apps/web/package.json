@@ -1,0 +1,32 @@
+{
+  "name": "@fumibug/web",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Esqueleto vacío — propiedad de OpenCode (ver CLAUDE.md §3 / AGENTS.md). Claude Code solo lo crea en Fase 0 para que el monorepo compile.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "echo \"apps/web: sin tests todavía (OpenCode, Fase 1)\" && exit 0",
+    "test:integration": "echo \"apps/web: n/a\" && exit 0",
+    "test:tenant-isolation": "echo \"apps/web: n/a\" && exit 0",
+    "test:e2e": "echo \"apps/web: n/a\" && exit 0",
+    "generate": "echo \"apps/web: generado por packages/contracts, ver pnpm generate en la raíz\" && exit 0"
+  },
+  "dependencies": {
+    "next": "^14.2.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@fumibug/config": "workspace:*",
+    "@types/node": "^22.7.5",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^9.12.0",
+    "eslint-config-next": "^14.2.15",
+    "typescript": "^5.6.3"
+  }
+}

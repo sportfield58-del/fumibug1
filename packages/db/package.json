@@ -1,0 +1,10 @@
+{
+  "name": "@fumibug/db",
+  "private": true,
+  "version": "0.0.0",
+  "description": "schema.prisma, migraciones, seeds y cliente. Contenido real en PR 3 (schema + RLS + triggers) y PR 4 (seeds) — ver docs/spec/08-modelo-datos.md.",
+  "devDependencies": {
+    "@fumibug/config": "workspace:*",
+    "typescript": "^5.6.3"
+  }
+}
