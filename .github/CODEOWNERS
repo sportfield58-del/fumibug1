@@ -1,0 +1,27 @@
+# Propiedad de archivos. Ver CLAUDE.md y AGENTS.md.
+# El humano es owner de todo por defecto; los paths específicos marcan al agente responsable
+# para que quede visible en cada PR quién debería haberlo tocado.
+
+*                           @fumibug-owner
+
+# --- Claude Code ---
+/apps/api/                  @fumibug-owner
+/packages/db/               @fumibug-owner
+/packages/contracts/        @fumibug-owner
+/.github/workflows/         @fumibug-owner
+
+# --- OpenCode ---
+/apps/web/                  @fumibug-owner
+/packages/ui/               @fumibug-owner
+
+# --- Generado: nadie edita a mano ---
+/apps/web/lib/api/          @fumibug-owner
+/apps/web/mocks/            @fumibug-owner
+/docs/api/openapi.json      @fumibug-owner
+
+# --- Solo humano ---
+/packages/config/           @fumibug-owner
+/docs/MASTER_SPEC.md        @fumibug-owner
+/docs/spec/                 @fumibug-owner
+/turbo.json                 @fumibug-owner
+/pnpm-workspace.yaml        @fumibug-owner
