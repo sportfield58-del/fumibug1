@@ -1,8 +1,10 @@
 name: CI
 
 on:
+  # Sin filtro de `branches` en pull_request: durante la Fase 0 los PRs se apilan uno
+  # sobre el anterior (todavía no mergeado) en vez de apuntar siempre a develop, y
+  # igual necesitan CI. Ver docs/spec/17-agentes.md §V.9.
   pull_request:
-    branches: [develop, main]
   push:
     branches: [develop, main]
 
