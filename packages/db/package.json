@@ -6,6 +6,7 @@
   "main": "./dist/client.js",
   "types": "./dist/client.d.ts",
   "scripts": {
+    "postinstall": "prisma generate",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -21,6 +22,7 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@fumibug/contracts": "workspace:*",
     "@prisma/client": "^5.20.0"
   },
   "devDependencies": {
