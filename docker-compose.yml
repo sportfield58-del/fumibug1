@@ -1,0 +1,31 @@
+# Postgres local para desarrollo — docs/spec/16-estructura.md. No es para producción
+# (eso sigue siendo Supabase, ver ADR 0003/0004). Arranca con:
+#   docker compose up -d
+# y apuntá packages/db/.env y .env de la raíz a esta connection string:
+#   DATABASE_URL=postgresql://fumibug_migrator:fumibug_migrator@localhost:5432/fumibug_dev?schema=public
+#
+# El rol fumibug_app (runtime de la API, sin BYPASSRLS) lo crea la migración
+# packages/db/prisma/migrations/20260821000001_partial_indexes_triggers_rls — correr
+# `pnpm db:migrate` una vez levantado el contenedor, y después setear su password local:
+#   ALTER ROLE fumibug_app WITH PASSWORD 'lo-que-quieras-en-local';
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fumibug_migrator
+      POSTGRES_PASSWORD: fumibug_migrator
+      POSTGRES_DB: fumibug_dev
+    ports:
+      - '5432:5432'
+    volumes:
+      - fumibug_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U fumibug_migrator -d fumibug_dev']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  fumibug_postgres_data:
