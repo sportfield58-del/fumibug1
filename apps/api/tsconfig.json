@@ -1,7 +1,6 @@
 {
   "extends": "@fumibug/config/tsconfig/nestjs.json",
   "compilerOptions": {
-    "rootDir": "./src",
     "outDir": "./dist",
     "declaration": false,
     "declarationMap": false
