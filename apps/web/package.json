@@ -7,15 +7,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" \"lib/**/*.{ts,tsx}\" \"mocks/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "echo \"apps/web: sin tests todavía (OpenCode, Fase 1)\" && exit 0",
     "test:integration": "echo \"apps/web: n/a\" && exit 0",
     "test:tenant-isolation": "echo \"apps/web: n/a\" && exit 0",
-    "test:e2e": "echo \"apps/web: n/a\" && exit 0",
-    "generate": "echo \"apps/web: generado por packages/contracts, ver pnpm generate en la raíz\" && exit 0"
+    "test:e2e": "echo \"apps/web: n/a\" && exit 0"
   },
   "dependencies": {
+    "@fumibug/contracts": "workspace:*",
     "next": "^14.2.15",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
@@ -27,6 +27,12 @@
     "@types/react-dom": "^18.3.0",
     "eslint": "^9.12.0",
     "eslint-config-next": "^14.2.15",
+    "msw": "^2.4.9",
     "typescript": "^5.6.3"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
