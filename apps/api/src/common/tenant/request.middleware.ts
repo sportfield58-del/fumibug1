@@ -15,9 +15,18 @@ import { RequestContextService } from './request-context.service';
 export class RequestMiddleware implements NestMiddleware {
   constructor(private readonly context: RequestContextService) {}
 
-  use(_req: Request, res: Response, next: NextFunction): void {
+  use(req: Request, res: Response, next: NextFunction): void {
     const requestId = randomUUID();
     res.setHeader('X-Request-Id', requestId);
-    this.context.run({ requestId }, next);
+    const userAgent = req.headers['user-agent'];
+    this.context.run(
+      {
+        requestId,
+        // exactOptionalPropertyTypes: omitir la key en vez de asignar undefined.
+        ...(req.ip !== undefined ? { ip: req.ip } : {}),
+        ...(typeof userAgent === 'string' ? { userAgent } : {}),
+      },
+      next,
+    );
   }
 }
