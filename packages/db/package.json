@@ -22,6 +22,7 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@fumibug/contracts": "workspace:*",
     "@prisma/client": "^5.20.0"
   },
   "devDependencies": {

@@ -16,8 +16,27 @@ Dueño: Claude Code (ver `CLAUDE.md` §3). Fuente: `docs/spec/08-modelo-datos.md
     `difference_cents`), triggers append-only (R42), RLS (§K.4) y el rol `fumibug_app`.
 - `src/client.ts` — reexporta `@prisma/client` + el singleton `prisma`. Es lo único que
   `apps/api` debería importar de acá.
-- `prisma/seed.ts` — **todavía no existe, llega en PR 4** (tenant Fumibug, roles semilla,
-  catálogo de permisos, usuarios y clientes de demo).
+- `prisma/seed.ts` — seed de desarrollo idempotente: tenant Fumibug, catálogo de
+  permisos (tomado de `@fumibug/contracts`, con autochequeo de cobertura contra la
+  matriz rol × permiso), los 6 roles semilla, 1 owner, 1 admin y 2 operarios,
+  depósito central con 5 insumos/lotes/stock, tipos de servicio, lista de precios
+  y 10 clientes con contacto y ubicación. IDs deterministas: se puede correr N veces.
+
+## Seed
+
+```bash
+pnpm --filter @fumibug/db db:seed     # o prisma migrate dev --skip-seed para no correrla
+```
+
+- Corre con el rol migrador (`DATABASE_URL`), dentro de una transacción con
+  `SET LOCAL app.tenant_id` — las tablas tienen `FORCE ROW LEVEL SECURITY`.
+- Los vencimientos (libretas, lotes) son relativos a la fecha de ejecución, así las
+  alertas de demo siguen vivas siempre.
+- Usuarios de dev: `carlos@fumibug.dev` (owner) · `lucia@fumibug.dev` (admin) ·
+  `diego@fumibug.dev` y `marina@fumibug.dev` (operarios). Cuando exista Supabase Auth,
+  crear ahí usuarios con estos mismos UUIDs.
+- Casos de prueba incluidos: libreta de operario por vencer (~25 días, alerta R15),
+  lote próximo a vencer y un insumo bajo stock mínimo.
 
 ## Dos roles de Postgres, nunca el mismo
 
