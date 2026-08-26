@@ -5,14 +5,7 @@ import { CurrentUser } from './common/decorators/current-user.decorator';
 import { apiSuccess } from './common/http/api-response';
 import { AuditService } from './common/audit/audit.service';
 import type { RequestUser } from './common/tenant/request-context';
-import type { ApiSuccess } from '@fumibug/contracts';
-
-interface PingResponse {
-  userId: string;
-  tenantId: string;
-  roleKey: string;
-  permissions: string[];
-}
+import type { ApiSuccess, PingResponse } from '@fumibug/contracts';
 
 @Controller()
 export class AppController {

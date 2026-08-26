@@ -7,9 +7,10 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "lint": "eslint \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" \"scripts/**/*.ts\"",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "jest"
+    "test": "jest",
+    "generate": "ts-node --compiler-options {\\\"module\\\":\\\"CommonJS\\\"} scripts/generate.ts"
   },
   "dependencies": {
     "zod": "^3.23.8"
@@ -21,6 +22,8 @@
     "eslint": "^9.12.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.6.3"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "zod-to-json-schema": "^3.23.3"
   }
 }
