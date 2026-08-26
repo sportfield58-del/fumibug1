@@ -1,3 +1,10 @@
-// Placeholder de Fase 0. Los schemas reales (enums, ErrorCode, ApiSuccess/ApiError/Paginated,
-// auth, user, tenant, membership) llegan en PR 2 — un PR aislado, ver ADR 0005 y CLAUDE.md §6.
-export {};
+// Contrato único entre Claude Code y OpenCode (ADR 0005). No se importa nada de acá
+// de forma parcial en apps/api ni apps/web: siempre a través de "@fumibug/contracts".
+export * from './enums';
+export * from './errors';
+export * from './responses';
+export * from './permissions';
+export * from './schemas/tenant';
+export * from './schemas/user';
+export * from './schemas/membership';
+export * from './schemas/auth';
