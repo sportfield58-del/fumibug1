@@ -21,6 +21,10 @@ export const EnvSchema = z.object({
   SUPABASE_URL: z.string().url().optional(),
   SUPABASE_JWKS_URL: z.string().url().optional(),
   SUPABASE_ISSUER: z.string().url().optional(),
+  /** docs/spec/15-escalabilidad.md §R.2. Sin esto, Sentry queda en no-op (ver observability/sentry.ts). */
+  SENTRY_DSN: z.string().url().optional(),
+  /** CSV de orígenes permitidos — docs/spec/11-seguridad.md §K.9: "allowlist explícita, no *". */
+  CORS_ALLOWED_ORIGINS: z.string().optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
@@ -41,6 +45,14 @@ export function resolveIssuer(env: Env): string {
   if (env.SUPABASE_ISSUER) return env.SUPABASE_ISSUER;
   if (env.SUPABASE_URL) return `${env.SUPABASE_URL}/auth/v1`;
   return resolveJwksUrl(env);
+}
+
+/** Orígenes CORS permitidos. Vacío en dev (Nest deja pasar same-origin/no-origin de todos modos). */
+export function resolveCorsOrigins(env: Env): string[] {
+  if (!env.CORS_ALLOWED_ORIGINS) return [];
+  return env.CORS_ALLOWED_ORIGINS.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
 }
 
 export class EnvValidationError extends Error {

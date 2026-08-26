@@ -31,6 +31,9 @@ export interface RequestContext {
   user?: RequestUser;
   tenantId?: string;
   tx?: Prisma.TransactionClient;
+  /** Para audit_logs.ip/user_agent (§K.10). Poblado por RequestMiddleware. */
+  ip?: string;
+  userAgent?: string;
 }
 
 /**
