@@ -4,6 +4,7 @@ import type { PermissionKey } from '@fumibug/contracts';
 import type { Request } from 'express';
 import { JwtGuard } from './jwt.guard';
 import { TenantGuard } from './tenant.guard';
+import { PermissionGuard, resolveReadScope } from './permission.guard';
 import { RequestContextService } from '../tenant/request-context.service';
 import { httpApiError } from '../http/api-response';
 
@@ -131,6 +132,85 @@ describe('JwtGuard y TenantGuard', () => {
           expect(context.get().tenantId).toBe('t-1');
         },
       );
+    });
+  });
+
+  describe('PermissionGuard', () => {
+    function guard(): PermissionGuard {
+      return new PermissionGuard(reflector, context);
+    }
+
+    it('ruta @Public pasa sin exigir user ni metadata de permiso', () => {
+      reflector.getAllAndOverride = jest.fn().mockReturnValue(true);
+      expect(guard().canActivate(execContext())).toBe(true);
+    });
+
+    it('sin @RequirePermission en el handler, deja pasar (GET /auth/me, etc.)', () => {
+      reflector.getAllAndOverride = jest.fn().mockReturnValue(undefined);
+      context.run({ requestId: 'r', user: USER }, () => {
+        expect(guard().canActivate(execContext())).toBe(true);
+      });
+    });
+
+    it('con el permiso requerido, pasa', () => {
+      reflector.getAllAndOverride = jest.fn().mockReturnValue(['customer.read']);
+      context.run({ requestId: 'r', user: USER }, () => {
+        expect(guard().canActivate(execContext())).toBe(true);
+      });
+    });
+
+    it('sin el permiso requerido, 403 FORBIDDEN con el envelope del contrato', () => {
+      reflector.getAllAndOverride = jest.fn().mockReturnValue(['route.publish']);
+      context.run({ requestId: 'req-9', user: USER }, () => {
+        try {
+          guard().canActivate(execContext());
+          fail('debía rechazar');
+        } catch (err) {
+          const body = (err as { response?: { error?: { code?: string }; requestId?: string } })
+            .response;
+          expect(body?.error?.code).toBe('FORBIDDEN');
+          expect(body?.requestId).toBe('req-9');
+        }
+      });
+    });
+
+    it('con varias keys (patrón own/tenant), alcanza con tener una', () => {
+      reflector.getAllAndOverride = jest
+        .fn()
+        .mockReturnValue(['service.read.own', 'service.read.tenant']);
+      context.run(
+        { requestId: 'r', user: { ...USER, permissions: ['service.read.own'] } },
+        () => {
+          expect(guard().canActivate(execContext())).toBe(true);
+        },
+      );
+    });
+
+    it('sin user en contexto lanza (orden de guards violado)', () => {
+      reflector.getAllAndOverride = jest.fn().mockReturnValue(['customer.read']);
+      expect(() =>
+        context.run({ requestId: 'r' }, () => guard().canActivate(execContext())),
+      ).toThrow(/JwtGuard/);
+    });
+  });
+
+  describe('resolveReadScope', () => {
+    const OWN = 'service.read.own' as const;
+    const TENANT = 'service.read.tenant' as const;
+
+    it('devuelve tenant si el usuario tiene ambas keys (gana el scope más amplio)', () => {
+      const user = { ...USER, permissions: [OWN, TENANT] };
+      expect(resolveReadScope(user, OWN, TENANT)).toBe('tenant');
+    });
+
+    it('devuelve own si solo tiene la key own', () => {
+      const user = { ...USER, permissions: [OWN] };
+      expect(resolveReadScope(user, OWN, TENANT)).toBe('own');
+    });
+
+    it('devuelve null si no tiene ninguna', () => {
+      const user = { ...USER, permissions: [] };
+      expect(resolveReadScope(user, OWN, TENANT)).toBeNull();
     });
   });
 });

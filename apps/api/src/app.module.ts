@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { EnvModule } from './config/env.module';
 import { JwtGuard } from './common/guards/jwt.guard';
 import { TenantGuard } from './common/guards/tenant.guard';
+import { PermissionGuard } from './common/guards/permission.guard';
 import { TransactionInterceptor } from './common/interceptors/transaction.interceptor';
 import { RequestMiddleware } from './common/tenant/request.middleware';
 import { TenantModule } from './common/tenant/tenant.module';
@@ -16,8 +17,9 @@ import { AuthModule } from './modules/auth/auth.module';
  *   RequestMiddleware (abre contexto + requestId)
  *     → JwtGuard (verifica token, publica user en el contexto)
  *       → TenantGuard (fija tenantId en el contexto)
- *         → TransactionInterceptor (SET LOCAL app.tenant_id + tx única del request)
- *           → handler
+ *         → PermissionGuard (exige @RequirePermission si el handler lo declara)
+ *           → TransactionInterceptor (SET LOCAL app.tenant_id + tx única del request)
+ *             → handler
  *
  * Los módulos feature-based (customers, routes, field, ...) se agregan a partir de
  * Fase 1, uno por PR de contrato + implementación (ver docs/spec/16-estructura.md
@@ -30,6 +32,7 @@ import { AuthModule } from './modules/auth/auth.module';
     // Registro secuencial = orden de ejecución garantizado por Nest.
     { provide: APP_GUARD, useClass: JwtGuard },
     { provide: APP_GUARD, useClass: TenantGuard },
+    { provide: APP_GUARD, useClass: PermissionGuard },
     { provide: APP_INTERCEPTOR, useClass: TransactionInterceptor },
   ],
 })
