@@ -42,8 +42,8 @@
 
 | Ítem | Depende de | Estado |
 |---|---|---|
-| PR-000 Agregar `@fumibug/db` a `allowBuilds` en `pnpm-workspace.yaml` | — | `[in-progress: humano · 2026-08-27]` |
-| PR-000b Confirmar deploy Railway OK (`/health` responde) + Vercel sirve `fumibug1.vercel.app` | PR-000 | `[todo]` |
+| PR-000 Agregar `@fumibug/db` a `allowBuilds` en `pnpm-workspace.yaml` | — | `[done]` |
+| PR-000b Confirmar deploy Railway OK (`/health` responde) + Vercel sirve `fumibug1.vercel.app` | PR-000 | `[done]` — `/health` 200, `/v1/ping` 401 esperado (cadena completa OK). Costó 15 fixes de Dockerfile (PR11-26): pnpm deploy resultó poco confiable en el sandbox de Railway, se reemplazó por copiar el workspace completo; además Supabase requiere el connection pooler (IPv6-only en conexión directa, Railway sin egress IPv6) — `APP_DATABASE_URL` apunta al pooler, no a `db.<ref>.supabase.co` directo. |
 
 ## Bloque 1 — Contratos de Fase 1 (Claude Code, siempre primero en cada sub-área)
 
