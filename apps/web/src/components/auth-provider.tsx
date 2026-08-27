@@ -1,8 +1,50 @@
 'use client'
 
 import * as React from 'react'
-import { getAuthMe } from '../../lib/api/client'
+import { configureApiClient, getAuthMe } from '../../lib/api/client'
 import type { PermissionKey } from '@fumibug/contracts'
+
+// Se configura una sola vez, al cargar el módulo (no en un efecto: si un componente
+// llama a la API antes del primer render de <AuthProvider>, igual necesita baseUrl/token
+// bien seteados). NEXT_PUBLIC_API_URL apunta a la API deployada (Railway); sin la env var
+// cae en '/v1' relativo, que en Vercel no resuelve a nada.
+configureApiClient({
+  baseUrl: process.env.NEXT_PUBLIC_API_URL ?? '/v1',
+  getAccessToken: () => (typeof window === 'undefined' ? null : localStorage.getItem('access_token')),
+})
+
+/**
+ * ADR 0003: Supabase Auth es el identity provider — el login pega directo contra
+ * Supabase (no contra nuestro backend, que solo verifica el JWT resultante por JWKS).
+ * Antes llamaba a un placeholder `/v1/auth/login` que nunca existió del lado del backend
+ * (a propósito: login/refresh viven en Supabase, ver apps/api/src/modules/auth/
+ * auth.controller.ts).
+ */
+async function signInWithSupabase(
+  identifier: string,
+  password: string,
+): Promise<{ accessToken: string; refreshToken: string }> {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !anonKey) {
+    throw new Error('Falta configurar NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY')
+  }
+
+  const res = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: { apikey: anonKey, 'Content-Type': 'application/json' },
+    // `identifier` es el email (admin). El login de operario por username+PIN
+    // (§K.1: "{username}@{tenant-slug}.fumibug.internal") llega con el flujo de PIN.
+    body: JSON.stringify({ email: identifier, password }),
+  })
+
+  if (!res.ok) {
+    throw new Error('Credenciales incorrectas')
+  }
+
+  const data = (await res.json()) as { access_token: string; refresh_token: string }
+  return { accessToken: data.access_token, refreshToken: data.refresh_token }
+}
 
 interface AuthUser {
   id: string
@@ -64,20 +106,9 @@ export function AuthProvider({
   }, [])
 
   const login = React.useCallback(async (identifier: string, password: string): Promise<void> => {
-    // TODO: replace with real POST /auth/login once endpoint exists in contracts
-    // For now, simulate login with MSW mock
-    const response = await fetch('/v1/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ identifier, password }),
-    })
-
-    if (!response.ok) {
-      throw new Error('Credenciales incorrectas')
-    }
-
-    const data = await response.json() as { data: { accessToken: string } }
-    localStorage.setItem('access_token', data.data.accessToken)
+    const { accessToken, refreshToken } = await signInWithSupabase(identifier, password)
+    localStorage.setItem('access_token', accessToken)
+    localStorage.setItem('refresh_token', refreshToken)
 
     const me = await getAuthMe()
     if (me.success) {
@@ -94,6 +125,7 @@ export function AuthProvider({
 
   const logout = React.useCallback((): void => {
     localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
     setUser(null)
     setPermissions([])
     setRoleKey(null)
