@@ -36,31 +36,21 @@ COPY packages/db packages/db
 COPY packages/contracts packages/contracts
 COPY apps/api apps/api
 RUN pnpm exec turbo run build --filter=@fumibug/api...
-# pnpm deploy: empaqueta apps/api + sus deps de producción resueltas (sin dev deps, sin
-# el resto del monorepo) en un directorio autocontenido — el patrón recomendado de pnpm
-# para imágenes de Docker de un workspace. --legacy: desde pnpm v10, deploy por default
-# exige "inject-workspace-packages=true" (copia real de las deps de workspace en vez de
-# symlinks); no tocamos pnpm-workspace.yaml (fuera de los archivos de apps/api), así que
-# usamos el modo anterior explícito, que sigue soportado y resuelve igual.
-# --ignore-scripts: pnpm deploy hace su propio install "limpio" en /prod/api, y ahí el
-# postinstall de @fumibug/db ("prisma generate") intenta autorepararse con
-# `npm i @prisma/client` si no encuentra la versión exacta ya resuelta — y ese install
-# falla en el sandbox de build de Railway (sin red/permiso para eso). No hace falta que
-# corra ahí: generamos el cliente a mano en el paso siguiente, con la CLI completa de
-# /repo (que sí tiene @prisma/client bien instalado desde el `pnpm install` de la etapa
-# deps) apuntando al schema que viaja dentro de /prod/api.
-RUN pnpm --filter @fumibug/api deploy --prod --legacy --ignore-scripts /prod/api
-# Binario directo, no "pnpm exec"/"pnpm --filter ... exec": esos comandos revisan antes
-# si /repo/node_modules está "al día" y, con CI=true (necesario para no abortar sin TTY),
-# terminan re-ejecutando `pnpm install --production` — que borra las devDependencies
-# (prisma incluido) antes de que el propio comando llegue a correr. `prisma` es
-# devDependency de packages/db: pnpm crea su symlink de bin ahí, no en /repo/node_modules.
-RUN packages/db/node_modules/.bin/prisma generate --schema=/prod/api/node_modules/@fumibug/db/prisma/schema.prisma
+# `pnpm deploy` (el patrón "recomendado" para imágenes lean de un workspace pnpm) resultó
+# poco confiable acá: arma un node_modules aislado desde cero en un directorio nuevo, y en
+# ese contexto Prisma nunca logró resolver bien @prisma/client — ni con --ignore-scripts,
+# ni generando después a mano por distintos caminos (ver el historial de fix/api/0011 a
+# 0024, todos intentos reales contra Railway). En vez de reinstalar en otro lado, se copia
+# el workspace tal cual quedó de la etapa `deps` (el install que sí funciona siempre, es el
+# mismo camino que usa CI) — sin ningún comando de pnpm más que pueda tocar node_modules de
+# formas inesperadas. Más pesado que un deploy aislado (sin podar devDependencies), pero
+# determinista; se optimiza el tamaño más adelante, una vez que el deploy sea confiable.
 
-# --- runtime: imagen final, solo lo que hace falta para correr ---
+# --- runtime: imagen final. No hace falta pnpm acá (solo "node dist/main.js"). ---
 FROM node:24-slim AS runtime
 ENV NODE_ENV=production
-WORKDIR /app
-COPY --from=build /prod/api ./
+WORKDIR /repo
+COPY --from=build /repo ./
+WORKDIR /repo/apps/api
 EXPOSE 3001
 CMD ["node", "dist/main.js"]
