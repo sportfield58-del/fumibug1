@@ -12,6 +12,14 @@ import {
   UpdateLocationRequestSchema,
 } from './schemas/customer';
 import { RoleWithPermissionsSchema } from './schemas/role';
+import { AuditLogListQuerySchema, AuditLogSchema } from './schemas/audit';
+import { AdminDashboardResponseSchema, OwnerDashboardResponseSchema } from './schemas/dashboard';
+import {
+  ConfirmEvidenceRequestSchema,
+  ServiceEvidenceSchema,
+  UploadEvidenceUrlRequestSchema,
+  UploadEvidenceUrlResponseSchema,
+} from './schemas/evidence';
 import {
   AddStopRequestSchema,
   CreateRouteRequestSchema,
@@ -1325,6 +1333,125 @@ export const ENDPOINTS = {
     requiresAuth: true,
     response: RouteWithStopsSchema,
     example: exampleRoute({ status: 'CANCELLED', version: 4 }),
+  }),
+
+  // ==========================================================================
+  // Fase 1 — Evidencias, dashboard, auditoría (docs/spec/03-modulos.md §C.1/§C.11/§C.20,
+  // prompts/TASK_BOARD.md PR-106). "Validación de cierres" (§C.a) no suma endpoints
+  // nuevos acá: la cola es `listServices({status: 'PENDING_VALIDATION'})` y las acciones
+  // son validateService/rejectService, ya en PR-104.
+  // ==========================================================================
+
+  uploadEvidenceUrl: endpoint({
+    id: 'uploadEvidenceUrl',
+    method: 'POST',
+    path: 'field/sessions/:id/evidence/upload-url',
+    summary: 'URL firmada de Storage para subir una evidencia.',
+    requiresAuth: true,
+    request: UploadEvidenceUrlRequestSchema,
+    response: UploadEvidenceUrlResponseSchema,
+    example: {
+      uploadUrl: 'https://storage.fumibug.internal/signed/abc123',
+      storagePath: 'tenants/f0000000-0000-4000-8000-000100000000/evidence/2026/08/27/xyz.webp',
+      expiresAt: '2026-08-27T13:00:00.000Z',
+    },
+  }),
+
+  confirmEvidence: endpoint({
+    id: 'confirmEvidence',
+    method: 'POST',
+    path: 'field/sessions/:id/evidence',
+    summary: 'Confirma la subida y crea el registro de evidencia.',
+    requiresAuth: true,
+    request: ConfirmEvidenceRequestSchema,
+    response: ServiceEvidenceSchema,
+    example: {
+      id: '20202020-1111-1111-1111-111111111111',
+      tenantId: 'f0000000-0000-4000-8000-000100000000',
+      serviceSessionId: '30303030-1111-1111-1111-111111111111',
+      type: 'PHOTO',
+      category: 'BEFORE',
+      storagePath: 'tenants/f0000000-0000-4000-8000-000100000000/evidence/2026/08/27/xyz.webp',
+      mimeType: 'image/webp',
+      sizeBytes: 245678,
+      width: 1280,
+      height: 960,
+      sha256: 'a'.repeat(64),
+      takenAt: '2026-08-27T12:50:00.000Z',
+      uploadedAt: '2026-08-27T12:51:00.000Z',
+      lat: -34.6037,
+      lng: -58.3816,
+      accuracyM: 8.5,
+      clientEventId: '40404040-1111-1111-1111-111111111111',
+    },
+  }),
+
+  getAdminDashboard: endpoint({
+    id: 'getAdminDashboard',
+    method: 'GET',
+    path: 'reports/dashboard-admin',
+    summary: 'Dashboard del admin: servicios de hoy, operarios activos, alertas, cobrado hoy.',
+    requiresAuth: true,
+    response: AdminDashboardResponseSchema,
+    example: {
+      servicesTodayByStatus: { SCHEDULED: 3, DISPATCHED: 2, IN_EXECUTION: 1, COMPLETED: 4 },
+      activeTechniciansCount: 3,
+      unassignedServicesCount: 1,
+      alerts: [
+        {
+          type: 'LICENSE_EXPIRING',
+          message: 'La libreta sanitaria de Diego Operario vence en 25 días.',
+          entityId: '22222222-2222-2222-2222-222222222222',
+          severity: 'WARNING',
+        },
+      ],
+      collectedTodayCashCents: 4500000,
+      collectedTodayTransferCents: 1200000,
+    },
+  }),
+
+  getOwnerDashboard: endpoint({
+    id: 'getOwnerDashboard',
+    method: 'GET',
+    path: 'reports/dashboard-owner',
+    summary: "Dashboard del owner: los 4 números del negocio.",
+    requiresAuth: true,
+    response: OwnerDashboardResponseSchema,
+    example: {
+      billedThisMonthCents: 850000000,
+      cashPendingReconciliationCents: 3200000,
+      completedServicesThisMonth: 142,
+      averageTicketCents: 1450000,
+    },
+  }),
+
+  listAuditLogs: endpoint({
+    id: 'listAuditLogs',
+    method: 'GET',
+    path: 'audit-logs',
+    summary: 'Log de auditoría, paginado por cursor.',
+    requiresAuth: true,
+    query: AuditLogListQuerySchema,
+    response: z.array(AuditLogSchema),
+    example: [
+      {
+        id: '10245',
+        tenantId: 'f0000000-0000-4000-8000-000100000000',
+        actorUserId: '11111111-1111-1111-1111-111111111111',
+        actorRole: 'owner',
+        action: 'route.publish',
+        entityType: 'route',
+        entityId: 'ffffffff-1111-1111-1111-111111111111',
+        before: { status: 'DRAFT' },
+        after: { status: 'PUBLISHED' },
+        diff: null,
+        severity: 'INFO',
+        ip: '190.191.10.20',
+        userAgent: 'Mozilla/5.0',
+        requestId: '50505050-1111-1111-1111-111111111111',
+        createdAt: '2026-08-27T18:00:00.000Z',
+      },
+    ],
   }),
 } as const;
 

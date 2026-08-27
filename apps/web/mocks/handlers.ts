@@ -1542,4 +1542,102 @@ export const handlers = [
     }
   }),
   ),
+  http.post('/v1/field/sessions/:id/evidence/upload-url', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "uploadUrl": "https://storage.fumibug.internal/signed/abc123",
+      "storagePath": "tenants/f0000000-0000-4000-8000-000100000000/evidence/2026/08/27/xyz.webp",
+      "expiresAt": "2026-08-27T13:00:00.000Z"
+    }
+  }),
+  ),
+  http.post('/v1/field/sessions/:id/evidence', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "20202020-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+      "type": "PHOTO",
+      "category": "BEFORE",
+      "storagePath": "tenants/f0000000-0000-4000-8000-000100000000/evidence/2026/08/27/xyz.webp",
+      "mimeType": "image/webp",
+      "sizeBytes": 245678,
+      "width": 1280,
+      "height": 960,
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "takenAt": "2026-08-27T12:50:00.000Z",
+      "uploadedAt": "2026-08-27T12:51:00.000Z",
+      "lat": -34.6037,
+      "lng": -58.3816,
+      "accuracyM": 8.5,
+      "clientEventId": "40404040-1111-1111-1111-111111111111"
+    }
+  }),
+  ),
+  http.get('/v1/reports/dashboard-admin', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "servicesTodayByStatus": {
+        "SCHEDULED": 3,
+        "DISPATCHED": 2,
+        "IN_EXECUTION": 1,
+        "COMPLETED": 4
+      },
+      "activeTechniciansCount": 3,
+      "unassignedServicesCount": 1,
+      "alerts": [
+        {
+          "type": "LICENSE_EXPIRING",
+          "message": "La libreta sanitaria de Diego Operario vence en 25 días.",
+          "entityId": "22222222-2222-2222-2222-222222222222",
+          "severity": "WARNING"
+        }
+      ],
+      "collectedTodayCashCents": 4500000,
+      "collectedTodayTransferCents": 1200000
+    }
+  }),
+  ),
+  http.get('/v1/reports/dashboard-owner', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "billedThisMonthCents": 850000000,
+      "cashPendingReconciliationCents": 3200000,
+      "completedServicesThisMonth": 142,
+      "averageTicketCents": 1450000
+    }
+  }),
+  ),
+  http.get('/v1/audit-logs', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "10245",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "actorUserId": "11111111-1111-1111-1111-111111111111",
+        "actorRole": "owner",
+        "action": "route.publish",
+        "entityType": "route",
+        "entityId": "ffffffff-1111-1111-1111-111111111111",
+        "before": {
+          "status": "DRAFT"
+        },
+        "after": {
+          "status": "PUBLISHED"
+        },
+        "diff": null,
+        "severity": "INFO",
+        "ip": "190.191.10.20",
+        "userAgent": "Mozilla/5.0",
+        "requestId": "50505050-1111-1111-1111-111111111111",
+        "createdAt": "2026-08-27T18:00:00.000Z"
+      }
+    ]
+  }),
+  ),
 ];

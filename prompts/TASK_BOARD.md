@@ -54,7 +54,8 @@
 | PR-103 contracts: tipos de servicio, zonas, listas de precios versionadas | Bloque 0 | `[done] → PR #17` |
 | PR-104 contracts: servicios (campos, transiciones de estado ya definidas en Fase 0) | PR-103 | `[done] → PR #18` |
 | PR-105 contracts: planificador (conflictos) + rutas + publicación atómica | PR-104 | `[done] → PR #19` |
-| PR-106 contracts: evidencias, validación de cierres, dashboard, auditoría (consulta) | PR-104 | `[todo]` |
+| PR-106 contracts: evidencias, validación de cierres, dashboard, auditoría (consulta) | PR-104 | `[done] → PR #20` |
+| PR-106b contracts: resto de `/field/*` (start/pause/resume sesión, insumos, firma, pago, finish, sync batch — docs/spec/10-api.md §J.2 "App de campo") | PR-104, PR-106 | `[todo]` |
 
 **Nota de PR-101 (para quien siga):**
 - `scripts/generate.ts` (packages/contracts) no soportaba `:param` en el path ni request
@@ -69,6 +70,21 @@
   Prisma) no tiene ese campo. Falta una migración chica (`driverLicenseNumber`,
   `driverLicenseExpiresAt`, ambos nullable) antes de que el alta de operario en frontend
   lo necesite. No bloqueante para PR-201 si el flujo mínimo no lo pide todavía.
+
+**Nota de PR-106 (para quien siga):**
+- "Validación de cierres" (§C.a del roadmap) no sumó endpoints nuevos: la cola **es**
+  `listServices({status: 'PENDING_VALIDATION'})` (ya en PR-104) y las acciones son
+  `validateService`/`rejectService` (también PR-104). Si el frontend necesita campos
+  extra para esa pantalla (nombre del operario, tiempo en cola) que no vienen en
+  `Service`, avisen antes de asumir que hace falta un endpoint nuevo — probablemente
+  alcanza con un `include` en el backend, no con contrato nuevo.
+- Encontré que el board original (yo mismo al armarlo) no cubría el resto de
+  `/field/*` (docs/spec/10-api.md §J.2 "App de campo": start/pause/resume de sesión,
+  consumo de insumos, firma, pago, finish con checklist, `/field/sync` batch offline,
+  `/field/today`, `/field/my-stock`, `/field/cash/close`). Es la "Ejecución de
+  servicios" de §C.10 — el módulo más importante según la spec — y no tiene item
+  propio. Lo agregué como **PR-106b** arriba. Sin eso, ni PR-207 (evidencias backend)
+  ni el Bloque 6 de frontend (campo) tienen contrato completo para trabajar.
 
 ## Bloque 2 — Backend: implementación (después del contrato de su fila)
 

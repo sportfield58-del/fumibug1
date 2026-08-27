@@ -295,3 +295,28 @@ export function postReassignRoute(args: { params: { id: string }; body: ReturnTy
 export function postCancelRoute(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.cancelRoute.example>> {
   return request('POST', `routes/${args.params.id}/cancel`);
 }
+
+/** POST /v1/field/sessions/:id/evidence/upload-url — URL firmada de Storage para subir una evidencia. */
+export function postUploadEvidenceUrl(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.uploadEvidenceUrl.request>['parse']> }): Promise<ApiResponse<typeof endpoints.uploadEvidenceUrl.example>> {
+  return request('POST', `field/sessions/${args.params.id}/evidence/upload-url`, args.body);
+}
+
+/** POST /v1/field/sessions/:id/evidence — Confirma la subida y crea el registro de evidencia. */
+export function postConfirmEvidence(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.confirmEvidence.request>['parse']> }): Promise<ApiResponse<typeof endpoints.confirmEvidence.example>> {
+  return request('POST', `field/sessions/${args.params.id}/evidence`, args.body);
+}
+
+/** GET /v1/reports/dashboard-admin — Dashboard del admin: servicios de hoy, operarios activos, alertas, cobrado hoy. */
+export function getGetAdminDashboard(): Promise<ApiResponse<typeof endpoints.getAdminDashboard.example>> {
+  return request('GET', 'reports/dashboard-admin');
+}
+
+/** GET /v1/reports/dashboard-owner — Dashboard del owner: los 4 números del negocio. */
+export function getGetOwnerDashboard(): Promise<ApiResponse<typeof endpoints.getOwnerDashboard.example>> {
+  return request('GET', 'reports/dashboard-owner');
+}
+
+/** GET /v1/audit-logs — Log de auditoría, paginado por cursor. */
+export function getListAuditLogs(args?: { query?: ReturnType<NonNullable<typeof endpoints.listAuditLogs.query>['parse']> }): Promise<ApiResponse<typeof endpoints.listAuditLogs.example>> {
+  return request('GET', 'audit-logs' + toQueryString(args?.query));
+}
