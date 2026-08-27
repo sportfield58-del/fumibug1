@@ -50,7 +50,9 @@ RUN pnpm exec turbo run build --filter=@fumibug/api...
 # /repo (que sí tiene @prisma/client bien instalado desde el `pnpm install` de la etapa
 # deps) apuntando al schema que viaja dentro de /prod/api.
 RUN pnpm --filter @fumibug/api deploy --prod --legacy --ignore-scripts /prod/api
-RUN node_modules/.bin/prisma generate --schema=/prod/api/node_modules/@fumibug/db/prisma/schema.prisma
+# `prisma` es devDependency de packages/db, no de la raíz — no está hoisteado a
+# /repo/node_modules/.bin. `pnpm --filter ... exec` lo resuelve bien sin importar eso.
+RUN pnpm --filter @fumibug/db exec prisma generate --schema=/prod/api/node_modules/@fumibug/db/prisma/schema.prisma
 
 # --- runtime: imagen final, solo lo que hace falta para correr ---
 FROM node:24-slim AS runtime
