@@ -185,3 +185,53 @@ export function postCreatePriceList(args: { body: ReturnType<NonNullable<typeof 
 export function patchUpdatePriceList(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updatePriceList.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updatePriceList.example>> {
   return request('PATCH', `price-lists/${args.params.id}`, args.body);
 }
+
+/** GET /v1/services — Lista filtrada de servicios. */
+export function getListServices(args?: { query?: ReturnType<NonNullable<typeof endpoints.listServices.query>['parse']> }): Promise<ApiResponse<typeof endpoints.listServices.example>> {
+  return request('GET', 'services' + toQueryString(args?.query));
+}
+
+/** POST /v1/services — Alta manual de servicio. */
+export function postCreateService(args: { body: ReturnType<NonNullable<typeof endpoints.createService.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createService.example>> {
+  return request('POST', 'services', args.body);
+}
+
+/** GET /v1/services/:id — Detalle de un servicio. */
+export function getGetService(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.getService.example>> {
+  return request('GET', `services/${args.params.id}`);
+}
+
+/** PATCH /v1/services/:id — Edita un servicio (requiere If-Match). No cambia cliente ni estado. */
+export function patchUpdateService(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateService.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateService.example>> {
+  return request('PATCH', `services/${args.params.id}`, args.body);
+}
+
+/** POST /v1/services/:id/cancel — Cancela un servicio. */
+export function postCancelService(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.cancelService.request>['parse']> }): Promise<ApiResponse<typeof endpoints.cancelService.example>> {
+  return request('POST', `services/${args.params.id}/cancel`, args.body);
+}
+
+/** POST /v1/services/:id/reschedule — Reprograma un servicio a una nueva fecha. */
+export function postRescheduleService(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.rescheduleService.request>['parse']> }): Promise<ApiResponse<typeof endpoints.rescheduleService.example>> {
+  return request('POST', `services/${args.params.id}/reschedule`, args.body);
+}
+
+/** POST /v1/services/:id/validate — Aprueba el cierre de un servicio en PENDING_VALIDATION. */
+export function postValidateService(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.validateService.example>> {
+  return request('POST', `services/${args.params.id}/validate`);
+}
+
+/** POST /v1/services/:id/reject — Rechaza el cierre — vuelve a ejecución. */
+export function postRejectService(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.rejectService.request>['parse']> }): Promise<ApiResponse<typeof endpoints.rejectService.example>> {
+  return request('POST', `services/${args.params.id}/reject`, args.body);
+}
+
+/** POST /v1/services/:id/reopen — Reabre un servicio COMPLETED — anula el certificado si existe. */
+export function postReopenService(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.reopenService.request>['parse']> }): Promise<ApiResponse<typeof endpoints.reopenService.example>> {
+  return request('POST', `services/${args.params.id}/reopen`, args.body);
+}
+
+/** POST /v1/services/:id/warranty-visit — Genera una revisita de garantía (sin cargo) a partir de este servicio. */
+export function postWarrantyVisitService(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.warrantyVisitService.example>> {
+  return request('POST', `services/${args.params.id}/warranty-visit`);
+}
