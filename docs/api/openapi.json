@@ -5497,6 +5497,2793 @@
           }
         }
       }
+    },
+    "/services": {
+      "get": {
+        "summary": "Lista filtrada de servicios.",
+        "operationId": "listServices",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "code": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20
+                      },
+                      "customerId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "serviceLocationId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "serviceTypeId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "contractId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "parentServiceId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "origin": {
+                        "type": "string",
+                        "enum": [
+                          "MANUAL",
+                          "CONTRACT",
+                          "WARRANTY",
+                          "RESCHEDULE",
+                          "PARTIAL_FOLLOWUP"
+                        ]
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "DRAFT",
+                          "SCHEDULED",
+                          "ASSIGNED",
+                          "DISPATCHED",
+                          "IN_EXECUTION",
+                          "PENDING_VALIDATION",
+                          "COMPLETED",
+                          "PARTIALLY_COMPLETED",
+                          "RESCHEDULED",
+                          "CANCELLED"
+                        ]
+                      },
+                      "targetPests": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "scheduledDate": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                      },
+                      "windowStart": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "windowEnd": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "estimatedDurationMinutes": {
+                        "type": "integer",
+                        "exclusiveMinimum": true,
+                        "minimum": 0,
+                        "nullable": true
+                      },
+                      "requiredTechnicians": {
+                        "type": "integer",
+                        "exclusiveMinimum": true,
+                        "minimum": 0
+                      },
+                      "priceCents": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "currency": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 3
+                      },
+                      "priceListId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "isWarrantyVisit": {
+                        "type": "boolean"
+                      },
+                      "warrantyUntil": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                      },
+                      "priority": {
+                        "type": "string",
+                        "enum": [
+                          "LOW",
+                          "NORMAL",
+                          "HIGH",
+                          "URGENT"
+                        ]
+                      },
+                      "notesInternal": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "notesForTechnician": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "cancellationReason": {
+                        "type": "string",
+                        "enum": [
+                          "CUSTOMER_REQUESTED",
+                          "WEATHER",
+                          "DATA_ENTRY_ERROR",
+                          "DUPLICATE",
+                          "OUT_OF_ZONE",
+                          "NON_PAYMENT",
+                          "OTHER"
+                        ],
+                        "nullable": true
+                      },
+                      "cancelledBillable": {
+                        "type": "boolean",
+                        "nullable": true
+                      },
+                      "version": {
+                        "type": "integer",
+                        "exclusiveMinimum": true,
+                        "minimum": 0
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "tenantId",
+                      "code",
+                      "customerId",
+                      "serviceLocationId",
+                      "serviceTypeId",
+                      "origin",
+                      "status",
+                      "targetPests",
+                      "requiredTechnicians",
+                      "priceCents",
+                      "currency",
+                      "isWarrantyVisit",
+                      "priority",
+                      "version",
+                      "createdAt",
+                      "updatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "example": [
+                  {
+                    "id": "eeeeeeee-1111-1111-1111-111111111111",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "code": "SVC-000123",
+                    "customerId": "55555555-5555-5555-5555-555555555555",
+                    "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                    "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+                    "contractId": null,
+                    "parentServiceId": null,
+                    "origin": "MANUAL",
+                    "status": "SCHEDULED",
+                    "targetPests": [
+                      "cucarachas"
+                    ],
+                    "scheduledDate": "2026-09-02",
+                    "windowStart": "09:00:00",
+                    "windowEnd": "12:00:00",
+                    "estimatedDurationMinutes": 45,
+                    "requiredTechnicians": 1,
+                    "priceCents": 1500000,
+                    "currency": "ARS",
+                    "priceListId": "cccccccc-1111-1111-1111-111111111111",
+                    "isWarrantyVisit": false,
+                    "warrantyUntil": null,
+                    "priority": "NORMAL",
+                    "notesInternal": null,
+                    "notesForTechnician": "Perro guardián — avisar en portería.",
+                    "cancellationReason": null,
+                    "cancelledBillable": null,
+                    "version": 1,
+                    "createdAt": "2026-08-27T12:00:00.000Z",
+                    "updatedAt": "2026-08-27T12:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "customerId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "technicianId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "unassigned",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Alta manual de servicio.",
+        "operationId": "createService",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customerId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "serviceLocationId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "serviceTypeId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "targetPests": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "scheduledDate": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true
+                  },
+                  "windowStart": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "windowEnd": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "estimatedDurationMinutes": {
+                    "type": "integer",
+                    "exclusiveMinimum": true,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "requiredTechnicians": {
+                    "type": "integer",
+                    "exclusiveMinimum": true,
+                    "minimum": 0,
+                    "default": 1
+                  },
+                  "priceCents": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "priceListId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "nullable": true
+                  },
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "LOW",
+                      "NORMAL",
+                      "HIGH",
+                      "URGENT"
+                    ],
+                    "default": "NORMAL"
+                  },
+                  "notesInternal": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "notesForTechnician": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "customerId",
+                  "serviceLocationId",
+                  "serviceTypeId",
+                  "priceCents"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceTypeId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "contractId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "parentServiceId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "origin": {
+                      "type": "string",
+                      "enum": [
+                        "MANUAL",
+                        "CONTRACT",
+                        "WARRANTY",
+                        "RESCHEDULE",
+                        "PARTIAL_FOLLOWUP"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "ASSIGNED",
+                        "DISPATCHED",
+                        "IN_EXECUTION",
+                        "PENDING_VALIDATION",
+                        "COMPLETED",
+                        "PARTIALLY_COMPLETED",
+                        "RESCHEDULED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "targetPests": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "scheduledDate": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "windowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "windowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "estimatedDurationMinutes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "requiredTechnicians": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "priceCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "priceListId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "isWarrantyVisit": {
+                      "type": "boolean"
+                    },
+                    "warrantyUntil": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "priority": {
+                      "type": "string",
+                      "enum": [
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        "URGENT"
+                      ]
+                    },
+                    "notesInternal": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "notesForTechnician": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancellationReason": {
+                      "type": "string",
+                      "enum": [
+                        "CUSTOMER_REQUESTED",
+                        "WEATHER",
+                        "DATA_ENTRY_ERROR",
+                        "DUPLICATE",
+                        "OUT_OF_ZONE",
+                        "NON_PAYMENT",
+                        "OTHER"
+                      ],
+                      "nullable": true
+                    },
+                    "cancelledBillable": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "version": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "code",
+                    "customerId",
+                    "serviceLocationId",
+                    "serviceTypeId",
+                    "origin",
+                    "status",
+                    "targetPests",
+                    "requiredTechnicians",
+                    "priceCents",
+                    "currency",
+                    "isWarrantyVisit",
+                    "priority",
+                    "version",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "eeeeeeee-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "code": "SVC-000124",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+                  "contractId": null,
+                  "parentServiceId": null,
+                  "origin": "MANUAL",
+                  "status": "DRAFT",
+                  "targetPests": [
+                    "cucarachas"
+                  ],
+                  "scheduledDate": "2026-09-02",
+                  "windowStart": "09:00:00",
+                  "windowEnd": "12:00:00",
+                  "estimatedDurationMinutes": 45,
+                  "requiredTechnicians": 1,
+                  "priceCents": 1500000,
+                  "currency": "ARS",
+                  "priceListId": "cccccccc-1111-1111-1111-111111111111",
+                  "isWarrantyVisit": false,
+                  "warrantyUntil": null,
+                  "priority": "NORMAL",
+                  "notesInternal": null,
+                  "notesForTechnician": "Perro guardián — avisar en portería.",
+                  "cancellationReason": null,
+                  "cancelledBillable": null,
+                  "version": 1,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{id}": {
+      "get": {
+        "summary": "Detalle de un servicio.",
+        "operationId": "getService",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceTypeId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "contractId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "parentServiceId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "origin": {
+                      "type": "string",
+                      "enum": [
+                        "MANUAL",
+                        "CONTRACT",
+                        "WARRANTY",
+                        "RESCHEDULE",
+                        "PARTIAL_FOLLOWUP"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "ASSIGNED",
+                        "DISPATCHED",
+                        "IN_EXECUTION",
+                        "PENDING_VALIDATION",
+                        "COMPLETED",
+                        "PARTIALLY_COMPLETED",
+                        "RESCHEDULED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "targetPests": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "scheduledDate": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "windowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "windowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "estimatedDurationMinutes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "requiredTechnicians": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "priceCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "priceListId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "isWarrantyVisit": {
+                      "type": "boolean"
+                    },
+                    "warrantyUntil": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "priority": {
+                      "type": "string",
+                      "enum": [
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        "URGENT"
+                      ]
+                    },
+                    "notesInternal": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "notesForTechnician": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancellationReason": {
+                      "type": "string",
+                      "enum": [
+                        "CUSTOMER_REQUESTED",
+                        "WEATHER",
+                        "DATA_ENTRY_ERROR",
+                        "DUPLICATE",
+                        "OUT_OF_ZONE",
+                        "NON_PAYMENT",
+                        "OTHER"
+                      ],
+                      "nullable": true
+                    },
+                    "cancelledBillable": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "version": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "code",
+                    "customerId",
+                    "serviceLocationId",
+                    "serviceTypeId",
+                    "origin",
+                    "status",
+                    "targetPests",
+                    "requiredTechnicians",
+                    "priceCents",
+                    "currency",
+                    "isWarrantyVisit",
+                    "priority",
+                    "version",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "eeeeeeee-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "code": "SVC-000123",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+                  "contractId": null,
+                  "parentServiceId": null,
+                  "origin": "MANUAL",
+                  "status": "SCHEDULED",
+                  "targetPests": [
+                    "cucarachas"
+                  ],
+                  "scheduledDate": "2026-09-02",
+                  "windowStart": "09:00:00",
+                  "windowEnd": "12:00:00",
+                  "estimatedDurationMinutes": 45,
+                  "requiredTechnicians": 1,
+                  "priceCents": 1500000,
+                  "currency": "ARS",
+                  "priceListId": "cccccccc-1111-1111-1111-111111111111",
+                  "isWarrantyVisit": false,
+                  "warrantyUntil": null,
+                  "priority": "NORMAL",
+                  "notesInternal": null,
+                  "notesForTechnician": "Perro guardián — avisar en portería.",
+                  "cancellationReason": null,
+                  "cancelledBillable": null,
+                  "version": 1,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Edita un servicio (requiere If-Match). No cambia cliente ni estado.",
+        "operationId": "updateService",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "serviceLocationId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "serviceTypeId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "targetPests": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "scheduledDate": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true
+                  },
+                  "windowStart": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "windowEnd": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "estimatedDurationMinutes": {
+                    "type": "integer",
+                    "exclusiveMinimum": true,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "requiredTechnicians": {
+                    "type": "integer",
+                    "exclusiveMinimum": true,
+                    "minimum": 0,
+                    "default": 1
+                  },
+                  "priceCents": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "priceListId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "nullable": true
+                  },
+                  "priority": {
+                    "type": "string",
+                    "enum": [
+                      "LOW",
+                      "NORMAL",
+                      "HIGH",
+                      "URGENT"
+                    ],
+                    "default": "NORMAL"
+                  },
+                  "notesInternal": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "notesForTechnician": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceTypeId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "contractId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "parentServiceId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "origin": {
+                      "type": "string",
+                      "enum": [
+                        "MANUAL",
+                        "CONTRACT",
+                        "WARRANTY",
+                        "RESCHEDULE",
+                        "PARTIAL_FOLLOWUP"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "ASSIGNED",
+                        "DISPATCHED",
+                        "IN_EXECUTION",
+                        "PENDING_VALIDATION",
+                        "COMPLETED",
+                        "PARTIALLY_COMPLETED",
+                        "RESCHEDULED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "targetPests": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "scheduledDate": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "windowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "windowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "estimatedDurationMinutes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "requiredTechnicians": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "priceCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "priceListId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "isWarrantyVisit": {
+                      "type": "boolean"
+                    },
+                    "warrantyUntil": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "priority": {
+                      "type": "string",
+                      "enum": [
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        "URGENT"
+                      ]
+                    },
+                    "notesInternal": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "notesForTechnician": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancellationReason": {
+                      "type": "string",
+                      "enum": [
+                        "CUSTOMER_REQUESTED",
+                        "WEATHER",
+                        "DATA_ENTRY_ERROR",
+                        "DUPLICATE",
+                        "OUT_OF_ZONE",
+                        "NON_PAYMENT",
+                        "OTHER"
+                      ],
+                      "nullable": true
+                    },
+                    "cancelledBillable": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "version": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "code",
+                    "customerId",
+                    "serviceLocationId",
+                    "serviceTypeId",
+                    "origin",
+                    "status",
+                    "targetPests",
+                    "requiredTechnicians",
+                    "priceCents",
+                    "currency",
+                    "isWarrantyVisit",
+                    "priority",
+                    "version",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "eeeeeeee-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "code": "SVC-000123",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+                  "contractId": null,
+                  "parentServiceId": null,
+                  "origin": "MANUAL",
+                  "status": "SCHEDULED",
+                  "targetPests": [
+                    "cucarachas"
+                  ],
+                  "scheduledDate": "2026-09-02",
+                  "windowStart": "09:00:00",
+                  "windowEnd": "12:00:00",
+                  "estimatedDurationMinutes": 45,
+                  "requiredTechnicians": 1,
+                  "priceCents": 1500000,
+                  "currency": "ARS",
+                  "priceListId": "cccccccc-1111-1111-1111-111111111111",
+                  "isWarrantyVisit": false,
+                  "warrantyUntil": null,
+                  "priority": "NORMAL",
+                  "notesInternal": null,
+                  "notesForTechnician": "Perro guardián — avisar en portería.",
+                  "cancellationReason": null,
+                  "cancelledBillable": null,
+                  "version": 2,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{id}/cancel": {
+      "post": {
+        "summary": "Cancela un servicio.",
+        "operationId": "cancelService",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "CUSTOMER_REQUESTED",
+                      "WEATHER",
+                      "DATA_ENTRY_ERROR",
+                      "DUPLICATE",
+                      "OUT_OF_ZONE",
+                      "NON_PAYMENT",
+                      "OTHER"
+                    ]
+                  },
+                  "billable": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "reason"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceTypeId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "contractId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "parentServiceId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "origin": {
+                      "type": "string",
+                      "enum": [
+                        "MANUAL",
+                        "CONTRACT",
+                        "WARRANTY",
+                        "RESCHEDULE",
+                        "PARTIAL_FOLLOWUP"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "ASSIGNED",
+                        "DISPATCHED",
+                        "IN_EXECUTION",
+                        "PENDING_VALIDATION",
+                        "COMPLETED",
+                        "PARTIALLY_COMPLETED",
+                        "RESCHEDULED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "targetPests": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "scheduledDate": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "windowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "windowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "estimatedDurationMinutes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "requiredTechnicians": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "priceCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "priceListId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "isWarrantyVisit": {
+                      "type": "boolean"
+                    },
+                    "warrantyUntil": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "priority": {
+                      "type": "string",
+                      "enum": [
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        "URGENT"
+                      ]
+                    },
+                    "notesInternal": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "notesForTechnician": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancellationReason": {
+                      "type": "string",
+                      "enum": [
+                        "CUSTOMER_REQUESTED",
+                        "WEATHER",
+                        "DATA_ENTRY_ERROR",
+                        "DUPLICATE",
+                        "OUT_OF_ZONE",
+                        "NON_PAYMENT",
+                        "OTHER"
+                      ],
+                      "nullable": true
+                    },
+                    "cancelledBillable": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "version": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "code",
+                    "customerId",
+                    "serviceLocationId",
+                    "serviceTypeId",
+                    "origin",
+                    "status",
+                    "targetPests",
+                    "requiredTechnicians",
+                    "priceCents",
+                    "currency",
+                    "isWarrantyVisit",
+                    "priority",
+                    "version",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "eeeeeeee-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "code": "SVC-000123",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+                  "contractId": null,
+                  "parentServiceId": null,
+                  "origin": "MANUAL",
+                  "status": "CANCELLED",
+                  "targetPests": [
+                    "cucarachas"
+                  ],
+                  "scheduledDate": "2026-09-02",
+                  "windowStart": "09:00:00",
+                  "windowEnd": "12:00:00",
+                  "estimatedDurationMinutes": 45,
+                  "requiredTechnicians": 1,
+                  "priceCents": 1500000,
+                  "currency": "ARS",
+                  "priceListId": "cccccccc-1111-1111-1111-111111111111",
+                  "isWarrantyVisit": false,
+                  "warrantyUntil": null,
+                  "priority": "NORMAL",
+                  "notesInternal": null,
+                  "notesForTechnician": "Perro guardián — avisar en portería.",
+                  "cancellationReason": "CUSTOMER_REQUESTED",
+                  "cancelledBillable": false,
+                  "version": 2,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{id}/reschedule": {
+      "post": {
+        "summary": "Reprograma un servicio a una nueva fecha.",
+        "operationId": "rescheduleService",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "newDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "newDate",
+                  "reason"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceTypeId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "contractId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "parentServiceId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "origin": {
+                      "type": "string",
+                      "enum": [
+                        "MANUAL",
+                        "CONTRACT",
+                        "WARRANTY",
+                        "RESCHEDULE",
+                        "PARTIAL_FOLLOWUP"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "ASSIGNED",
+                        "DISPATCHED",
+                        "IN_EXECUTION",
+                        "PENDING_VALIDATION",
+                        "COMPLETED",
+                        "PARTIALLY_COMPLETED",
+                        "RESCHEDULED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "targetPests": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "scheduledDate": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "windowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "windowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "estimatedDurationMinutes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "requiredTechnicians": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "priceCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "priceListId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "isWarrantyVisit": {
+                      "type": "boolean"
+                    },
+                    "warrantyUntil": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "priority": {
+                      "type": "string",
+                      "enum": [
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        "URGENT"
+                      ]
+                    },
+                    "notesInternal": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "notesForTechnician": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancellationReason": {
+                      "type": "string",
+                      "enum": [
+                        "CUSTOMER_REQUESTED",
+                        "WEATHER",
+                        "DATA_ENTRY_ERROR",
+                        "DUPLICATE",
+                        "OUT_OF_ZONE",
+                        "NON_PAYMENT",
+                        "OTHER"
+                      ],
+                      "nullable": true
+                    },
+                    "cancelledBillable": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "version": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "code",
+                    "customerId",
+                    "serviceLocationId",
+                    "serviceTypeId",
+                    "origin",
+                    "status",
+                    "targetPests",
+                    "requiredTechnicians",
+                    "priceCents",
+                    "currency",
+                    "isWarrantyVisit",
+                    "priority",
+                    "version",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "eeeeeeee-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "code": "SVC-000123",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+                  "contractId": null,
+                  "parentServiceId": null,
+                  "origin": "MANUAL",
+                  "status": "RESCHEDULED",
+                  "targetPests": [
+                    "cucarachas"
+                  ],
+                  "scheduledDate": "2026-09-10",
+                  "windowStart": "09:00:00",
+                  "windowEnd": "12:00:00",
+                  "estimatedDurationMinutes": 45,
+                  "requiredTechnicians": 1,
+                  "priceCents": 1500000,
+                  "currency": "ARS",
+                  "priceListId": "cccccccc-1111-1111-1111-111111111111",
+                  "isWarrantyVisit": false,
+                  "warrantyUntil": null,
+                  "priority": "NORMAL",
+                  "notesInternal": null,
+                  "notesForTechnician": "Perro guardián — avisar en portería.",
+                  "cancellationReason": null,
+                  "cancelledBillable": null,
+                  "version": 2,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{id}/validate": {
+      "post": {
+        "summary": "Aprueba el cierre de un servicio en PENDING_VALIDATION.",
+        "operationId": "validateService",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceTypeId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "contractId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "parentServiceId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "origin": {
+                      "type": "string",
+                      "enum": [
+                        "MANUAL",
+                        "CONTRACT",
+                        "WARRANTY",
+                        "RESCHEDULE",
+                        "PARTIAL_FOLLOWUP"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "ASSIGNED",
+                        "DISPATCHED",
+                        "IN_EXECUTION",
+                        "PENDING_VALIDATION",
+                        "COMPLETED",
+                        "PARTIALLY_COMPLETED",
+                        "RESCHEDULED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "targetPests": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "scheduledDate": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "windowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "windowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "estimatedDurationMinutes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "requiredTechnicians": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "priceCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "priceListId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "isWarrantyVisit": {
+                      "type": "boolean"
+                    },
+                    "warrantyUntil": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "priority": {
+                      "type": "string",
+                      "enum": [
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        "URGENT"
+                      ]
+                    },
+                    "notesInternal": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "notesForTechnician": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancellationReason": {
+                      "type": "string",
+                      "enum": [
+                        "CUSTOMER_REQUESTED",
+                        "WEATHER",
+                        "DATA_ENTRY_ERROR",
+                        "DUPLICATE",
+                        "OUT_OF_ZONE",
+                        "NON_PAYMENT",
+                        "OTHER"
+                      ],
+                      "nullable": true
+                    },
+                    "cancelledBillable": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "version": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "code",
+                    "customerId",
+                    "serviceLocationId",
+                    "serviceTypeId",
+                    "origin",
+                    "status",
+                    "targetPests",
+                    "requiredTechnicians",
+                    "priceCents",
+                    "currency",
+                    "isWarrantyVisit",
+                    "priority",
+                    "version",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "eeeeeeee-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "code": "SVC-000123",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+                  "contractId": null,
+                  "parentServiceId": null,
+                  "origin": "MANUAL",
+                  "status": "COMPLETED",
+                  "targetPests": [
+                    "cucarachas"
+                  ],
+                  "scheduledDate": "2026-09-02",
+                  "windowStart": "09:00:00",
+                  "windowEnd": "12:00:00",
+                  "estimatedDurationMinutes": 45,
+                  "requiredTechnicians": 1,
+                  "priceCents": 1500000,
+                  "currency": "ARS",
+                  "priceListId": "cccccccc-1111-1111-1111-111111111111",
+                  "isWarrantyVisit": false,
+                  "warrantyUntil": null,
+                  "priority": "NORMAL",
+                  "notesInternal": null,
+                  "notesForTechnician": "Perro guardián — avisar en portería.",
+                  "cancellationReason": null,
+                  "cancelledBillable": null,
+                  "version": 3,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{id}/reject": {
+      "post": {
+        "summary": "Rechaza el cierre — vuelve a ejecución.",
+        "operationId": "rejectService",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "reason"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceTypeId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "contractId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "parentServiceId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "origin": {
+                      "type": "string",
+                      "enum": [
+                        "MANUAL",
+                        "CONTRACT",
+                        "WARRANTY",
+                        "RESCHEDULE",
+                        "PARTIAL_FOLLOWUP"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "ASSIGNED",
+                        "DISPATCHED",
+                        "IN_EXECUTION",
+                        "PENDING_VALIDATION",
+                        "COMPLETED",
+                        "PARTIALLY_COMPLETED",
+                        "RESCHEDULED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "targetPests": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "scheduledDate": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "windowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "windowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "estimatedDurationMinutes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "requiredTechnicians": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "priceCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "priceListId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "isWarrantyVisit": {
+                      "type": "boolean"
+                    },
+                    "warrantyUntil": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "priority": {
+                      "type": "string",
+                      "enum": [
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        "URGENT"
+                      ]
+                    },
+                    "notesInternal": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "notesForTechnician": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancellationReason": {
+                      "type": "string",
+                      "enum": [
+                        "CUSTOMER_REQUESTED",
+                        "WEATHER",
+                        "DATA_ENTRY_ERROR",
+                        "DUPLICATE",
+                        "OUT_OF_ZONE",
+                        "NON_PAYMENT",
+                        "OTHER"
+                      ],
+                      "nullable": true
+                    },
+                    "cancelledBillable": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "version": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "code",
+                    "customerId",
+                    "serviceLocationId",
+                    "serviceTypeId",
+                    "origin",
+                    "status",
+                    "targetPests",
+                    "requiredTechnicians",
+                    "priceCents",
+                    "currency",
+                    "isWarrantyVisit",
+                    "priority",
+                    "version",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "eeeeeeee-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "code": "SVC-000123",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+                  "contractId": null,
+                  "parentServiceId": null,
+                  "origin": "MANUAL",
+                  "status": "IN_EXECUTION",
+                  "targetPests": [
+                    "cucarachas"
+                  ],
+                  "scheduledDate": "2026-09-02",
+                  "windowStart": "09:00:00",
+                  "windowEnd": "12:00:00",
+                  "estimatedDurationMinutes": 45,
+                  "requiredTechnicians": 1,
+                  "priceCents": 1500000,
+                  "currency": "ARS",
+                  "priceListId": "cccccccc-1111-1111-1111-111111111111",
+                  "isWarrantyVisit": false,
+                  "warrantyUntil": null,
+                  "priority": "NORMAL",
+                  "notesInternal": null,
+                  "notesForTechnician": "Perro guardián — avisar en portería.",
+                  "cancellationReason": null,
+                  "cancelledBillable": null,
+                  "version": 3,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{id}/reopen": {
+      "post": {
+        "summary": "Reabre un servicio COMPLETED — anula el certificado si existe.",
+        "operationId": "reopenService",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "reason"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceTypeId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "contractId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "parentServiceId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "origin": {
+                      "type": "string",
+                      "enum": [
+                        "MANUAL",
+                        "CONTRACT",
+                        "WARRANTY",
+                        "RESCHEDULE",
+                        "PARTIAL_FOLLOWUP"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "ASSIGNED",
+                        "DISPATCHED",
+                        "IN_EXECUTION",
+                        "PENDING_VALIDATION",
+                        "COMPLETED",
+                        "PARTIALLY_COMPLETED",
+                        "RESCHEDULED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "targetPests": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "scheduledDate": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "windowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "windowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "estimatedDurationMinutes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "requiredTechnicians": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "priceCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "priceListId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "isWarrantyVisit": {
+                      "type": "boolean"
+                    },
+                    "warrantyUntil": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "priority": {
+                      "type": "string",
+                      "enum": [
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        "URGENT"
+                      ]
+                    },
+                    "notesInternal": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "notesForTechnician": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancellationReason": {
+                      "type": "string",
+                      "enum": [
+                        "CUSTOMER_REQUESTED",
+                        "WEATHER",
+                        "DATA_ENTRY_ERROR",
+                        "DUPLICATE",
+                        "OUT_OF_ZONE",
+                        "NON_PAYMENT",
+                        "OTHER"
+                      ],
+                      "nullable": true
+                    },
+                    "cancelledBillable": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "version": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "code",
+                    "customerId",
+                    "serviceLocationId",
+                    "serviceTypeId",
+                    "origin",
+                    "status",
+                    "targetPests",
+                    "requiredTechnicians",
+                    "priceCents",
+                    "currency",
+                    "isWarrantyVisit",
+                    "priority",
+                    "version",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "eeeeeeee-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "code": "SVC-000123",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+                  "contractId": null,
+                  "parentServiceId": null,
+                  "origin": "MANUAL",
+                  "status": "PENDING_VALIDATION",
+                  "targetPests": [
+                    "cucarachas"
+                  ],
+                  "scheduledDate": "2026-09-02",
+                  "windowStart": "09:00:00",
+                  "windowEnd": "12:00:00",
+                  "estimatedDurationMinutes": 45,
+                  "requiredTechnicians": 1,
+                  "priceCents": 1500000,
+                  "currency": "ARS",
+                  "priceListId": "cccccccc-1111-1111-1111-111111111111",
+                  "isWarrantyVisit": false,
+                  "warrantyUntil": null,
+                  "priority": "NORMAL",
+                  "notesInternal": null,
+                  "notesForTechnician": "Perro guardián — avisar en portería.",
+                  "cancellationReason": null,
+                  "cancelledBillable": null,
+                  "version": 4,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/{id}/warranty-visit": {
+      "post": {
+        "summary": "Genera una revisita de garantía (sin cargo) a partir de este servicio.",
+        "operationId": "warrantyVisitService",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "code": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 20
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceTypeId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "contractId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "parentServiceId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "origin": {
+                      "type": "string",
+                      "enum": [
+                        "MANUAL",
+                        "CONTRACT",
+                        "WARRANTY",
+                        "RESCHEDULE",
+                        "PARTIAL_FOLLOWUP"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "ASSIGNED",
+                        "DISPATCHED",
+                        "IN_EXECUTION",
+                        "PENDING_VALIDATION",
+                        "COMPLETED",
+                        "PARTIALLY_COMPLETED",
+                        "RESCHEDULED",
+                        "CANCELLED"
+                      ]
+                    },
+                    "targetPests": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "scheduledDate": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "windowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "windowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "estimatedDurationMinutes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "requiredTechnicians": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "priceCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "currency": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 3
+                    },
+                    "priceListId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "isWarrantyVisit": {
+                      "type": "boolean"
+                    },
+                    "warrantyUntil": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "priority": {
+                      "type": "string",
+                      "enum": [
+                        "LOW",
+                        "NORMAL",
+                        "HIGH",
+                        "URGENT"
+                      ]
+                    },
+                    "notesInternal": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "notesForTechnician": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "cancellationReason": {
+                      "type": "string",
+                      "enum": [
+                        "CUSTOMER_REQUESTED",
+                        "WEATHER",
+                        "DATA_ENTRY_ERROR",
+                        "DUPLICATE",
+                        "OUT_OF_ZONE",
+                        "NON_PAYMENT",
+                        "OTHER"
+                      ],
+                      "nullable": true
+                    },
+                    "cancelledBillable": {
+                      "type": "boolean",
+                      "nullable": true
+                    },
+                    "version": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "code",
+                    "customerId",
+                    "serviceLocationId",
+                    "serviceTypeId",
+                    "origin",
+                    "status",
+                    "targetPests",
+                    "requiredTechnicians",
+                    "priceCents",
+                    "currency",
+                    "isWarrantyVisit",
+                    "priority",
+                    "version",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "eeeeeeee-2222-2222-2222-222222222222",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "code": "SVC-000125",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+                  "contractId": null,
+                  "parentServiceId": "eeeeeeee-1111-1111-1111-111111111111",
+                  "origin": "WARRANTY",
+                  "status": "DRAFT",
+                  "targetPests": [
+                    "cucarachas"
+                  ],
+                  "scheduledDate": "2026-09-02",
+                  "windowStart": "09:00:00",
+                  "windowEnd": "12:00:00",
+                  "estimatedDurationMinutes": 45,
+                  "requiredTechnicians": 1,
+                  "priceCents": 0,
+                  "currency": "ARS",
+                  "priceListId": "cccccccc-1111-1111-1111-111111111111",
+                  "isWarrantyVisit": true,
+                  "warrantyUntil": null,
+                  "priority": "NORMAL",
+                  "notesInternal": null,
+                  "notesForTechnician": "Perro guardián — avisar en portería.",
+                  "cancellationReason": null,
+                  "cancelledBillable": null,
+                  "version": 1,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {

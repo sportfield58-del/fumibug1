@@ -52,7 +52,7 @@
 | PR-101 contracts: usuarios (alta con rol, libreta sanitaria, licencia, vehículo, activo/suspendido) | Bloque 0 | `[done] → PR #15` |
 | PR-102 contracts: clientes + contactos + ubicaciones (`service_locations`) | Bloque 0 | `[done] → PR #16` |
 | PR-103 contracts: tipos de servicio, zonas, listas de precios versionadas | Bloque 0 | `[done] → PR #17` |
-| PR-104 contracts: servicios (campos, transiciones de estado ya definidas en Fase 0) | PR-103 | `[todo]` |
+| PR-104 contracts: servicios (campos, transiciones de estado ya definidas en Fase 0) | PR-103 | `[done] → PR #18` |
 | PR-105 contracts: planificador (conflictos) + rutas + publicación atómica | PR-104 | `[todo]` |
 | PR-106 contracts: evidencias, validación de cierres, dashboard, auditoría (consulta) | PR-104 | `[todo]` |
 

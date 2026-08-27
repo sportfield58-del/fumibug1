@@ -13,6 +13,17 @@ import {
 } from './schemas/customer';
 import { RoleWithPermissionsSchema } from './schemas/role';
 import {
+  CancelServiceRequestSchema,
+  CreateServiceRequestSchema,
+  RejectServiceRequestSchema,
+  ReopenServiceRequestSchema,
+  RescheduleServiceRequestSchema,
+  ServiceListQuerySchema,
+  ServiceSchema,
+  UpdateServiceRequestSchema,
+  type Service,
+} from './schemas/service';
+import {
   CreatePriceListRequestSchema,
   CreateServiceTypeRequestSchema,
   CreateZoneRequestSchema,
@@ -81,6 +92,48 @@ export const PingResponseSchema = z.object({
   permissions: z.array(z.string()),
 });
 export type PingResponse = z.infer<typeof PingResponseSchema>;
+
+/**
+ * Reusado por los endpoints de /services (repetir el objeto completo 9 veces era más
+ * ruido que ayuda). El tipo de retorno explícito (`Service`, no inferido) es lo que hace
+ * que cada `overrides` widen correctamente contra los enums — sin esto, un objeto base
+ * `as const` infiere literales de más (readonly arrays, uniones angostas) que no calzan
+ * con `z.infer<Res>` en la posición de `example`.
+ */
+function exampleService(overrides: Partial<Service> = {}): Service {
+  return {
+    id: 'eeeeeeee-1111-1111-1111-111111111111',
+    tenantId: 'f0000000-0000-4000-8000-000100000000',
+    code: 'SVC-000123',
+    customerId: '55555555-5555-5555-5555-555555555555',
+    serviceLocationId: '88888888-8888-8888-8888-888888888888',
+    serviceTypeId: 'aaaaaaaa-1111-1111-1111-111111111111',
+    contractId: null,
+    parentServiceId: null,
+    origin: 'MANUAL',
+    status: 'SCHEDULED',
+    targetPests: ['cucarachas'],
+    scheduledDate: '2026-09-02',
+    windowStart: '09:00:00',
+    windowEnd: '12:00:00',
+    estimatedDurationMinutes: 45,
+    requiredTechnicians: 1,
+    priceCents: 1500000,
+    currency: 'ARS',
+    priceListId: 'cccccccc-1111-1111-1111-111111111111',
+    isWarrantyVisit: false,
+    warrantyUntil: null,
+    priority: 'NORMAL',
+    notesInternal: null,
+    notesForTechnician: 'Perro guardián — avisar en portería.',
+    cancellationReason: null,
+    cancelledBillable: null,
+    version: 1,
+    createdAt: '2026-08-27T12:00:00.000Z',
+    updatedAt: '2026-08-27T12:00:00.000Z',
+    ...overrides,
+  };
+}
 
 export const ENDPOINTS = {
   authMe: endpoint({
@@ -901,6 +954,133 @@ export const ENDPOINTS = {
       updatedAt: '2026-08-27T12:40:00.000Z',
       items: [],
     },
+  }),
+
+  // ==========================================================================
+  // Fase 1 — Servicios (docs/spec/03-modulos.md §C.6, docs/spec/04-estados.md §D.3,
+  // prompts/TASK_BOARD.md PR-104)
+  // ==========================================================================
+
+  listServices: endpoint({
+    id: 'listServices',
+    method: 'GET',
+    path: 'services',
+    summary: 'Lista filtrada de servicios.',
+    requiresAuth: true,
+    query: ServiceListQuerySchema,
+    response: z.array(ServiceSchema),
+    example: [exampleService()],
+  }),
+
+  createService: endpoint({
+    id: 'createService',
+    method: 'POST',
+    path: 'services',
+    summary: 'Alta manual de servicio.',
+    requiresAuth: true,
+    request: CreateServiceRequestSchema,
+    response: ServiceSchema,
+    example: exampleService({ status: 'DRAFT', code: 'SVC-000124' }),
+  }),
+
+  getService: endpoint({
+    id: 'getService',
+    method: 'GET',
+    path: 'services/:id',
+    // Detalle "enriquecido" (sesión, evidencia, insumos, pagos — §J.2) queda para cuando
+    // esos contratos existan (PR-207/208 y siguientes); por ahora expone los campos base.
+    summary: 'Detalle de un servicio.',
+    requiresAuth: true,
+    response: ServiceSchema,
+    example: exampleService(),
+  }),
+
+  updateService: endpoint({
+    id: 'updateService',
+    method: 'PATCH',
+    path: 'services/:id',
+    summary: 'Edita un servicio (requiere If-Match). No cambia cliente ni estado.',
+    requiresAuth: true,
+    request: UpdateServiceRequestSchema,
+    response: ServiceSchema,
+    example: exampleService({ version: 2 }),
+  }),
+
+  cancelService: endpoint({
+    id: 'cancelService',
+    method: 'POST',
+    path: 'services/:id/cancel',
+    summary: 'Cancela un servicio.',
+    requiresAuth: true,
+    request: CancelServiceRequestSchema,
+    response: ServiceSchema,
+    example: exampleService({
+      status: 'CANCELLED',
+      cancellationReason: 'CUSTOMER_REQUESTED',
+      cancelledBillable: false,
+      version: 2,
+    }),
+  }),
+
+  rescheduleService: endpoint({
+    id: 'rescheduleService',
+    method: 'POST',
+    path: 'services/:id/reschedule',
+    summary: 'Reprograma un servicio a una nueva fecha.',
+    requiresAuth: true,
+    request: RescheduleServiceRequestSchema,
+    response: ServiceSchema,
+    example: exampleService({ status: 'RESCHEDULED', scheduledDate: '2026-09-10', version: 2 }),
+  }),
+
+  validateService: endpoint({
+    id: 'validateService',
+    method: 'POST',
+    path: 'services/:id/validate',
+    summary: 'Aprueba el cierre de un servicio en PENDING_VALIDATION.',
+    requiresAuth: true,
+    response: ServiceSchema,
+    example: exampleService({ status: 'COMPLETED', version: 3 }),
+  }),
+
+  rejectService: endpoint({
+    id: 'rejectService',
+    method: 'POST',
+    path: 'services/:id/reject',
+    summary: 'Rechaza el cierre — vuelve a ejecución.',
+    requiresAuth: true,
+    request: RejectServiceRequestSchema,
+    response: ServiceSchema,
+    example: exampleService({ status: 'IN_EXECUTION', version: 3 }),
+  }),
+
+  reopenService: endpoint({
+    id: 'reopenService',
+    method: 'POST',
+    path: 'services/:id/reopen',
+    summary: 'Reabre un servicio COMPLETED — anula el certificado si existe.',
+    requiresAuth: true,
+    request: ReopenServiceRequestSchema,
+    response: ServiceSchema,
+    example: exampleService({ status: 'PENDING_VALIDATION', version: 4 }),
+  }),
+
+  warrantyVisitService: endpoint({
+    id: 'warrantyVisitService',
+    method: 'POST',
+    path: 'services/:id/warranty-visit',
+    summary: 'Genera una revisita de garantía (sin cargo) a partir de este servicio.',
+    requiresAuth: true,
+    response: ServiceSchema,
+    example: exampleService({
+      id: 'eeeeeeee-2222-2222-2222-222222222222',
+      code: 'SVC-000125',
+      origin: 'WARRANTY',
+      status: 'DRAFT',
+      isWarrantyVisit: true,
+      priceCents: 0,
+      parentServiceId: 'eeeeeeee-1111-1111-1111-111111111111',
+    }),
   }),
 } as const;
 

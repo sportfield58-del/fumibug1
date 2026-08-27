@@ -8,6 +8,7 @@ export * from './schemas/tenant';
 export * from './schemas/technician-profile';
 export * from './schemas/customer';
 export * from './schemas/service-catalog';
+export * from './schemas/service';
 export * from './schemas/user';
 export * from './schemas/membership';
 export * from './schemas/role';
