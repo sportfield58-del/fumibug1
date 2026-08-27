@@ -1083,4 +1083,463 @@ export const handlers = [
     }
   }),
   ),
+  http.get('/v1/routes', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "ffffffff-1111-1111-1111-111111111111",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "code": "RT-000045",
+        "technicianId": "22222222-2222-2222-2222-222222222222",
+        "vehicleId": null,
+        "routeDate": "2026-09-02",
+        "status": "DRAFT",
+        "publishedAt": null,
+        "publishedBy": null,
+        "startedAt": null,
+        "completedAt": null,
+        "notes": null,
+        "version": 1,
+        "createdAt": "2026-08-27T12:00:00.000Z",
+        "updatedAt": "2026-08-27T12:00:00.000Z"
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/routes', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "ffffffff-2222-2222-2222-222222222222",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "code": "RT-000046",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "vehicleId": null,
+      "routeDate": "2026-09-03",
+      "status": "DRAFT",
+      "publishedAt": null,
+      "publishedBy": null,
+      "startedAt": null,
+      "completedAt": null,
+      "notes": null,
+      "version": 1,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z"
+    }
+  }),
+  ),
+  http.get('/v1/routes/:id', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "ffffffff-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "code": "RT-000045",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "vehicleId": null,
+      "routeDate": "2026-09-02",
+      "status": "DRAFT",
+      "publishedAt": null,
+      "publishedBy": null,
+      "startedAt": null,
+      "completedAt": null,
+      "notes": null,
+      "version": 1,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z",
+      "stops": [
+        {
+          "id": "10101010-1111-1111-1111-111111111111",
+          "tenantId": "f0000000-0000-4000-8000-000100000000",
+          "routeId": "ffffffff-1111-1111-1111-111111111111",
+          "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+          "sequence": 1,
+          "status": "PENDING",
+          "eta": null,
+          "travelMinutes": 15,
+          "enRouteAt": null,
+          "arrivedAt": null,
+          "arrivalLat": null,
+          "arrivalLng": null,
+          "arrivalAccuracyM": null,
+          "gpsStatus": null,
+          "distanceFromLocationM": null,
+          "outcomeReason": null,
+          "wastedTrip": false,
+          "version": 1,
+          "createdAt": "2026-08-27T12:00:00.000Z",
+          "updatedAt": "2026-08-27T12:00:00.000Z"
+        }
+      ]
+    }
+  }),
+  ),
+  http.patch('/v1/routes/:id', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "ffffffff-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "code": "RT-000045",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "vehicleId": null,
+      "routeDate": "2026-09-02",
+      "status": "DRAFT",
+      "publishedAt": null,
+      "publishedBy": null,
+      "startedAt": null,
+      "completedAt": null,
+      "notes": "Sale más temprano por lluvia.",
+      "version": 2,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z",
+      "stops": [
+        {
+          "id": "10101010-1111-1111-1111-111111111111",
+          "tenantId": "f0000000-0000-4000-8000-000100000000",
+          "routeId": "ffffffff-1111-1111-1111-111111111111",
+          "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+          "sequence": 1,
+          "status": "PENDING",
+          "eta": null,
+          "travelMinutes": 15,
+          "enRouteAt": null,
+          "arrivedAt": null,
+          "arrivalLat": null,
+          "arrivalLng": null,
+          "arrivalAccuracyM": null,
+          "gpsStatus": null,
+          "distanceFromLocationM": null,
+          "outcomeReason": null,
+          "wastedTrip": false,
+          "version": 1,
+          "createdAt": "2026-08-27T12:00:00.000Z",
+          "updatedAt": "2026-08-27T12:00:00.000Z"
+        }
+      ]
+    }
+  }),
+  ),
+  http.post('/v1/routes/:id/stops', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "ffffffff-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "code": "RT-000045",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "vehicleId": null,
+      "routeDate": "2026-09-02",
+      "status": "DRAFT",
+      "publishedAt": null,
+      "publishedBy": null,
+      "startedAt": null,
+      "completedAt": null,
+      "notes": null,
+      "version": 2,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z",
+      "stops": [
+        {
+          "id": "10101010-1111-1111-1111-111111111111",
+          "tenantId": "f0000000-0000-4000-8000-000100000000",
+          "routeId": "ffffffff-1111-1111-1111-111111111111",
+          "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+          "sequence": 1,
+          "status": "PENDING",
+          "eta": null,
+          "travelMinutes": 15,
+          "enRouteAt": null,
+          "arrivedAt": null,
+          "arrivalLat": null,
+          "arrivalLng": null,
+          "arrivalAccuracyM": null,
+          "gpsStatus": null,
+          "distanceFromLocationM": null,
+          "outcomeReason": null,
+          "wastedTrip": false,
+          "version": 1,
+          "createdAt": "2026-08-27T12:00:00.000Z",
+          "updatedAt": "2026-08-27T12:00:00.000Z"
+        }
+      ]
+    }
+  }),
+  ),
+  http.put('/v1/routes/:id/stops/order', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "ffffffff-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "code": "RT-000045",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "vehicleId": null,
+      "routeDate": "2026-09-02",
+      "status": "DRAFT",
+      "publishedAt": null,
+      "publishedBy": null,
+      "startedAt": null,
+      "completedAt": null,
+      "notes": null,
+      "version": 3,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z",
+      "stops": [
+        {
+          "id": "10101010-1111-1111-1111-111111111111",
+          "tenantId": "f0000000-0000-4000-8000-000100000000",
+          "routeId": "ffffffff-1111-1111-1111-111111111111",
+          "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+          "sequence": 1,
+          "status": "PENDING",
+          "eta": null,
+          "travelMinutes": 15,
+          "enRouteAt": null,
+          "arrivedAt": null,
+          "arrivalLat": null,
+          "arrivalLng": null,
+          "arrivalAccuracyM": null,
+          "gpsStatus": null,
+          "distanceFromLocationM": null,
+          "outcomeReason": null,
+          "wastedTrip": false,
+          "version": 1,
+          "createdAt": "2026-08-27T12:00:00.000Z",
+          "updatedAt": "2026-08-27T12:00:00.000Z"
+        }
+      ]
+    }
+  }),
+  ),
+  http.delete('/v1/routes/:id/stops/:stopId', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "ffffffff-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "code": "RT-000045",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "vehicleId": null,
+      "routeDate": "2026-09-02",
+      "status": "DRAFT",
+      "publishedAt": null,
+      "publishedBy": null,
+      "startedAt": null,
+      "completedAt": null,
+      "notes": null,
+      "version": 3,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z",
+      "stops": []
+    }
+  }),
+  ),
+  http.post('/v1/routes/:id/validate', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "canPublish": false,
+      "blockers": [
+        {
+          "code": "ROUTE_TECHNICIAN_LICENSE_EXPIRED",
+          "message": "La libreta sanitaria del operario vence antes de la fecha de la ruta.",
+          "stopId": null
+        }
+      ],
+      "warnings": [
+        {
+          "code": "ROUTE_STOP_TIME_OVERLAP",
+          "message": "El stop 2 se solapa con la ventana horaria del stop 3.",
+          "stopId": "10101010-1111-1111-1111-111111111111"
+        }
+      ]
+    }
+  }),
+  ),
+  http.post('/v1/routes/:id/publish', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "ffffffff-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "code": "RT-000045",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "vehicleId": null,
+      "routeDate": "2026-09-02",
+      "status": "PUBLISHED",
+      "publishedAt": "2026-08-27T18:00:00.000Z",
+      "publishedBy": "11111111-1111-1111-1111-111111111111",
+      "startedAt": null,
+      "completedAt": null,
+      "notes": null,
+      "version": 4,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z",
+      "stops": [
+        {
+          "id": "10101010-1111-1111-1111-111111111111",
+          "tenantId": "f0000000-0000-4000-8000-000100000000",
+          "routeId": "ffffffff-1111-1111-1111-111111111111",
+          "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+          "sequence": 1,
+          "status": "PENDING",
+          "eta": null,
+          "travelMinutes": 15,
+          "enRouteAt": null,
+          "arrivedAt": null,
+          "arrivalLat": null,
+          "arrivalLng": null,
+          "arrivalAccuracyM": null,
+          "gpsStatus": null,
+          "distanceFromLocationM": null,
+          "outcomeReason": null,
+          "wastedTrip": false,
+          "version": 1,
+          "createdAt": "2026-08-27T12:00:00.000Z",
+          "updatedAt": "2026-08-27T12:00:00.000Z"
+        }
+      ]
+    }
+  }),
+  ),
+  http.post('/v1/routes/:id/unpublish', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "ffffffff-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "code": "RT-000045",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "vehicleId": null,
+      "routeDate": "2026-09-02",
+      "status": "DRAFT",
+      "publishedAt": null,
+      "publishedBy": null,
+      "startedAt": null,
+      "completedAt": null,
+      "notes": null,
+      "version": 5,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z",
+      "stops": [
+        {
+          "id": "10101010-1111-1111-1111-111111111111",
+          "tenantId": "f0000000-0000-4000-8000-000100000000",
+          "routeId": "ffffffff-1111-1111-1111-111111111111",
+          "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+          "sequence": 1,
+          "status": "PENDING",
+          "eta": null,
+          "travelMinutes": 15,
+          "enRouteAt": null,
+          "arrivedAt": null,
+          "arrivalLat": null,
+          "arrivalLng": null,
+          "arrivalAccuracyM": null,
+          "gpsStatus": null,
+          "distanceFromLocationM": null,
+          "outcomeReason": null,
+          "wastedTrip": false,
+          "version": 1,
+          "createdAt": "2026-08-27T12:00:00.000Z",
+          "updatedAt": "2026-08-27T12:00:00.000Z"
+        }
+      ]
+    }
+  }),
+  ),
+  http.post('/v1/routes/:id/reassign', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "ffffffff-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "code": "RT-000045",
+      "technicianId": "33333333-4444-4444-4444-444444444444",
+      "vehicleId": null,
+      "routeDate": "2026-09-02",
+      "status": "DRAFT",
+      "publishedAt": null,
+      "publishedBy": null,
+      "startedAt": null,
+      "completedAt": null,
+      "notes": null,
+      "version": 4,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z",
+      "stops": [
+        {
+          "id": "10101010-1111-1111-1111-111111111111",
+          "tenantId": "f0000000-0000-4000-8000-000100000000",
+          "routeId": "ffffffff-1111-1111-1111-111111111111",
+          "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+          "sequence": 1,
+          "status": "PENDING",
+          "eta": null,
+          "travelMinutes": 15,
+          "enRouteAt": null,
+          "arrivedAt": null,
+          "arrivalLat": null,
+          "arrivalLng": null,
+          "arrivalAccuracyM": null,
+          "gpsStatus": null,
+          "distanceFromLocationM": null,
+          "outcomeReason": null,
+          "wastedTrip": false,
+          "version": 1,
+          "createdAt": "2026-08-27T12:00:00.000Z",
+          "updatedAt": "2026-08-27T12:00:00.000Z"
+        }
+      ]
+    }
+  }),
+  ),
+  http.post('/v1/routes/:id/cancel', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "ffffffff-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "code": "RT-000045",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "vehicleId": null,
+      "routeDate": "2026-09-02",
+      "status": "CANCELLED",
+      "publishedAt": null,
+      "publishedBy": null,
+      "startedAt": null,
+      "completedAt": null,
+      "notes": null,
+      "version": 4,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z",
+      "stops": [
+        {
+          "id": "10101010-1111-1111-1111-111111111111",
+          "tenantId": "f0000000-0000-4000-8000-000100000000",
+          "routeId": "ffffffff-1111-1111-1111-111111111111",
+          "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+          "sequence": 1,
+          "status": "PENDING",
+          "eta": null,
+          "travelMinutes": 15,
+          "enRouteAt": null,
+          "arrivedAt": null,
+          "arrivalLat": null,
+          "arrivalLng": null,
+          "arrivalAccuracyM": null,
+          "gpsStatus": null,
+          "distanceFromLocationM": null,
+          "outcomeReason": null,
+          "wastedTrip": false,
+          "version": 1,
+          "createdAt": "2026-08-27T12:00:00.000Z",
+          "updatedAt": "2026-08-27T12:00:00.000Z"
+        }
+      ]
+    }
+  }),
+  ),
 ];
