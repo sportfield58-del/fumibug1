@@ -140,3 +140,48 @@ export function patchUpdateLocation(args: { params: { id: string }; body: Return
 export function postGeocodeLocation(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.geocodeLocation.request>['parse']> }): Promise<ApiResponse<typeof endpoints.geocodeLocation.example>> {
   return request('POST', `locations/${args.params.id}/geocode`, args.body);
 }
+
+/** GET /v1/service-types — Catálogo de tipos de servicio del tenant. */
+export function getListServiceTypes(): Promise<ApiResponse<typeof endpoints.listServiceTypes.example>> {
+  return request('GET', 'service-types');
+}
+
+/** POST /v1/service-types — Alta de tipo de servicio. */
+export function postCreateServiceType(args: { body: ReturnType<NonNullable<typeof endpoints.createServiceType.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createServiceType.example>> {
+  return request('POST', 'service-types', args.body);
+}
+
+/** PATCH /v1/service-types/:id — Edita un tipo de servicio (requiere If-Match). No cambia key. */
+export function patchUpdateServiceType(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateServiceType.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateServiceType.example>> {
+  return request('PATCH', `service-types/${args.params.id}`, args.body);
+}
+
+/** GET /v1/zones — Zonas del tenant (filtro del planificador, §C.7). */
+export function getListZones(): Promise<ApiResponse<typeof endpoints.listZones.example>> {
+  return request('GET', 'zones');
+}
+
+/** POST /v1/zones — Alta de zona. */
+export function postCreateZone(args: { body: ReturnType<NonNullable<typeof endpoints.createZone.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createZone.example>> {
+  return request('POST', 'zones', args.body);
+}
+
+/** PATCH /v1/zones/:id — Edita una zona (requiere If-Match). */
+export function patchUpdateZone(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateZone.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateZone.example>> {
+  return request('PATCH', `zones/${args.params.id}`, args.body);
+}
+
+/** GET /v1/price-lists — Listas de precios del tenant, con sus items. */
+export function getListPriceLists(): Promise<ApiResponse<typeof endpoints.listPriceLists.example>> {
+  return request('GET', 'price-lists');
+}
+
+/** POST /v1/price-lists — Alta de lista de precios, con items embebidos. */
+export function postCreatePriceList(args: { body: ReturnType<NonNullable<typeof endpoints.createPriceList.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createPriceList.example>> {
+  return request('POST', 'price-lists', args.body);
+}
+
+/** PATCH /v1/price-lists/:id — Edita una lista de precios (requiere If-Match). Reemplaza items si se envían. */
+export function patchUpdatePriceList(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updatePriceList.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updatePriceList.example>> {
+  return request('PATCH', `price-lists/${args.params.id}`, args.body);
+}

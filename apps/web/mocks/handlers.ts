@@ -545,4 +545,160 @@ export const handlers = [
     }
   }),
   ),
+  http.get('/v1/service-types', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "aaaaaaaa-1111-1111-1111-111111111111",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "key": "desinsectacion",
+        "name": "Desinsectación",
+        "defaultDurationMinutes": 45,
+        "checklist": [],
+        "requiredSupplyIds": [],
+        "certificateTemplateKey": null,
+        "createdAt": "2026-08-20T12:00:00.000Z",
+        "updatedAt": "2026-08-20T12:00:00.000Z"
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/service-types', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "aaaaaaaa-2222-2222-2222-222222222222",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "key": "desratizacion",
+      "name": "Desratización",
+      "defaultDurationMinutes": 60,
+      "checklist": [],
+      "requiredSupplyIds": [],
+      "certificateTemplateKey": null,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z"
+    }
+  }),
+  ),
+  http.patch('/v1/service-types/:id', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "aaaaaaaa-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "key": "desinsectacion",
+      "name": "Desinsectación",
+      "defaultDurationMinutes": 50,
+      "checklist": [],
+      "requiredSupplyIds": [],
+      "certificateTemplateKey": null,
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:30:00.000Z"
+    }
+  }),
+  ),
+  http.get('/v1/zones', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "bbbbbbbb-1111-1111-1111-111111111111",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "name": "Zona Norte",
+        "color": "#2563EB",
+        "createdAt": "2026-08-20T12:00:00.000Z",
+        "updatedAt": "2026-08-20T12:00:00.000Z"
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/zones', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "bbbbbbbb-2222-2222-2222-222222222222",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "name": "Zona Sur",
+      "color": "#16A34A",
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z"
+    }
+  }),
+  ),
+  http.patch('/v1/zones/:id', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "bbbbbbbb-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "name": "Zona Norte (ampliada)",
+      "color": "#2563EB",
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:35:00.000Z"
+    }
+  }),
+  ),
+  http.get('/v1/price-lists', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "cccccccc-1111-1111-1111-111111111111",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "name": "Lista general 2026 Q3",
+        "validFrom": "2026-07-01",
+        "validTo": null,
+        "isDefault": true,
+        "createdAt": "2026-08-20T12:00:00.000Z",
+        "updatedAt": "2026-08-20T12:00:00.000Z",
+        "items": [
+          {
+            "id": "dddddddd-1111-1111-1111-111111111111",
+            "tenantId": "f0000000-0000-4000-8000-000100000000",
+            "priceListId": "cccccccc-1111-1111-1111-111111111111",
+            "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+            "establishmentType": null,
+            "priceCents": 1500000,
+            "pricePerSqmCents": null,
+            "createdAt": "2026-08-20T12:00:00.000Z",
+            "updatedAt": "2026-08-20T12:00:00.000Z"
+          }
+        ]
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/price-lists', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "cccccccc-2222-2222-2222-222222222222",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "name": "Lista clientes VIP",
+      "validFrom": "2026-09-01",
+      "validTo": null,
+      "isDefault": false,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z",
+      "items": []
+    }
+  }),
+  ),
+  http.patch('/v1/price-lists/:id', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "cccccccc-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "name": "Lista general 2026 Q3 (ajustada)",
+      "validFrom": "2026-07-01",
+      "validTo": "2026-09-30",
+      "isDefault": true,
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:40:00.000Z",
+      "items": []
+    }
+  }),
+  ),
 ];
