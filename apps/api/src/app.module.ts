@@ -15,6 +15,7 @@ import { StateMachineModule } from './common/state-machine/state-machine.module'
 import { LoggingModule } from './common/logging/logging.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { UsersModule } from './modules/users/users.module';
 
 /**
  * Cableado global de seguridad — docs/spec/11-seguridad.md §K.2.
@@ -43,6 +44,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     StateMachineModule,
     AuthModule,
     DashboardModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [
