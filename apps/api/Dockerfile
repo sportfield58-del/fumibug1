@@ -38,8 +38,11 @@ COPY apps/api apps/api
 RUN pnpm exec turbo run build --filter=@fumibug/api...
 # pnpm deploy: empaqueta apps/api + sus deps de producción resueltas (sin dev deps, sin
 # el resto del monorepo) en un directorio autocontenido — el patrón recomendado de pnpm
-# para imágenes de Docker de un workspace.
-RUN pnpm --filter @fumibug/api deploy --prod /prod/api
+# para imágenes de Docker de un workspace. --legacy: desde pnpm v10, deploy por default
+# exige "inject-workspace-packages=true" (copia real de las deps de workspace en vez de
+# symlinks); no tocamos pnpm-workspace.yaml (fuera de los archivos de apps/api), así que
+# usamos el modo anterior explícito, que sigue soportado y resuelve igual.
+RUN pnpm --filter @fumibug/api deploy --prod --legacy /prod/api
 
 # --- runtime: imagen final, solo lo que hace falta para correr ---
 FROM node:24-slim AS runtime
