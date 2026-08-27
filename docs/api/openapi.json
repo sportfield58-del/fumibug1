@@ -4239,6 +4239,1264 @@
           }
         }
       }
+    },
+    "/service-types": {
+      "get": {
+        "summary": "Catálogo de tipos de servicio del tenant.",
+        "operationId": "listServiceTypes",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "key": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 60
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 150
+                      },
+                      "defaultDurationMinutes": {
+                        "type": "integer",
+                        "exclusiveMinimum": true,
+                        "minimum": 0,
+                        "nullable": true
+                      },
+                      "checklist": {
+                        "type": "array",
+                        "items": {},
+                        "default": []
+                      },
+                      "requiredSupplyIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      },
+                      "certificateTemplateKey": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "tenantId",
+                      "key",
+                      "name",
+                      "requiredSupplyIds",
+                      "createdAt",
+                      "updatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "example": [
+                  {
+                    "id": "aaaaaaaa-1111-1111-1111-111111111111",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "key": "desinsectacion",
+                    "name": "Desinsectación",
+                    "defaultDurationMinutes": 45,
+                    "checklist": [],
+                    "requiredSupplyIds": [],
+                    "certificateTemplateKey": null,
+                    "createdAt": "2026-08-20T12:00:00.000Z",
+                    "updatedAt": "2026-08-20T12:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Alta de tipo de servicio.",
+        "operationId": "createServiceType",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 150
+                  },
+                  "defaultDurationMinutes": {
+                    "type": "integer",
+                    "exclusiveMinimum": true,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "requiredSupplyIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "default": []
+                  },
+                  "certificateTemplateKey": {
+                    "type": "string",
+                    "maxLength": 60,
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "key",
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "key": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 60
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 150
+                    },
+                    "defaultDurationMinutes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "checklist": {
+                      "type": "array",
+                      "items": {},
+                      "default": []
+                    },
+                    "requiredSupplyIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "certificateTemplateKey": {
+                      "type": "string",
+                      "maxLength": 60,
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "key",
+                    "name",
+                    "requiredSupplyIds",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "aaaaaaaa-2222-2222-2222-222222222222",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "key": "desratizacion",
+                  "name": "Desratización",
+                  "defaultDurationMinutes": 60,
+                  "checklist": [],
+                  "requiredSupplyIds": [],
+                  "certificateTemplateKey": null,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/service-types/{id}": {
+      "patch": {
+        "summary": "Edita un tipo de servicio (requiere If-Match). No cambia key.",
+        "operationId": "updateServiceType",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 150
+                  },
+                  "defaultDurationMinutes": {
+                    "type": "integer",
+                    "exclusiveMinimum": true,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "requiredSupplyIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "default": []
+                  },
+                  "certificateTemplateKey": {
+                    "type": "string",
+                    "maxLength": 60,
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "key": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 60
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 150
+                    },
+                    "defaultDurationMinutes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "checklist": {
+                      "type": "array",
+                      "items": {},
+                      "default": []
+                    },
+                    "requiredSupplyIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "certificateTemplateKey": {
+                      "type": "string",
+                      "maxLength": 60,
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "key",
+                    "name",
+                    "requiredSupplyIds",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "aaaaaaaa-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "key": "desinsectacion",
+                  "name": "Desinsectación",
+                  "defaultDurationMinutes": 50,
+                  "checklist": [],
+                  "requiredSupplyIds": [],
+                  "certificateTemplateKey": null,
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:30:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones": {
+      "get": {
+        "summary": "Zonas del tenant (filtro del planificador, §C.7).",
+        "operationId": "listZones",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "color": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$",
+                        "nullable": true
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "tenantId",
+                      "name",
+                      "createdAt",
+                      "updatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "example": [
+                  {
+                    "id": "bbbbbbbb-1111-1111-1111-111111111111",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "name": "Zona Norte",
+                    "color": "#2563EB",
+                    "createdAt": "2026-08-20T12:00:00.000Z",
+                    "updatedAt": "2026-08-20T12:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Alta de zona.",
+        "operationId": "createZone",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "color": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "name",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "bbbbbbbb-2222-2222-2222-222222222222",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "name": "Zona Sur",
+                  "color": "#16A34A",
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/zones/{id}": {
+      "patch": {
+        "summary": "Edita una zona (requiere If-Match).",
+        "operationId": "updateZone",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "color": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "name",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "bbbbbbbb-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "name": "Zona Norte (ampliada)",
+                  "color": "#2563EB",
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:35:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/price-lists": {
+      "get": {
+        "summary": "Listas de precios del tenant, con sus items.",
+        "operationId": "listPriceLists",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "validFrom": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "validTo": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                      },
+                      "isDefault": {
+                        "type": "boolean"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "tenantId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "priceListId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "serviceTypeId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "establishmentType": {
+                              "type": "string",
+                              "enum": [
+                                "HOME",
+                                "GASTRO",
+                                "FOOD_INDUSTRY",
+                                "WAREHOUSE",
+                                "SCHOOL",
+                                "OFFICE",
+                                "OTHER"
+                              ],
+                              "nullable": true
+                            },
+                            "priceCents": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "pricePerSqmCents": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "nullable": true
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "tenantId",
+                            "priceListId",
+                            "serviceTypeId",
+                            "priceCents",
+                            "createdAt",
+                            "updatedAt"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "tenantId",
+                      "name",
+                      "validFrom",
+                      "isDefault",
+                      "createdAt",
+                      "updatedAt",
+                      "items"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "example": [
+                  {
+                    "id": "cccccccc-1111-1111-1111-111111111111",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "name": "Lista general 2026 Q3",
+                    "validFrom": "2026-07-01",
+                    "validTo": null,
+                    "isDefault": true,
+                    "createdAt": "2026-08-20T12:00:00.000Z",
+                    "updatedAt": "2026-08-20T12:00:00.000Z",
+                    "items": [
+                      {
+                        "id": "dddddddd-1111-1111-1111-111111111111",
+                        "tenantId": "f0000000-0000-4000-8000-000100000000",
+                        "priceListId": "cccccccc-1111-1111-1111-111111111111",
+                        "serviceTypeId": "aaaaaaaa-1111-1111-1111-111111111111",
+                        "establishmentType": null,
+                        "priceCents": 1500000,
+                        "pricePerSqmCents": null,
+                        "createdAt": "2026-08-20T12:00:00.000Z",
+                        "updatedAt": "2026-08-20T12:00:00.000Z"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Alta de lista de precios, con items embebidos.",
+        "operationId": "createPriceList",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "validFrom": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "validTo": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true
+                  },
+                  "isDefault": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "serviceTypeId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "establishmentType": {
+                          "type": "string",
+                          "enum": [
+                            "HOME",
+                            "GASTRO",
+                            "FOOD_INDUSTRY",
+                            "WAREHOUSE",
+                            "SCHOOL",
+                            "OFFICE",
+                            "OTHER"
+                          ],
+                          "nullable": true
+                        },
+                        "priceCents": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "pricePerSqmCents": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "serviceTypeId",
+                        "priceCents"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  }
+                },
+                "required": [
+                  "name",
+                  "validFrom"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "validFrom": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "validTo": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "isDefault": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "tenantId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "priceListId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "serviceTypeId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "establishmentType": {
+                            "type": "string",
+                            "enum": [
+                              "HOME",
+                              "GASTRO",
+                              "FOOD_INDUSTRY",
+                              "WAREHOUSE",
+                              "SCHOOL",
+                              "OFFICE",
+                              "OTHER"
+                            ],
+                            "nullable": true
+                          },
+                          "priceCents": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "pricePerSqmCents": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "nullable": true
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "tenantId",
+                          "priceListId",
+                          "serviceTypeId",
+                          "priceCents",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "name",
+                    "validFrom",
+                    "isDefault",
+                    "createdAt",
+                    "updatedAt",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "cccccccc-2222-2222-2222-222222222222",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "name": "Lista clientes VIP",
+                  "validFrom": "2026-09-01",
+                  "validTo": null,
+                  "isDefault": false,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z",
+                  "items": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/price-lists/{id}": {
+      "patch": {
+        "summary": "Edita una lista de precios (requiere If-Match). Reemplaza items si se envían.",
+        "operationId": "updatePriceList",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "validFrom": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "validTo": {
+                    "type": "string",
+                    "format": "date",
+                    "nullable": true
+                  },
+                  "isDefault": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "serviceTypeId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "establishmentType": {
+                          "type": "string",
+                          "enum": [
+                            "HOME",
+                            "GASTRO",
+                            "FOOD_INDUSTRY",
+                            "WAREHOUSE",
+                            "SCHOOL",
+                            "OFFICE",
+                            "OTHER"
+                          ],
+                          "nullable": true
+                        },
+                        "priceCents": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "pricePerSqmCents": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "serviceTypeId",
+                        "priceCents"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "validFrom": {
+                      "type": "string",
+                      "format": "date"
+                    },
+                    "validTo": {
+                      "type": "string",
+                      "format": "date",
+                      "nullable": true
+                    },
+                    "isDefault": {
+                      "type": "boolean"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "tenantId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "priceListId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "serviceTypeId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "establishmentType": {
+                            "type": "string",
+                            "enum": [
+                              "HOME",
+                              "GASTRO",
+                              "FOOD_INDUSTRY",
+                              "WAREHOUSE",
+                              "SCHOOL",
+                              "OFFICE",
+                              "OTHER"
+                            ],
+                            "nullable": true
+                          },
+                          "priceCents": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "pricePerSqmCents": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "nullable": true
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "tenantId",
+                          "priceListId",
+                          "serviceTypeId",
+                          "priceCents",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "name",
+                    "validFrom",
+                    "isDefault",
+                    "createdAt",
+                    "updatedAt",
+                    "items"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "cccccccc-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "name": "Lista general 2026 Q3 (ajustada)",
+                  "validFrom": "2026-07-01",
+                  "validTo": "2026-09-30",
+                  "isDefault": true,
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:40:00.000Z",
+                  "items": []
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
