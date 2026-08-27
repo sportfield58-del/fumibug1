@@ -241,4 +241,308 @@ export const handlers = [
     ]
   }),
   ),
+  http.get('/v1/customers', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "55555555-5555-5555-5555-555555555555",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "type": "COMPANY",
+        "legalName": "Comidas del Sur S.A.",
+        "tradeName": "Restó del Sur",
+        "taxId": "30-71234567-8",
+        "taxCondition": "RESPONSABLE_INSCRIPTO",
+        "paymentTerms": "ACCOUNT",
+        "creditLimitCents": 50000000,
+        "notes": null,
+        "tags": [
+          "gastronomico"
+        ],
+        "archivedAt": null,
+        "createdAt": "2026-08-20T12:00:00.000Z",
+        "updatedAt": "2026-08-20T12:00:00.000Z",
+        "contacts": [
+          {
+            "id": "66666666-6666-6666-6666-666666666666",
+            "tenantId": "f0000000-0000-4000-8000-000100000000",
+            "customerId": "55555555-5555-5555-5555-555555555555",
+            "name": "María Gerente",
+            "role": "OWNER",
+            "phone": "+54 9 11 5555-1111",
+            "email": "maria@restodelsur.com.ar",
+            "isPrimary": true,
+            "createdAt": "2026-08-20T12:00:00.000Z",
+            "updatedAt": "2026-08-20T12:00:00.000Z"
+          }
+        ]
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/customers', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "77777777-7777-7777-7777-777777777777",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "type": "INDIVIDUAL",
+      "legalName": "Juan Pérez",
+      "tradeName": null,
+      "taxId": null,
+      "taxCondition": null,
+      "paymentTerms": "CASH",
+      "creditLimitCents": null,
+      "notes": null,
+      "tags": [],
+      "archivedAt": null,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z",
+      "contacts": []
+    }
+  }),
+  ),
+  http.get('/v1/customers/:id', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "55555555-5555-5555-5555-555555555555",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "type": "COMPANY",
+      "legalName": "Comidas del Sur S.A.",
+      "tradeName": "Restó del Sur",
+      "taxId": "30-71234567-8",
+      "taxCondition": "RESPONSABLE_INSCRIPTO",
+      "paymentTerms": "ACCOUNT",
+      "creditLimitCents": 50000000,
+      "notes": null,
+      "tags": [
+        "gastronomico"
+      ],
+      "archivedAt": null,
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-20T12:00:00.000Z",
+      "contacts": []
+    }
+  }),
+  ),
+  http.patch('/v1/customers/:id', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "55555555-5555-5555-5555-555555555555",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "type": "COMPANY",
+      "legalName": "Comidas del Sur S.A.",
+      "tradeName": "Restó del Sur",
+      "taxId": "30-71234567-8",
+      "taxCondition": "RESPONSABLE_INSCRIPTO",
+      "paymentTerms": "ACCOUNT",
+      "creditLimitCents": 50000000,
+      "notes": "Cliente VIP",
+      "tags": [
+        "gastronomico"
+      ],
+      "archivedAt": null,
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:10:00.000Z",
+      "contacts": []
+    }
+  }),
+  ),
+  http.post('/v1/customers/:id/archive', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "55555555-5555-5555-5555-555555555555",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "type": "COMPANY",
+      "legalName": "Comidas del Sur S.A.",
+      "tradeName": "Restó del Sur",
+      "taxId": "30-71234567-8",
+      "taxCondition": "RESPONSABLE_INSCRIPTO",
+      "paymentTerms": "ACCOUNT",
+      "creditLimitCents": 50000000,
+      "notes": null,
+      "tags": [
+        "gastronomico"
+      ],
+      "archivedAt": "2026-08-27T12:15:00.000Z",
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:15:00.000Z",
+      "contacts": []
+    }
+  }),
+  ),
+  http.get('/v1/customers/:id/summary', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "customer": {
+        "id": "55555555-5555-5555-5555-555555555555",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "type": "COMPANY",
+        "legalName": "Comidas del Sur S.A.",
+        "tradeName": "Restó del Sur",
+        "taxId": "30-71234567-8",
+        "taxCondition": "RESPONSABLE_INSCRIPTO",
+        "paymentTerms": "ACCOUNT",
+        "creditLimitCents": 50000000,
+        "notes": null,
+        "tags": [
+          "gastronomico"
+        ],
+        "archivedAt": null,
+        "createdAt": "2026-08-20T12:00:00.000Z",
+        "updatedAt": "2026-08-20T12:00:00.000Z",
+        "contacts": []
+      },
+      "accountBalanceCents": -1500000,
+      "upcomingServicesCount": 2,
+      "lastServiceAt": "2026-08-15T14:00:00.000Z"
+    }
+  }),
+  ),
+  http.get('/v1/customers/:id/locations', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "88888888-8888-8888-8888-888888888888",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "customerId": "55555555-5555-5555-5555-555555555555",
+        "label": "Sucursal Centro",
+        "addressLine": "Av. Corrientes 1234",
+        "city": "CABA",
+        "province": "Buenos Aires",
+        "postalCode": "C1043",
+        "lat": -34.6037,
+        "lng": -58.3816,
+        "geocodeStatus": "OK",
+        "accessNotes": "Portero 24hs, timbre 3B",
+        "hazardNotes": null,
+        "establishmentType": "GASTRO",
+        "areaSqm": 180,
+        "serviceWindowStart": "08:00:00",
+        "serviceWindowEnd": "18:00:00",
+        "zoneId": null,
+        "archivedAt": null,
+        "createdAt": "2026-08-20T12:00:00.000Z",
+        "updatedAt": "2026-08-20T12:00:00.000Z"
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/customers/:id/locations', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "99999999-9999-9999-9999-999999999999",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "customerId": "55555555-5555-5555-5555-555555555555",
+      "label": null,
+      "addressLine": "Av. Rivadavia 5000",
+      "city": "CABA",
+      "province": "Buenos Aires",
+      "postalCode": null,
+      "lat": null,
+      "lng": null,
+      "geocodeStatus": "PENDING",
+      "accessNotes": null,
+      "hazardNotes": null,
+      "establishmentType": "OTHER",
+      "areaSqm": null,
+      "serviceWindowStart": null,
+      "serviceWindowEnd": null,
+      "zoneId": null,
+      "archivedAt": null,
+      "createdAt": "2026-08-27T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:00:00.000Z"
+    }
+  }),
+  ),
+  http.get('/v1/locations/:id', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "88888888-8888-8888-8888-888888888888",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "customerId": "55555555-5555-5555-5555-555555555555",
+      "label": "Sucursal Centro",
+      "addressLine": "Av. Corrientes 1234",
+      "city": "CABA",
+      "province": "Buenos Aires",
+      "postalCode": "C1043",
+      "lat": -34.6037,
+      "lng": -58.3816,
+      "geocodeStatus": "OK",
+      "accessNotes": "Portero 24hs, timbre 3B",
+      "hazardNotes": null,
+      "establishmentType": "GASTRO",
+      "areaSqm": 180,
+      "serviceWindowStart": "08:00:00",
+      "serviceWindowEnd": "18:00:00",
+      "zoneId": null,
+      "archivedAt": null,
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-20T12:00:00.000Z"
+    }
+  }),
+  ),
+  http.patch('/v1/locations/:id', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "88888888-8888-8888-8888-888888888888",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "customerId": "55555555-5555-5555-5555-555555555555",
+      "label": "Sucursal Centro (renovada)",
+      "addressLine": "Av. Corrientes 1234",
+      "city": "CABA",
+      "province": "Buenos Aires",
+      "postalCode": "C1043",
+      "lat": -34.6037,
+      "lng": -58.3816,
+      "geocodeStatus": "OK",
+      "accessNotes": "Portero 24hs, timbre 3B",
+      "hazardNotes": null,
+      "establishmentType": "GASTRO",
+      "areaSqm": 180,
+      "serviceWindowStart": "08:00:00",
+      "serviceWindowEnd": "18:00:00",
+      "zoneId": null,
+      "archivedAt": null,
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:20:00.000Z"
+    }
+  }),
+  ),
+  http.post('/v1/locations/:id/geocode', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "88888888-8888-8888-8888-888888888888",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "customerId": "55555555-5555-5555-5555-555555555555",
+      "label": "Sucursal Centro",
+      "addressLine": "Av. Corrientes 1234",
+      "city": "CABA",
+      "province": "Buenos Aires",
+      "postalCode": "C1043",
+      "lat": -34.6037,
+      "lng": -58.3816,
+      "geocodeStatus": "OK",
+      "accessNotes": "Portero 24hs, timbre 3B",
+      "hazardNotes": null,
+      "establishmentType": "GASTRO",
+      "areaSqm": 180,
+      "serviceWindowStart": "08:00:00",
+      "serviceWindowEnd": "18:00:00",
+      "zoneId": null,
+      "archivedAt": null,
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:25:00.000Z"
+    }
+  }),
+  ),
 ];

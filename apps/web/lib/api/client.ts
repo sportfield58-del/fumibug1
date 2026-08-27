@@ -85,3 +85,58 @@ export function postForceLogoutUser(args: { params: { id: string } }): Promise<A
 export function getListRoles(): Promise<ApiResponse<typeof endpoints.listRoles.example>> {
   return request('GET', 'roles');
 }
+
+/** GET /v1/customers — Lista de clientes, con sus contactos. */
+export function getListCustomers(args?: { query?: ReturnType<NonNullable<typeof endpoints.listCustomers.query>['parse']> }): Promise<ApiResponse<typeof endpoints.listCustomers.example>> {
+  return request('GET', 'customers' + toQueryString(args?.query));
+}
+
+/** POST /v1/customers — Alta de cliente, con contactos embebidos. */
+export function postCreateCustomer(args: { body: ReturnType<NonNullable<typeof endpoints.createCustomer.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createCustomer.example>> {
+  return request('POST', 'customers', args.body);
+}
+
+/** GET /v1/customers/:id — Detalle de un cliente con sus contactos. */
+export function getGetCustomer(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.getCustomer.example>> {
+  return request('GET', `customers/${args.params.id}`);
+}
+
+/** PATCH /v1/customers/:id — Edita un cliente (requiere If-Match). Reemplaza la lista de contactos si se envía. */
+export function patchUpdateCustomer(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateCustomer.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateCustomer.example>> {
+  return request('PATCH', `customers/${args.params.id}`, args.body);
+}
+
+/** POST /v1/customers/:id/archive — Archiva un cliente (soft delete — CLAUDE.md §5, sin DELETE de negocio). */
+export function postArchiveCustomer(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.archiveCustomer.example>> {
+  return request('POST', `customers/${args.params.id}/archive`);
+}
+
+/** GET /v1/customers/:id/summary — Cuenta corriente + resumen de actividad de un cliente. */
+export function getGetCustomerSummary(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.getCustomerSummary.example>> {
+  return request('GET', `customers/${args.params.id}/summary`);
+}
+
+/** GET /v1/customers/:id/locations — Ubicaciones de un cliente. */
+export function getListCustomerLocations(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.listCustomerLocations.example>> {
+  return request('GET', `customers/${args.params.id}/locations`);
+}
+
+/** POST /v1/customers/:id/locations — Alta de ubicación para un cliente. */
+export function postCreateCustomerLocation(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.createCustomerLocation.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createCustomerLocation.example>> {
+  return request('POST', `customers/${args.params.id}/locations`, args.body);
+}
+
+/** GET /v1/locations/:id — Detalle de una ubicación. */
+export function getGetLocation(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.getLocation.example>> {
+  return request('GET', `locations/${args.params.id}`);
+}
+
+/** PATCH /v1/locations/:id — Edita una ubicación (requiere If-Match). */
+export function patchUpdateLocation(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateLocation.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateLocation.example>> {
+  return request('PATCH', `locations/${args.params.id}`, args.body);
+}
+
+/** POST /v1/locations/:id/geocode — Geocodifica una ubicación (o aplica corrección manual de lat/lng). */
+export function postGeocodeLocation(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.geocodeLocation.request>['parse']> }): Promise<ApiResponse<typeof endpoints.geocodeLocation.example>> {
+  return request('POST', `locations/${args.params.id}/geocode`, args.body);
+}
