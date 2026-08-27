@@ -94,7 +94,7 @@
 
 | Ítem | Depende de | Estado |
 |---|---|---|
-| PR-201 api: usuarios CRUD + reseteo PIN + forzar logout + alerta libreta 30 días | PR-101 | `[todo]` |
+| PR-201 api: usuarios CRUD + reseteo PIN + forzar logout + alerta libreta 30 días | PR-101 | `[in-progress: OpenCode · 2026-08-27]` |
 | PR-202 api: clientes + contactos + ubicaciones CRUD, geocoding con corrección manual | PR-102 | `[todo]` |
 | PR-203 api: tipos de servicio + zonas + listas de precios CRUD | PR-103 | `[todo]` |
 | PR-204 api: servicios CRUD + transiciones vía `StateMachineService` | PR-104, PR-202, PR-203 | `[todo]` |
@@ -102,7 +102,7 @@
 | PR-206 api: rutas + publicación atómica con snapshot (R12) | PR-205 | `[todo]` |
 | PR-207 api: evidencias (URLs firmadas de upload, metadatos, strip EXIF de ubicación) | PR-106, PR-204 | `[todo]` |
 | PR-208 api: validación de cierres (cola, aprobación, rechazo con motivo) | PR-106, PR-206 | `[todo]` |
-| PR-209 api: dashboard (admin + owner, agregaciones) | PR-106 | `[todo]` |
+| PR-209 api: dashboard (admin + owner, agregaciones) | PR-106 | `[done] — servicios hoy por estado, operarios activos (con ruta publicada hoy), sin asignar, alertas (libreta 30 días, cierres pendientes), cobrado hoy, facturado/ticket promedio del mes. Payment/CashClosure devuelven 0 hasta que existan PR-207+/caja (Fase 2) — queries reales, no hardcode.` |
 | PR-210 api: auditoría — endpoint de consulta paginado con filtros | PR-106 | `[todo]` |
 
 ## Bloque 3 — Frontend: fundaciones visuales (igual que `PROMPT_FASE_1_OPENCODE.md`)
