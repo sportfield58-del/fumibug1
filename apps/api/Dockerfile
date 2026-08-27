@@ -52,7 +52,10 @@ RUN pnpm exec turbo run build --filter=@fumibug/api...
 RUN pnpm --filter @fumibug/api deploy --prod --legacy --ignore-scripts /prod/api
 # `prisma` es devDependency de packages/db, no de la raíz — no está hoisteado a
 # /repo/node_modules/.bin. `pnpm --filter ... exec` lo resuelve bien sin importar eso.
-RUN pnpm --filter @fumibug/db exec prisma generate --schema=/prod/api/node_modules/@fumibug/db/prisma/schema.prisma
+# CI=true: sin esto, pnpm exec revisa si /repo/node_modules está "al día" y, al no haber
+# TTY en el build de Docker, aborta en vez de preguntar si puede reinstalar — es el propio
+# mensaje de error de pnpm el que pide setear esta variable en este escenario.
+RUN CI=true pnpm --filter @fumibug/db exec prisma generate --schema=/prod/api/node_modules/@fumibug/db/prisma/schema.prisma
 
 # --- runtime: imagen final, solo lo que hace falta para correr ---
 FROM node:24-slim AS runtime
