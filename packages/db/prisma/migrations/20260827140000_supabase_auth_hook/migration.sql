@@ -56,20 +56,39 @@ $$;
 -- Supabase Auth corre como el rol supabase_auth_admin — necesita poder ejecutar esta
 -- función y leer las tablas que consulta (RLS con FORCE ROW LEVEL SECURITY no lo deja
 -- pasar solo con el grant de ejecución; ver política explícita más abajo).
-GRANT USAGE ON SCHEMA public TO supabase_auth_admin;
-GRANT EXECUTE ON FUNCTION public.custom_access_token_hook TO supabase_auth_admin;
-REVOKE EXECUTE ON FUNCTION public.custom_access_token_hook FROM authenticated, anon, public;
+--
+-- supabase_auth_admin/authenticated/anon son roles que Supabase crea en su propia
+-- instancia gestionada — no existen en un Postgres genérico (ej. el efímero de CI,
+-- test:integration/test:tenant-isolation). Todo el bloque de acá abajo se salta solo en
+-- esos entornos, vía EXECUTE dinámico (un GRANT/CREATE POLICY directo a un rol
+-- inexistente falla al parsear la migración, sin importar el IF que lo rodee).
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'supabase_auth_admin') THEN
+    EXECUTE 'GRANT USAGE ON SCHEMA public TO supabase_auth_admin';
+    EXECUTE 'GRANT EXECUTE ON FUNCTION public.custom_access_token_hook TO supabase_auth_admin';
 
-GRANT SELECT ON public.memberships TO supabase_auth_admin;
-GRANT SELECT ON public.roles TO supabase_auth_admin;
-GRANT SELECT ON public.role_permissions TO supabase_auth_admin;
+    EXECUTE 'GRANT SELECT ON public.memberships TO supabase_auth_admin';
+    EXECUTE 'GRANT SELECT ON public.roles TO supabase_auth_admin';
+    EXECUTE 'GRANT SELECT ON public.role_permissions TO supabase_auth_admin';
 
--- FORCE ROW LEVEL SECURITY (migración anterior) bloquea incluso al dueño de la tabla sin
--- una policy explícita — supabase_auth_admin necesita ver todas las filas de todos los
--- tenants (el hook corre antes de que exista noción de "tenant actual" en la sesión).
-CREATE POLICY supabase_auth_admin_read_memberships ON public.memberships
-  FOR SELECT TO supabase_auth_admin USING (true);
-CREATE POLICY supabase_auth_admin_read_roles ON public.roles
-  FOR SELECT TO supabase_auth_admin USING (true);
-CREATE POLICY supabase_auth_admin_read_role_permissions ON public.role_permissions
-  FOR SELECT TO supabase_auth_admin USING (true);
+    -- FORCE ROW LEVEL SECURITY (migración anterior) bloquea incluso al dueño de la
+    -- tabla sin una policy explícita — supabase_auth_admin necesita ver todas las
+    -- filas de todos los tenants (el hook corre antes de que exista noción de
+    -- "tenant actual" en la sesión).
+    EXECUTE 'CREATE POLICY supabase_auth_admin_read_memberships ON public.memberships '
+      || 'FOR SELECT TO supabase_auth_admin USING (true)';
+    EXECUTE 'CREATE POLICY supabase_auth_admin_read_roles ON public.roles '
+      || 'FOR SELECT TO supabase_auth_admin USING (true)';
+    EXECUTE 'CREATE POLICY supabase_auth_admin_read_role_permissions ON public.role_permissions '
+      || 'FOR SELECT TO supabase_auth_admin USING (true)';
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+    EXECUTE 'REVOKE EXECUTE ON FUNCTION public.custom_access_token_hook FROM authenticated';
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+    EXECUTE 'REVOKE EXECUTE ON FUNCTION public.custom_access_token_hook FROM anon';
+  END IF;
+END $$;
+REVOKE EXECUTE ON FUNCTION public.custom_access_token_hook FROM public;
