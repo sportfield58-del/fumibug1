@@ -11444,6 +11444,757 @@
           }
         }
       }
+    },
+    "/field/sessions/{id}/evidence/upload-url": {
+      "post": {
+        "summary": "URL firmada de Storage para subir una evidencia.",
+        "operationId": "uploadEvidenceUrl",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "BEFORE",
+                      "DURING",
+                      "AFTER",
+                      "FACADE",
+                      "RECEIPT",
+                      "ISSUE"
+                    ]
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "PHOTO",
+                      "SIGNATURE",
+                      "DOCUMENT"
+                    ]
+                  },
+                  "mimeType": {
+                    "type": "string",
+                    "maxLength": 100
+                  }
+                },
+                "required": [
+                  "category",
+                  "type",
+                  "mimeType"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "uploadUrl": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "storagePath": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "expiresAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "uploadUrl",
+                    "storagePath",
+                    "expiresAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "uploadUrl": "https://storage.fumibug.internal/signed/abc123",
+                  "storagePath": "tenants/f0000000-0000-4000-8000-000100000000/evidence/2026/08/27/xyz.webp",
+                  "expiresAt": "2026-08-27T13:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/field/sessions/{id}/evidence": {
+      "post": {
+        "summary": "Confirma la subida y crea el registro de evidencia.",
+        "operationId": "confirmEvidence",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "storagePath": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "BEFORE",
+                      "DURING",
+                      "AFTER",
+                      "FACADE",
+                      "RECEIPT",
+                      "ISSUE"
+                    ]
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "PHOTO",
+                      "SIGNATURE",
+                      "DOCUMENT"
+                    ]
+                  },
+                  "mimeType": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "nullable": true
+                  },
+                  "sizeBytes": {
+                    "type": "integer",
+                    "exclusiveMinimum": true,
+                    "minimum": 0,
+                    "maximum": 8388608,
+                    "nullable": true
+                  },
+                  "width": {
+                    "type": "integer",
+                    "exclusiveMinimum": true,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "height": {
+                    "type": "integer",
+                    "exclusiveMinimum": true,
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "sha256": {
+                    "type": "string",
+                    "minLength": 64,
+                    "maxLength": 64,
+                    "nullable": true
+                  },
+                  "takenAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "nullable": true
+                  },
+                  "lat": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "lng": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "accuracyM": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "clientEventId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "storagePath",
+                  "category",
+                  "type",
+                  "clientEventId"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceSessionId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "PHOTO",
+                        "SIGNATURE",
+                        "DOCUMENT"
+                      ]
+                    },
+                    "category": {
+                      "type": "string",
+                      "enum": [
+                        "BEFORE",
+                        "DURING",
+                        "AFTER",
+                        "FACADE",
+                        "RECEIPT",
+                        "ISSUE"
+                      ]
+                    },
+                    "storagePath": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "mimeType": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "nullable": true
+                    },
+                    "sizeBytes": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "maximum": 8388608,
+                      "nullable": true
+                    },
+                    "width": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "height": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "minLength": 64,
+                      "maxLength": 64,
+                      "nullable": true
+                    },
+                    "takenAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "uploadedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "lat": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "lng": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "accuracyM": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "clientEventId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "serviceSessionId",
+                    "type",
+                    "category",
+                    "storagePath",
+                    "uploadedAt",
+                    "clientEventId"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "20202020-1111-1111-1111-111111111111",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+                  "type": "PHOTO",
+                  "category": "BEFORE",
+                  "storagePath": "tenants/f0000000-0000-4000-8000-000100000000/evidence/2026/08/27/xyz.webp",
+                  "mimeType": "image/webp",
+                  "sizeBytes": 245678,
+                  "width": 1280,
+                  "height": 960,
+                  "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "takenAt": "2026-08-27T12:50:00.000Z",
+                  "uploadedAt": "2026-08-27T12:51:00.000Z",
+                  "lat": -34.6037,
+                  "lng": -58.3816,
+                  "accuracyM": 8.5,
+                  "clientEventId": "40404040-1111-1111-1111-111111111111"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/dashboard-admin": {
+      "get": {
+        "summary": "Dashboard del admin: servicios de hoy, operarios activos, alertas, cobrado hoy.",
+        "operationId": "getAdminDashboard",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "servicesTodayByStatus": {
+                      "type": "object",
+                      "required": [
+                        "DRAFT",
+                        "SCHEDULED",
+                        "ASSIGNED",
+                        "DISPATCHED",
+                        "IN_EXECUTION",
+                        "PENDING_VALIDATION",
+                        "COMPLETED",
+                        "PARTIALLY_COMPLETED",
+                        "RESCHEDULED",
+                        "CANCELLED"
+                      ],
+                      "properties": {
+                        "DRAFT": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "SCHEDULED": {
+                          "$ref": "#/properties/servicesTodayByStatus/properties/DRAFT"
+                        },
+                        "ASSIGNED": {
+                          "$ref": "#/properties/servicesTodayByStatus/properties/DRAFT"
+                        },
+                        "DISPATCHED": {
+                          "$ref": "#/properties/servicesTodayByStatus/properties/DRAFT"
+                        },
+                        "IN_EXECUTION": {
+                          "$ref": "#/properties/servicesTodayByStatus/properties/DRAFT"
+                        },
+                        "PENDING_VALIDATION": {
+                          "$ref": "#/properties/servicesTodayByStatus/properties/DRAFT"
+                        },
+                        "COMPLETED": {
+                          "$ref": "#/properties/servicesTodayByStatus/properties/DRAFT"
+                        },
+                        "PARTIALLY_COMPLETED": {
+                          "$ref": "#/properties/servicesTodayByStatus/properties/DRAFT"
+                        },
+                        "RESCHEDULED": {
+                          "$ref": "#/properties/servicesTodayByStatus/properties/DRAFT"
+                        },
+                        "CANCELLED": {
+                          "$ref": "#/properties/servicesTodayByStatus/properties/DRAFT"
+                        }
+                      },
+                      "additionalProperties": false
+                    },
+                    "activeTechniciansCount": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "unassignedServicesCount": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "alerts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "LOW_STOCK",
+                              "LICENSE_EXPIRING",
+                              "PENDING_CLOSURE",
+                              "UNSIGNED_CERTIFICATE"
+                            ]
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "entityId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "severity": {
+                            "type": "string",
+                            "enum": [
+                              "INFO",
+                              "WARNING",
+                              "CRITICAL"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "message",
+                          "severity"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "collectedTodayCashCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "collectedTodayTransferCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "servicesTodayByStatus",
+                    "activeTechniciansCount",
+                    "unassignedServicesCount",
+                    "alerts",
+                    "collectedTodayCashCents",
+                    "collectedTodayTransferCents"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "servicesTodayByStatus": {
+                    "SCHEDULED": 3,
+                    "DISPATCHED": 2,
+                    "IN_EXECUTION": 1,
+                    "COMPLETED": 4
+                  },
+                  "activeTechniciansCount": 3,
+                  "unassignedServicesCount": 1,
+                  "alerts": [
+                    {
+                      "type": "LICENSE_EXPIRING",
+                      "message": "La libreta sanitaria de Diego Operario vence en 25 días.",
+                      "entityId": "22222222-2222-2222-2222-222222222222",
+                      "severity": "WARNING"
+                    }
+                  ],
+                  "collectedTodayCashCents": 4500000,
+                  "collectedTodayTransferCents": 1200000
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/dashboard-owner": {
+      "get": {
+        "summary": "Dashboard del owner: los 4 números del negocio.",
+        "operationId": "getOwnerDashboard",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "billedThisMonthCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "cashPendingReconciliationCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "completedServicesThisMonth": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "averageTicketCents": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "billedThisMonthCents",
+                    "cashPendingReconciliationCents",
+                    "completedServicesThisMonth",
+                    "averageTicketCents"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "billedThisMonthCents": 850000000,
+                  "cashPendingReconciliationCents": 3200000,
+                  "completedServicesThisMonth": 142,
+                  "averageTicketCents": 1450000
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/audit-logs": {
+      "get": {
+        "summary": "Log de auditoría, paginado por cursor.",
+        "operationId": "listAuditLogs",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "actorUserId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "actorRole": {
+                        "type": "string",
+                        "maxLength": 40,
+                        "nullable": true
+                      },
+                      "action": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 60
+                      },
+                      "entityType": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 60
+                      },
+                      "entityId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "before": {
+                        "nullable": true
+                      },
+                      "after": {
+                        "nullable": true
+                      },
+                      "diff": {
+                        "nullable": true
+                      },
+                      "severity": {
+                        "type": "string",
+                        "enum": [
+                          "INFO",
+                          "WARNING",
+                          "CRITICAL"
+                        ]
+                      },
+                      "ip": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "userAgent": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "requestId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "tenantId",
+                      "action",
+                      "entityType",
+                      "severity",
+                      "createdAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "example": [
+                  {
+                    "id": "10245",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "actorUserId": "11111111-1111-1111-1111-111111111111",
+                    "actorRole": "owner",
+                    "action": "route.publish",
+                    "entityType": "route",
+                    "entityId": "ffffffff-1111-1111-1111-111111111111",
+                    "before": {
+                      "status": "DRAFT"
+                    },
+                    "after": {
+                      "status": "PUBLISHED"
+                    },
+                    "diff": null,
+                    "severity": "INFO",
+                    "ip": "190.191.10.20",
+                    "userAgent": "Mozilla/5.0",
+                    "requestId": "50505050-1111-1111-1111-111111111111",
+                    "createdAt": "2026-08-27T18:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entityType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "entityId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actorUserId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
     }
   },
   "components": {
