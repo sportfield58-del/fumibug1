@@ -6,6 +6,7 @@ export * from './responses';
 export * from './permissions';
 export * from './schemas/tenant';
 export * from './schemas/technician-profile';
+export * from './schemas/customer';
 export * from './schemas/user';
 export * from './schemas/membership';
 export * from './schemas/role';

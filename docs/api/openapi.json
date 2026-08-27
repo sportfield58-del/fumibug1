@@ -1636,6 +1636,2609 @@
           }
         }
       }
+    },
+    "/customers": {
+      "get": {
+        "summary": "Lista de clientes, con sus contactos.",
+        "operationId": "listCustomers",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "INDIVIDUAL",
+                          "COMPANY"
+                        ]
+                      },
+                      "legalName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "tradeName": {
+                        "type": "string",
+                        "maxLength": 200,
+                        "nullable": true
+                      },
+                      "taxId": {
+                        "type": "string",
+                        "maxLength": 20,
+                        "nullable": true
+                      },
+                      "taxCondition": {
+                        "type": "string",
+                        "enum": [
+                          "RESPONSABLE_INSCRIPTO",
+                          "MONOTRIBUTO",
+                          "EXENTO",
+                          "CONSUMIDOR_FINAL",
+                          "NO_RESPONSABLE"
+                        ],
+                        "nullable": true
+                      },
+                      "paymentTerms": {
+                        "type": "string",
+                        "enum": [
+                          "CASH",
+                          "ACCOUNT",
+                          "CONTRACT"
+                        ]
+                      },
+                      "creditLimitCents": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "nullable": true
+                      },
+                      "notes": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "tags": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "archivedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "contacts": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "tenantId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "customerId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "name": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 150
+                            },
+                            "role": {
+                              "type": "string",
+                              "enum": [
+                                "OWNER",
+                                "ONSITE",
+                                "BILLING"
+                              ]
+                            },
+                            "phone": {
+                              "type": "string",
+                              "maxLength": 40,
+                              "nullable": true
+                            },
+                            "email": {
+                              "type": "string",
+                              "format": "email",
+                              "maxLength": 200,
+                              "nullable": true
+                            },
+                            "isPrimary": {
+                              "type": "boolean"
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "tenantId",
+                            "customerId",
+                            "name",
+                            "role",
+                            "isPrimary",
+                            "createdAt",
+                            "updatedAt"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "tenantId",
+                      "type",
+                      "legalName",
+                      "paymentTerms",
+                      "tags",
+                      "createdAt",
+                      "updatedAt",
+                      "contacts"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "example": [
+                  {
+                    "id": "55555555-5555-5555-5555-555555555555",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "type": "COMPANY",
+                    "legalName": "Comidas del Sur S.A.",
+                    "tradeName": "Restó del Sur",
+                    "taxId": "30-71234567-8",
+                    "taxCondition": "RESPONSABLE_INSCRIPTO",
+                    "paymentTerms": "ACCOUNT",
+                    "creditLimitCents": 50000000,
+                    "notes": null,
+                    "tags": [
+                      "gastronomico"
+                    ],
+                    "archivedAt": null,
+                    "createdAt": "2026-08-20T12:00:00.000Z",
+                    "updatedAt": "2026-08-20T12:00:00.000Z",
+                    "contacts": [
+                      {
+                        "id": "66666666-6666-6666-6666-666666666666",
+                        "tenantId": "f0000000-0000-4000-8000-000100000000",
+                        "customerId": "55555555-5555-5555-5555-555555555555",
+                        "name": "María Gerente",
+                        "role": "OWNER",
+                        "phone": "+54 9 11 5555-1111",
+                        "email": "maria@restodelsur.com.ar",
+                        "isPrimary": true,
+                        "createdAt": "2026-08-20T12:00:00.000Z",
+                        "updatedAt": "2026-08-20T12:00:00.000Z"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeArchived",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Alta de cliente, con contactos embebidos.",
+        "operationId": "createCustomer",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "INDIVIDUAL",
+                      "COMPANY"
+                    ]
+                  },
+                  "legalName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "tradeName": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "nullable": true
+                  },
+                  "taxId": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "nullable": true
+                  },
+                  "taxCondition": {
+                    "type": "string",
+                    "enum": [
+                      "RESPONSABLE_INSCRIPTO",
+                      "MONOTRIBUTO",
+                      "EXENTO",
+                      "CONSUMIDOR_FINAL",
+                      "NO_RESPONSABLE"
+                    ],
+                    "nullable": true
+                  },
+                  "paymentTerms": {
+                    "type": "string",
+                    "enum": [
+                      "CASH",
+                      "ACCOUNT",
+                      "CONTRACT"
+                    ],
+                    "default": "CASH"
+                  },
+                  "creditLimitCents": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "notes": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "contacts": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 150
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "OWNER",
+                            "ONSITE",
+                            "BILLING"
+                          ]
+                        },
+                        "phone": {
+                          "type": "string",
+                          "maxLength": 40,
+                          "nullable": true
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email",
+                          "maxLength": 200,
+                          "nullable": true
+                        },
+                        "isPrimary": {
+                          "type": "boolean",
+                          "default": false
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "role"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  }
+                },
+                "required": [
+                  "type",
+                  "legalName"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "INDIVIDUAL",
+                        "COMPANY"
+                      ]
+                    },
+                    "legalName": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "tradeName": {
+                      "type": "string",
+                      "maxLength": 200,
+                      "nullable": true
+                    },
+                    "taxId": {
+                      "type": "string",
+                      "maxLength": 20,
+                      "nullable": true
+                    },
+                    "taxCondition": {
+                      "type": "string",
+                      "enum": [
+                        "RESPONSABLE_INSCRIPTO",
+                        "MONOTRIBUTO",
+                        "EXENTO",
+                        "CONSUMIDOR_FINAL",
+                        "NO_RESPONSABLE"
+                      ],
+                      "nullable": true
+                    },
+                    "paymentTerms": {
+                      "type": "string",
+                      "enum": [
+                        "CASH",
+                        "ACCOUNT",
+                        "CONTRACT"
+                      ]
+                    },
+                    "creditLimitCents": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "notes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "archivedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "contacts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "tenantId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "customerId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 150
+                          },
+                          "role": {
+                            "type": "string",
+                            "enum": [
+                              "OWNER",
+                              "ONSITE",
+                              "BILLING"
+                            ]
+                          },
+                          "phone": {
+                            "type": "string",
+                            "maxLength": 40,
+                            "nullable": true
+                          },
+                          "email": {
+                            "type": "string",
+                            "format": "email",
+                            "maxLength": 200,
+                            "nullable": true
+                          },
+                          "isPrimary": {
+                            "type": "boolean"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "tenantId",
+                          "customerId",
+                          "name",
+                          "role",
+                          "isPrimary",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "type",
+                    "legalName",
+                    "paymentTerms",
+                    "tags",
+                    "createdAt",
+                    "updatedAt",
+                    "contacts"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "77777777-7777-7777-7777-777777777777",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "type": "INDIVIDUAL",
+                  "legalName": "Juan Pérez",
+                  "tradeName": null,
+                  "taxId": null,
+                  "taxCondition": null,
+                  "paymentTerms": "CASH",
+                  "creditLimitCents": null,
+                  "notes": null,
+                  "tags": [],
+                  "archivedAt": null,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z",
+                  "contacts": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/{id}": {
+      "get": {
+        "summary": "Detalle de un cliente con sus contactos.",
+        "operationId": "getCustomer",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "INDIVIDUAL",
+                        "COMPANY"
+                      ]
+                    },
+                    "legalName": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "tradeName": {
+                      "type": "string",
+                      "maxLength": 200,
+                      "nullable": true
+                    },
+                    "taxId": {
+                      "type": "string",
+                      "maxLength": 20,
+                      "nullable": true
+                    },
+                    "taxCondition": {
+                      "type": "string",
+                      "enum": [
+                        "RESPONSABLE_INSCRIPTO",
+                        "MONOTRIBUTO",
+                        "EXENTO",
+                        "CONSUMIDOR_FINAL",
+                        "NO_RESPONSABLE"
+                      ],
+                      "nullable": true
+                    },
+                    "paymentTerms": {
+                      "type": "string",
+                      "enum": [
+                        "CASH",
+                        "ACCOUNT",
+                        "CONTRACT"
+                      ]
+                    },
+                    "creditLimitCents": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "notes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "archivedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "contacts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "tenantId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "customerId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 150
+                          },
+                          "role": {
+                            "type": "string",
+                            "enum": [
+                              "OWNER",
+                              "ONSITE",
+                              "BILLING"
+                            ]
+                          },
+                          "phone": {
+                            "type": "string",
+                            "maxLength": 40,
+                            "nullable": true
+                          },
+                          "email": {
+                            "type": "string",
+                            "format": "email",
+                            "maxLength": 200,
+                            "nullable": true
+                          },
+                          "isPrimary": {
+                            "type": "boolean"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "tenantId",
+                          "customerId",
+                          "name",
+                          "role",
+                          "isPrimary",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "type",
+                    "legalName",
+                    "paymentTerms",
+                    "tags",
+                    "createdAt",
+                    "updatedAt",
+                    "contacts"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "55555555-5555-5555-5555-555555555555",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "type": "COMPANY",
+                  "legalName": "Comidas del Sur S.A.",
+                  "tradeName": "Restó del Sur",
+                  "taxId": "30-71234567-8",
+                  "taxCondition": "RESPONSABLE_INSCRIPTO",
+                  "paymentTerms": "ACCOUNT",
+                  "creditLimitCents": 50000000,
+                  "notes": null,
+                  "tags": [
+                    "gastronomico"
+                  ],
+                  "archivedAt": null,
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-20T12:00:00.000Z",
+                  "contacts": []
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Edita un cliente (requiere If-Match). Reemplaza la lista de contactos si se envía.",
+        "operationId": "updateCustomer",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "INDIVIDUAL",
+                      "COMPANY"
+                    ]
+                  },
+                  "legalName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  },
+                  "tradeName": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "nullable": true
+                  },
+                  "taxId": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "nullable": true
+                  },
+                  "taxCondition": {
+                    "type": "string",
+                    "enum": [
+                      "RESPONSABLE_INSCRIPTO",
+                      "MONOTRIBUTO",
+                      "EXENTO",
+                      "CONSUMIDOR_FINAL",
+                      "NO_RESPONSABLE"
+                    ],
+                    "nullable": true
+                  },
+                  "paymentTerms": {
+                    "type": "string",
+                    "enum": [
+                      "CASH",
+                      "ACCOUNT",
+                      "CONTRACT"
+                    ],
+                    "default": "CASH"
+                  },
+                  "creditLimitCents": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "nullable": true
+                  },
+                  "notes": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "contacts": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 150
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "OWNER",
+                            "ONSITE",
+                            "BILLING"
+                          ]
+                        },
+                        "phone": {
+                          "type": "string",
+                          "maxLength": 40,
+                          "nullable": true
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email",
+                          "maxLength": 200,
+                          "nullable": true
+                        },
+                        "isPrimary": {
+                          "type": "boolean",
+                          "default": false
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "role"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "INDIVIDUAL",
+                        "COMPANY"
+                      ]
+                    },
+                    "legalName": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "tradeName": {
+                      "type": "string",
+                      "maxLength": 200,
+                      "nullable": true
+                    },
+                    "taxId": {
+                      "type": "string",
+                      "maxLength": 20,
+                      "nullable": true
+                    },
+                    "taxCondition": {
+                      "type": "string",
+                      "enum": [
+                        "RESPONSABLE_INSCRIPTO",
+                        "MONOTRIBUTO",
+                        "EXENTO",
+                        "CONSUMIDOR_FINAL",
+                        "NO_RESPONSABLE"
+                      ],
+                      "nullable": true
+                    },
+                    "paymentTerms": {
+                      "type": "string",
+                      "enum": [
+                        "CASH",
+                        "ACCOUNT",
+                        "CONTRACT"
+                      ]
+                    },
+                    "creditLimitCents": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "notes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "archivedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "contacts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "tenantId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "customerId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 150
+                          },
+                          "role": {
+                            "type": "string",
+                            "enum": [
+                              "OWNER",
+                              "ONSITE",
+                              "BILLING"
+                            ]
+                          },
+                          "phone": {
+                            "type": "string",
+                            "maxLength": 40,
+                            "nullable": true
+                          },
+                          "email": {
+                            "type": "string",
+                            "format": "email",
+                            "maxLength": 200,
+                            "nullable": true
+                          },
+                          "isPrimary": {
+                            "type": "boolean"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "tenantId",
+                          "customerId",
+                          "name",
+                          "role",
+                          "isPrimary",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "type",
+                    "legalName",
+                    "paymentTerms",
+                    "tags",
+                    "createdAt",
+                    "updatedAt",
+                    "contacts"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "55555555-5555-5555-5555-555555555555",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "type": "COMPANY",
+                  "legalName": "Comidas del Sur S.A.",
+                  "tradeName": "Restó del Sur",
+                  "taxId": "30-71234567-8",
+                  "taxCondition": "RESPONSABLE_INSCRIPTO",
+                  "paymentTerms": "ACCOUNT",
+                  "creditLimitCents": 50000000,
+                  "notes": "Cliente VIP",
+                  "tags": [
+                    "gastronomico"
+                  ],
+                  "archivedAt": null,
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:10:00.000Z",
+                  "contacts": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/{id}/archive": {
+      "post": {
+        "summary": "Archiva un cliente (soft delete — CLAUDE.md §5, sin DELETE de negocio).",
+        "operationId": "archiveCustomer",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "INDIVIDUAL",
+                        "COMPANY"
+                      ]
+                    },
+                    "legalName": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "tradeName": {
+                      "type": "string",
+                      "maxLength": 200,
+                      "nullable": true
+                    },
+                    "taxId": {
+                      "type": "string",
+                      "maxLength": 20,
+                      "nullable": true
+                    },
+                    "taxCondition": {
+                      "type": "string",
+                      "enum": [
+                        "RESPONSABLE_INSCRIPTO",
+                        "MONOTRIBUTO",
+                        "EXENTO",
+                        "CONSUMIDOR_FINAL",
+                        "NO_RESPONSABLE"
+                      ],
+                      "nullable": true
+                    },
+                    "paymentTerms": {
+                      "type": "string",
+                      "enum": [
+                        "CASH",
+                        "ACCOUNT",
+                        "CONTRACT"
+                      ]
+                    },
+                    "creditLimitCents": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "nullable": true
+                    },
+                    "notes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "archivedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "contacts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "tenantId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "customerId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 150
+                          },
+                          "role": {
+                            "type": "string",
+                            "enum": [
+                              "OWNER",
+                              "ONSITE",
+                              "BILLING"
+                            ]
+                          },
+                          "phone": {
+                            "type": "string",
+                            "maxLength": 40,
+                            "nullable": true
+                          },
+                          "email": {
+                            "type": "string",
+                            "format": "email",
+                            "maxLength": 200,
+                            "nullable": true
+                          },
+                          "isPrimary": {
+                            "type": "boolean"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "tenantId",
+                          "customerId",
+                          "name",
+                          "role",
+                          "isPrimary",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "type",
+                    "legalName",
+                    "paymentTerms",
+                    "tags",
+                    "createdAt",
+                    "updatedAt",
+                    "contacts"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "55555555-5555-5555-5555-555555555555",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "type": "COMPANY",
+                  "legalName": "Comidas del Sur S.A.",
+                  "tradeName": "Restó del Sur",
+                  "taxId": "30-71234567-8",
+                  "taxCondition": "RESPONSABLE_INSCRIPTO",
+                  "paymentTerms": "ACCOUNT",
+                  "creditLimitCents": 50000000,
+                  "notes": null,
+                  "tags": [
+                    "gastronomico"
+                  ],
+                  "archivedAt": "2026-08-27T12:15:00.000Z",
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:15:00.000Z",
+                  "contacts": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/{id}/summary": {
+      "get": {
+        "summary": "Cuenta corriente + resumen de actividad de un cliente.",
+        "operationId": "getCustomerSummary",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "customer": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "tenantId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "INDIVIDUAL",
+                            "COMPANY"
+                          ]
+                        },
+                        "legalName": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "tradeName": {
+                          "type": "string",
+                          "maxLength": 200,
+                          "nullable": true
+                        },
+                        "taxId": {
+                          "type": "string",
+                          "maxLength": 20,
+                          "nullable": true
+                        },
+                        "taxCondition": {
+                          "type": "string",
+                          "enum": [
+                            "RESPONSABLE_INSCRIPTO",
+                            "MONOTRIBUTO",
+                            "EXENTO",
+                            "CONSUMIDOR_FINAL",
+                            "NO_RESPONSABLE"
+                          ],
+                          "nullable": true
+                        },
+                        "paymentTerms": {
+                          "type": "string",
+                          "enum": [
+                            "CASH",
+                            "ACCOUNT",
+                            "CONTRACT"
+                          ]
+                        },
+                        "creditLimitCents": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "nullable": true
+                        },
+                        "notes": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "tags": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "archivedAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "contacts": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "tenantId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "customerId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "name": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 150
+                              },
+                              "role": {
+                                "type": "string",
+                                "enum": [
+                                  "OWNER",
+                                  "ONSITE",
+                                  "BILLING"
+                                ]
+                              },
+                              "phone": {
+                                "type": "string",
+                                "maxLength": 40,
+                                "nullable": true
+                              },
+                              "email": {
+                                "type": "string",
+                                "format": "email",
+                                "maxLength": 200,
+                                "nullable": true
+                              },
+                              "isPrimary": {
+                                "type": "boolean"
+                              },
+                              "createdAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "updatedAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "tenantId",
+                              "customerId",
+                              "name",
+                              "role",
+                              "isPrimary",
+                              "createdAt",
+                              "updatedAt"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "tenantId",
+                        "type",
+                        "legalName",
+                        "paymentTerms",
+                        "tags",
+                        "createdAt",
+                        "updatedAt",
+                        "contacts"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "accountBalanceCents": {
+                      "type": "integer"
+                    },
+                    "upcomingServicesCount": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "lastServiceAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "customer",
+                    "accountBalanceCents",
+                    "upcomingServicesCount"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "customer": {
+                    "id": "55555555-5555-5555-5555-555555555555",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "type": "COMPANY",
+                    "legalName": "Comidas del Sur S.A.",
+                    "tradeName": "Restó del Sur",
+                    "taxId": "30-71234567-8",
+                    "taxCondition": "RESPONSABLE_INSCRIPTO",
+                    "paymentTerms": "ACCOUNT",
+                    "creditLimitCents": 50000000,
+                    "notes": null,
+                    "tags": [
+                      "gastronomico"
+                    ],
+                    "archivedAt": null,
+                    "createdAt": "2026-08-20T12:00:00.000Z",
+                    "updatedAt": "2026-08-20T12:00:00.000Z",
+                    "contacts": []
+                  },
+                  "accountBalanceCents": -1500000,
+                  "upcomingServicesCount": 2,
+                  "lastServiceAt": "2026-08-15T14:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/{id}/locations": {
+      "get": {
+        "summary": "Ubicaciones de un cliente.",
+        "operationId": "listCustomerLocations",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "customerId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "label": {
+                        "type": "string",
+                        "maxLength": 80,
+                        "nullable": true
+                      },
+                      "addressLine": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "city": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "nullable": true
+                      },
+                      "province": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "nullable": true
+                      },
+                      "postalCode": {
+                        "type": "string",
+                        "maxLength": 20,
+                        "nullable": true
+                      },
+                      "lat": {
+                        "type": "number",
+                        "nullable": true
+                      },
+                      "lng": {
+                        "type": "number",
+                        "nullable": true
+                      },
+                      "geocodeStatus": {
+                        "type": "string",
+                        "enum": [
+                          "PENDING",
+                          "OK",
+                          "MANUAL",
+                          "FAILED"
+                        ]
+                      },
+                      "accessNotes": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "hazardNotes": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "establishmentType": {
+                        "type": "string",
+                        "enum": [
+                          "HOME",
+                          "GASTRO",
+                          "FOOD_INDUSTRY",
+                          "WAREHOUSE",
+                          "SCHOOL",
+                          "OFFICE",
+                          "OTHER"
+                        ]
+                      },
+                      "areaSqm": {
+                        "type": "number",
+                        "nullable": true
+                      },
+                      "serviceWindowStart": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "serviceWindowEnd": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "zoneId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "archivedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "tenantId",
+                      "customerId",
+                      "addressLine",
+                      "geocodeStatus",
+                      "establishmentType",
+                      "createdAt",
+                      "updatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "example": [
+                  {
+                    "id": "88888888-8888-8888-8888-888888888888",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "customerId": "55555555-5555-5555-5555-555555555555",
+                    "label": "Sucursal Centro",
+                    "addressLine": "Av. Corrientes 1234",
+                    "city": "CABA",
+                    "province": "Buenos Aires",
+                    "postalCode": "C1043",
+                    "lat": -34.6037,
+                    "lng": -58.3816,
+                    "geocodeStatus": "OK",
+                    "accessNotes": "Portero 24hs, timbre 3B",
+                    "hazardNotes": null,
+                    "establishmentType": "GASTRO",
+                    "areaSqm": 180,
+                    "serviceWindowStart": "08:00:00",
+                    "serviceWindowEnd": "18:00:00",
+                    "zoneId": null,
+                    "archivedAt": null,
+                    "createdAt": "2026-08-20T12:00:00.000Z",
+                    "updatedAt": "2026-08-20T12:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Alta de ubicación para un cliente.",
+        "operationId": "createCustomerLocation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "nullable": true
+                  },
+                  "addressLine": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "city": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "nullable": true
+                  },
+                  "province": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "nullable": true
+                  },
+                  "postalCode": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "nullable": true
+                  },
+                  "lat": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "lng": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "accessNotes": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "hazardNotes": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "establishmentType": {
+                    "type": "string",
+                    "enum": [
+                      "HOME",
+                      "GASTRO",
+                      "FOOD_INDUSTRY",
+                      "WAREHOUSE",
+                      "SCHOOL",
+                      "OFFICE",
+                      "OTHER"
+                    ],
+                    "default": "OTHER"
+                  },
+                  "areaSqm": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "serviceWindowStart": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "serviceWindowEnd": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "zoneId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "addressLine"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 80,
+                      "nullable": true
+                    },
+                    "addressLine": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "city": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "nullable": true
+                    },
+                    "province": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "nullable": true
+                    },
+                    "postalCode": {
+                      "type": "string",
+                      "maxLength": 20,
+                      "nullable": true
+                    },
+                    "lat": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "lng": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "geocodeStatus": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "OK",
+                        "MANUAL",
+                        "FAILED"
+                      ]
+                    },
+                    "accessNotes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "hazardNotes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "establishmentType": {
+                      "type": "string",
+                      "enum": [
+                        "HOME",
+                        "GASTRO",
+                        "FOOD_INDUSTRY",
+                        "WAREHOUSE",
+                        "SCHOOL",
+                        "OFFICE",
+                        "OTHER"
+                      ]
+                    },
+                    "areaSqm": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "serviceWindowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceWindowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "zoneId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "archivedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "customerId",
+                    "addressLine",
+                    "geocodeStatus",
+                    "establishmentType",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "99999999-9999-9999-9999-999999999999",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "label": null,
+                  "addressLine": "Av. Rivadavia 5000",
+                  "city": "CABA",
+                  "province": "Buenos Aires",
+                  "postalCode": null,
+                  "lat": null,
+                  "lng": null,
+                  "geocodeStatus": "PENDING",
+                  "accessNotes": null,
+                  "hazardNotes": null,
+                  "establishmentType": "OTHER",
+                  "areaSqm": null,
+                  "serviceWindowStart": null,
+                  "serviceWindowEnd": null,
+                  "zoneId": null,
+                  "archivedAt": null,
+                  "createdAt": "2026-08-27T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/locations/{id}": {
+      "get": {
+        "summary": "Detalle de una ubicación.",
+        "operationId": "getLocation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 80,
+                      "nullable": true
+                    },
+                    "addressLine": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "city": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "nullable": true
+                    },
+                    "province": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "nullable": true
+                    },
+                    "postalCode": {
+                      "type": "string",
+                      "maxLength": 20,
+                      "nullable": true
+                    },
+                    "lat": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "lng": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "geocodeStatus": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "OK",
+                        "MANUAL",
+                        "FAILED"
+                      ]
+                    },
+                    "accessNotes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "hazardNotes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "establishmentType": {
+                      "type": "string",
+                      "enum": [
+                        "HOME",
+                        "GASTRO",
+                        "FOOD_INDUSTRY",
+                        "WAREHOUSE",
+                        "SCHOOL",
+                        "OFFICE",
+                        "OTHER"
+                      ]
+                    },
+                    "areaSqm": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "serviceWindowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceWindowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "zoneId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "archivedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "customerId",
+                    "addressLine",
+                    "geocodeStatus",
+                    "establishmentType",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "88888888-8888-8888-8888-888888888888",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "label": "Sucursal Centro",
+                  "addressLine": "Av. Corrientes 1234",
+                  "city": "CABA",
+                  "province": "Buenos Aires",
+                  "postalCode": "C1043",
+                  "lat": -34.6037,
+                  "lng": -58.3816,
+                  "geocodeStatus": "OK",
+                  "accessNotes": "Portero 24hs, timbre 3B",
+                  "hazardNotes": null,
+                  "establishmentType": "GASTRO",
+                  "areaSqm": 180,
+                  "serviceWindowStart": "08:00:00",
+                  "serviceWindowEnd": "18:00:00",
+                  "zoneId": null,
+                  "archivedAt": null,
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-20T12:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Edita una ubicación (requiere If-Match).",
+        "operationId": "updateLocation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "nullable": true
+                  },
+                  "addressLine": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "city": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "nullable": true
+                  },
+                  "province": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "nullable": true
+                  },
+                  "postalCode": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "nullable": true
+                  },
+                  "lat": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "lng": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "accessNotes": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "hazardNotes": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "establishmentType": {
+                    "type": "string",
+                    "enum": [
+                      "HOME",
+                      "GASTRO",
+                      "FOOD_INDUSTRY",
+                      "WAREHOUSE",
+                      "SCHOOL",
+                      "OFFICE",
+                      "OTHER"
+                    ],
+                    "default": "OTHER"
+                  },
+                  "areaSqm": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "serviceWindowStart": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "serviceWindowEnd": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "zoneId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "nullable": true
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 80,
+                      "nullable": true
+                    },
+                    "addressLine": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "city": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "nullable": true
+                    },
+                    "province": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "nullable": true
+                    },
+                    "postalCode": {
+                      "type": "string",
+                      "maxLength": 20,
+                      "nullable": true
+                    },
+                    "lat": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "lng": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "geocodeStatus": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "OK",
+                        "MANUAL",
+                        "FAILED"
+                      ]
+                    },
+                    "accessNotes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "hazardNotes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "establishmentType": {
+                      "type": "string",
+                      "enum": [
+                        "HOME",
+                        "GASTRO",
+                        "FOOD_INDUSTRY",
+                        "WAREHOUSE",
+                        "SCHOOL",
+                        "OFFICE",
+                        "OTHER"
+                      ]
+                    },
+                    "areaSqm": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "serviceWindowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceWindowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "zoneId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "archivedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "customerId",
+                    "addressLine",
+                    "geocodeStatus",
+                    "establishmentType",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "88888888-8888-8888-8888-888888888888",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "label": "Sucursal Centro (renovada)",
+                  "addressLine": "Av. Corrientes 1234",
+                  "city": "CABA",
+                  "province": "Buenos Aires",
+                  "postalCode": "C1043",
+                  "lat": -34.6037,
+                  "lng": -58.3816,
+                  "geocodeStatus": "OK",
+                  "accessNotes": "Portero 24hs, timbre 3B",
+                  "hazardNotes": null,
+                  "establishmentType": "GASTRO",
+                  "areaSqm": 180,
+                  "serviceWindowStart": "08:00:00",
+                  "serviceWindowEnd": "18:00:00",
+                  "zoneId": null,
+                  "archivedAt": null,
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:20:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/locations/{id}/geocode": {
+      "post": {
+        "summary": "Geocodifica una ubicación (o aplica corrección manual de lat/lng).",
+        "operationId": "geocodeLocation",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "manualLat": {
+                    "type": "number"
+                  },
+                  "manualLng": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 80,
+                      "nullable": true
+                    },
+                    "addressLine": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "city": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "nullable": true
+                    },
+                    "province": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "nullable": true
+                    },
+                    "postalCode": {
+                      "type": "string",
+                      "maxLength": 20,
+                      "nullable": true
+                    },
+                    "lat": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "lng": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "geocodeStatus": {
+                      "type": "string",
+                      "enum": [
+                        "PENDING",
+                        "OK",
+                        "MANUAL",
+                        "FAILED"
+                      ]
+                    },
+                    "accessNotes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "hazardNotes": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "establishmentType": {
+                      "type": "string",
+                      "enum": [
+                        "HOME",
+                        "GASTRO",
+                        "FOOD_INDUSTRY",
+                        "WAREHOUSE",
+                        "SCHOOL",
+                        "OFFICE",
+                        "OTHER"
+                      ]
+                    },
+                    "areaSqm": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "serviceWindowStart": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceWindowEnd": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "zoneId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "archivedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "customerId",
+                    "addressLine",
+                    "geocodeStatus",
+                    "establishmentType",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "88888888-8888-8888-8888-888888888888",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "label": "Sucursal Centro",
+                  "addressLine": "Av. Corrientes 1234",
+                  "city": "CABA",
+                  "province": "Buenos Aires",
+                  "postalCode": "C1043",
+                  "lat": -34.6037,
+                  "lng": -58.3816,
+                  "geocodeStatus": "OK",
+                  "accessNotes": "Portero 24hs, timbre 3B",
+                  "hazardNotes": null,
+                  "establishmentType": "GASTRO",
+                  "areaSqm": 180,
+                  "serviceWindowStart": "08:00:00",
+                  "serviceWindowEnd": "18:00:00",
+                  "zoneId": null,
+                  "archivedAt": null,
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:25:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
