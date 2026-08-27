@@ -19,6 +19,9 @@ FROM base AS deps
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml turbo.json ./
 COPY packages/config/package.json packages/config/
 COPY packages/db/package.json packages/db/
+# El postinstall de packages/db ("prisma generate") corre en este mismo `pnpm install`
+# de más abajo — necesita prisma/schema.prisma presente, no solo el package.json.
+COPY packages/db/prisma packages/db/prisma
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/ui/package.json packages/ui/
 COPY apps/api/package.json apps/api/
