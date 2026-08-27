@@ -13,6 +13,18 @@ import {
 } from './schemas/customer';
 import { RoleWithPermissionsSchema } from './schemas/role';
 import {
+  AddStopRequestSchema,
+  CreateRouteRequestSchema,
+  ReassignRouteRequestSchema,
+  ReorderStopsRequestSchema,
+  RouteListQuerySchema,
+  RouteSchema,
+  RouteValidationResponseSchema,
+  RouteWithStopsSchema,
+  UpdateRouteRequestSchema,
+  type RouteWithStops,
+} from './schemas/route';
+import {
   CancelServiceRequestSchema,
   CreateServiceRequestSchema,
   RejectServiceRequestSchema,
@@ -131,6 +143,52 @@ function exampleService(overrides: Partial<Service> = {}): Service {
     version: 1,
     createdAt: '2026-08-27T12:00:00.000Z',
     updatedAt: '2026-08-27T12:00:00.000Z',
+    ...overrides,
+  };
+}
+
+/** Reusado por los endpoints de /routes. */
+function exampleRoute(overrides: Partial<RouteWithStops> = {}): RouteWithStops {
+  return {
+    id: 'ffffffff-1111-1111-1111-111111111111',
+    tenantId: 'f0000000-0000-4000-8000-000100000000',
+    code: 'RT-000045',
+    technicianId: '22222222-2222-2222-2222-222222222222',
+    vehicleId: null,
+    routeDate: '2026-09-02',
+    status: 'DRAFT',
+    publishedAt: null,
+    publishedBy: null,
+    startedAt: null,
+    completedAt: null,
+    notes: null,
+    version: 1,
+    createdAt: '2026-08-27T12:00:00.000Z',
+    updatedAt: '2026-08-27T12:00:00.000Z',
+    stops: [
+      {
+        id: '10101010-1111-1111-1111-111111111111',
+        tenantId: 'f0000000-0000-4000-8000-000100000000',
+        routeId: 'ffffffff-1111-1111-1111-111111111111',
+        serviceId: 'eeeeeeee-1111-1111-1111-111111111111',
+        sequence: 1,
+        status: 'PENDING',
+        eta: null,
+        travelMinutes: 15,
+        enRouteAt: null,
+        arrivedAt: null,
+        arrivalLat: null,
+        arrivalLng: null,
+        arrivalAccuracyM: null,
+        gpsStatus: null,
+        distanceFromLocationM: null,
+        outcomeReason: null,
+        wastedTrip: false,
+        version: 1,
+        createdAt: '2026-08-27T12:00:00.000Z',
+        updatedAt: '2026-08-27T12:00:00.000Z',
+      },
+    ],
     ...overrides,
   };
 }
@@ -1081,6 +1139,192 @@ export const ENDPOINTS = {
       priceCents: 0,
       parentServiceId: 'eeeeeeee-1111-1111-1111-111111111111',
     }),
+  }),
+
+  // ==========================================================================
+  // Fase 1 — Planificador + rutas (docs/spec/03-modulos.md §C.7/§C.8,
+  // docs/spec/09-reglas.md R12-R15, prompts/TASK_BOARD.md PR-105)
+  // ==========================================================================
+
+  listRoutes: endpoint({
+    id: 'listRoutes',
+    method: 'GET',
+    path: 'routes',
+    summary: 'Lista de rutas filtradas por fecha/operario/estado.',
+    requiresAuth: true,
+    query: RouteListQuerySchema,
+    response: z.array(RouteSchema),
+    example: [
+      {
+        id: 'ffffffff-1111-1111-1111-111111111111',
+        tenantId: 'f0000000-0000-4000-8000-000100000000',
+        code: 'RT-000045',
+        technicianId: '22222222-2222-2222-2222-222222222222',
+        vehicleId: null,
+        routeDate: '2026-09-02',
+        status: 'DRAFT',
+        publishedAt: null,
+        publishedBy: null,
+        startedAt: null,
+        completedAt: null,
+        notes: null,
+        version: 1,
+        createdAt: '2026-08-27T12:00:00.000Z',
+        updatedAt: '2026-08-27T12:00:00.000Z',
+      },
+    ],
+  }),
+
+  createRoute: endpoint({
+    id: 'createRoute',
+    method: 'POST',
+    path: 'routes',
+    summary: 'Crea una ruta vacía para un operario en una fecha.',
+    requiresAuth: true,
+    request: CreateRouteRequestSchema,
+    response: RouteSchema,
+    example: {
+      id: 'ffffffff-2222-2222-2222-222222222222',
+      tenantId: 'f0000000-0000-4000-8000-000100000000',
+      code: 'RT-000046',
+      technicianId: '22222222-2222-2222-2222-222222222222',
+      vehicleId: null,
+      routeDate: '2026-09-03',
+      status: 'DRAFT',
+      publishedAt: null,
+      publishedBy: null,
+      startedAt: null,
+      completedAt: null,
+      notes: null,
+      version: 1,
+      createdAt: '2026-08-27T12:00:00.000Z',
+      updatedAt: '2026-08-27T12:00:00.000Z',
+    },
+  }),
+
+  getRoute: endpoint({
+    id: 'getRoute',
+    method: 'GET',
+    path: 'routes/:id',
+    summary: 'Detalle de una ruta con sus stops ordenados.',
+    requiresAuth: true,
+    response: RouteWithStopsSchema,
+    example: exampleRoute(),
+  }),
+
+  updateRoute: endpoint({
+    id: 'updateRoute',
+    method: 'PATCH',
+    path: 'routes/:id',
+    summary: 'Edita una ruta (requiere If-Match).',
+    requiresAuth: true,
+    request: UpdateRouteRequestSchema,
+    response: RouteWithStopsSchema,
+    example: exampleRoute({ version: 2, notes: 'Sale más temprano por lluvia.' }),
+  }),
+
+  addStop: endpoint({
+    id: 'addStop',
+    method: 'POST',
+    path: 'routes/:id/stops',
+    summary: 'Agrega un servicio a la ruta como nuevo stop.',
+    requiresAuth: true,
+    request: AddStopRequestSchema,
+    response: RouteWithStopsSchema,
+    example: exampleRoute({ version: 2 }),
+  }),
+
+  reorderStops: endpoint({
+    id: 'reorderStops',
+    method: 'PUT',
+    path: 'routes/:id/stops/order',
+    summary: 'Reordena los stops de la ruta en una transacción (R13).',
+    requiresAuth: true,
+    request: ReorderStopsRequestSchema,
+    response: RouteWithStopsSchema,
+    example: exampleRoute({ version: 3 }),
+  }),
+
+  removeStop: endpoint({
+    id: 'removeStop',
+    method: 'DELETE',
+    path: 'routes/:id/stops/:stopId',
+    summary: 'Quita un stop de la ruta (solo si está PENDING).',
+    requiresAuth: true,
+    response: RouteWithStopsSchema,
+    example: exampleRoute({ version: 3, stops: [] }),
+  }),
+
+  validateRoute: endpoint({
+    id: 'validateRoute',
+    method: 'POST',
+    path: 'routes/:id/validate',
+    summary: 'Dry-run de los guards de publicación — no publica, dice qué falta.',
+    requiresAuth: true,
+    response: RouteValidationResponseSchema,
+    example: {
+      canPublish: false,
+      blockers: [
+        {
+          code: 'ROUTE_TECHNICIAN_LICENSE_EXPIRED',
+          message: 'La libreta sanitaria del operario vence antes de la fecha de la ruta.',
+          stopId: null,
+        },
+      ],
+      warnings: [
+        {
+          code: 'ROUTE_STOP_TIME_OVERLAP',
+          message: 'El stop 2 se solapa con la ventana horaria del stop 3.',
+          stopId: '10101010-1111-1111-1111-111111111111',
+        },
+      ],
+    },
+  }),
+
+  publishRoute: endpoint({
+    id: 'publishRoute',
+    method: 'POST',
+    path: 'routes/:id/publish',
+    summary: 'Publica la ruta — transacción atómica: ruta a PUBLISHED, servicios a DISPATCHED, notifica (R12).',
+    requiresAuth: true,
+    response: RouteWithStopsSchema,
+    example: exampleRoute({
+      status: 'PUBLISHED',
+      publishedAt: '2026-08-27T18:00:00.000Z',
+      publishedBy: '11111111-1111-1111-1111-111111111111',
+      version: 4,
+    }),
+  }),
+
+  unpublishRoute: endpoint({
+    id: 'unpublishRoute',
+    method: 'POST',
+    path: 'routes/:id/unpublish',
+    summary: 'Despublica la ruta (solo si ningún stop salió de PENDING — R14).',
+    requiresAuth: true,
+    response: RouteWithStopsSchema,
+    example: exampleRoute({ status: 'DRAFT', publishedAt: null, publishedBy: null, version: 5 }),
+  }),
+
+  reassignRoute: endpoint({
+    id: 'reassignRoute',
+    method: 'POST',
+    path: 'routes/:id/reassign',
+    summary: 'Reasigna la ruta completa a otro operario.',
+    requiresAuth: true,
+    request: ReassignRouteRequestSchema,
+    response: RouteWithStopsSchema,
+    example: exampleRoute({ technicianId: '33333333-4444-4444-4444-444444444444', version: 4 }),
+  }),
+
+  cancelRoute: endpoint({
+    id: 'cancelRoute',
+    method: 'POST',
+    path: 'routes/:id/cancel',
+    summary: 'Cancela la ruta.',
+    requiresAuth: true,
+    response: RouteWithStopsSchema,
+    example: exampleRoute({ status: 'CANCELLED', version: 4 }),
   }),
 } as const;
 

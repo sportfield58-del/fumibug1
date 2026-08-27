@@ -235,3 +235,63 @@ export function postReopenService(args: { params: { id: string }; body: ReturnTy
 export function postWarrantyVisitService(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.warrantyVisitService.example>> {
   return request('POST', `services/${args.params.id}/warranty-visit`);
 }
+
+/** GET /v1/routes — Lista de rutas filtradas por fecha/operario/estado. */
+export function getListRoutes(args?: { query?: ReturnType<NonNullable<typeof endpoints.listRoutes.query>['parse']> }): Promise<ApiResponse<typeof endpoints.listRoutes.example>> {
+  return request('GET', 'routes' + toQueryString(args?.query));
+}
+
+/** POST /v1/routes — Crea una ruta vacía para un operario en una fecha. */
+export function postCreateRoute(args: { body: ReturnType<NonNullable<typeof endpoints.createRoute.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createRoute.example>> {
+  return request('POST', 'routes', args.body);
+}
+
+/** GET /v1/routes/:id — Detalle de una ruta con sus stops ordenados. */
+export function getGetRoute(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.getRoute.example>> {
+  return request('GET', `routes/${args.params.id}`);
+}
+
+/** PATCH /v1/routes/:id — Edita una ruta (requiere If-Match). */
+export function patchUpdateRoute(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateRoute.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateRoute.example>> {
+  return request('PATCH', `routes/${args.params.id}`, args.body);
+}
+
+/** POST /v1/routes/:id/stops — Agrega un servicio a la ruta como nuevo stop. */
+export function postAddStop(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.addStop.request>['parse']> }): Promise<ApiResponse<typeof endpoints.addStop.example>> {
+  return request('POST', `routes/${args.params.id}/stops`, args.body);
+}
+
+/** PUT /v1/routes/:id/stops/order — Reordena los stops de la ruta en una transacción (R13). */
+export function putReorderStops(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.reorderStops.request>['parse']> }): Promise<ApiResponse<typeof endpoints.reorderStops.example>> {
+  return request('PUT', `routes/${args.params.id}/stops/order`, args.body);
+}
+
+/** DELETE /v1/routes/:id/stops/:stopId — Quita un stop de la ruta (solo si está PENDING). */
+export function deleteRemoveStop(args: { params: { id: string; stopId: string } }): Promise<ApiResponse<typeof endpoints.removeStop.example>> {
+  return request('DELETE', `routes/${args.params.id}/stops/${args.params.stopId}`);
+}
+
+/** POST /v1/routes/:id/validate — Dry-run de los guards de publicación — no publica, dice qué falta. */
+export function postValidateRoute(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.validateRoute.example>> {
+  return request('POST', `routes/${args.params.id}/validate`);
+}
+
+/** POST /v1/routes/:id/publish — Publica la ruta — transacción atómica: ruta a PUBLISHED, servicios a DISPATCHED, notifica (R12). */
+export function postPublishRoute(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.publishRoute.example>> {
+  return request('POST', `routes/${args.params.id}/publish`);
+}
+
+/** POST /v1/routes/:id/unpublish — Despublica la ruta (solo si ningún stop salió de PENDING — R14). */
+export function postUnpublishRoute(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.unpublishRoute.example>> {
+  return request('POST', `routes/${args.params.id}/unpublish`);
+}
+
+/** POST /v1/routes/:id/reassign — Reasigna la ruta completa a otro operario. */
+export function postReassignRoute(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.reassignRoute.request>['parse']> }): Promise<ApiResponse<typeof endpoints.reassignRoute.example>> {
+  return request('POST', `routes/${args.params.id}/reassign`, args.body);
+}
+
+/** POST /v1/routes/:id/cancel — Cancela la ruta. */
+export function postCancelRoute(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.cancelRoute.example>> {
+  return request('POST', `routes/${args.params.id}/cancel`);
+}
