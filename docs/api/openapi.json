@@ -80,7 +80,13 @@
                           "format": "date-time"
                         }
                       },
-                      "required": ["id", "email", "isActive", "createdAt", "updatedAt"],
+                      "required": [
+                        "id",
+                        "email",
+                        "isActive",
+                        "createdAt",
+                        "updatedAt"
+                      ],
                       "additionalProperties": false
                     },
                     "tenant": {
@@ -135,11 +141,19 @@
                         },
                         "plan": {
                           "type": "string",
-                          "enum": ["CORE", "PRO", "ENTERPRISE"]
+                          "enum": [
+                            "CORE",
+                            "PRO",
+                            "ENTERPRISE"
+                          ]
                         },
                         "status": {
                           "type": "string",
-                          "enum": ["ACTIVE", "SUSPENDED", "TRIAL"]
+                          "enum": [
+                            "ACTIVE",
+                            "SUSPENDED",
+                            "TRIAL"
+                          ]
                         },
                         "settings": {
                           "type": "object",
@@ -245,7 +259,12 @@
                       }
                     }
                   },
-                  "required": ["user", "tenant", "roleKey", "permissions"],
+                  "required": [
+                    "user",
+                    "tenant",
+                    "roleKey",
+                    "permissions"
+                  ],
                   "additionalProperties": false
                 },
                 "example": {
@@ -281,7 +300,10 @@
                     "updatedAt": "2026-08-21T12:00:00.000Z"
                   },
                   "roleKey": "owner",
-                  "permissions": ["audit.read", "user.read"]
+                  "permissions": [
+                    "audit.read",
+                    "user.read"
+                  ]
                 }
               }
             }
@@ -324,15 +346,1291 @@
                       }
                     }
                   },
-                  "required": ["userId", "tenantId", "roleKey", "permissions"],
+                  "required": [
+                    "userId",
+                    "tenantId",
+                    "roleKey",
+                    "permissions"
+                  ],
                   "additionalProperties": false
                 },
                 "example": {
                   "userId": "11111111-1111-1111-1111-111111111111",
                   "tenantId": "f0000000-0000-4000-8000-000100000000",
                   "roleKey": "owner",
-                  "permissions": ["audit.read"]
+                  "permissions": [
+                    "audit.read"
+                  ]
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "Lista de usuarios del tenant, con su membership y ficha técnica si aplica.",
+        "operationId": "listUsers",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "email": {
+                        "type": "string",
+                        "format": "email"
+                      },
+                      "username": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40,
+                        "nullable": true
+                      },
+                      "fullName": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "phone": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "avatarUrl": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                      },
+                      "color": {
+                        "type": "string",
+                        "pattern": "^#[0-9a-fA-F]{6}$",
+                        "nullable": true
+                      },
+                      "isActive": {
+                        "type": "boolean"
+                      },
+                      "lastLoginAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "membershipStatus": {
+                        "type": "string",
+                        "enum": [
+                          "ACTIVE",
+                          "SUSPENDED"
+                        ]
+                      },
+                      "roleId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "roleKey": {
+                        "type": "string"
+                      },
+                      "roleName": {
+                        "type": "string"
+                      },
+                      "technicianProfile": {
+                        "type": "object",
+                        "properties": {
+                          "userId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "tenantId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "licenseNumber": {
+                            "type": "string",
+                            "maxLength": 60,
+                            "nullable": true
+                          },
+                          "licenseType": {
+                            "type": "string",
+                            "enum": [
+                              "SANITARY_BOOK",
+                              "TECHNICAL_DIRECTOR"
+                            ]
+                          },
+                          "licenseExpiresAt": {
+                            "type": "string",
+                            "format": "date",
+                            "nullable": true
+                          },
+                          "signatureUrl": {
+                            "type": "string",
+                            "format": "uri",
+                            "nullable": true
+                          },
+                          "vehicleId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "stockLocationId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "userId",
+                          "tenantId",
+                          "licenseType",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false,
+                        "nullable": true
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "email",
+                      "isActive",
+                      "createdAt",
+                      "updatedAt",
+                      "membershipStatus",
+                      "roleId",
+                      "roleKey",
+                      "roleName"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "example": [
+                  {
+                    "id": "22222222-2222-2222-2222-222222222222",
+                    "email": "diego@fumibug.dev",
+                    "username": "diego",
+                    "fullName": "Diego Operario",
+                    "phone": null,
+                    "avatarUrl": null,
+                    "color": "#16A34A",
+                    "isActive": true,
+                    "lastLoginAt": "2026-08-25T13:00:00.000Z",
+                    "createdAt": "2026-08-20T12:00:00.000Z",
+                    "updatedAt": "2026-08-20T12:00:00.000Z",
+                    "membershipStatus": "ACTIVE",
+                    "roleId": "33333333-3333-3333-3333-333333333333",
+                    "roleKey": "operator",
+                    "roleName": "Operario",
+                    "technicianProfile": {
+                      "userId": "22222222-2222-2222-2222-222222222222",
+                      "tenantId": "f0000000-0000-4000-8000-000100000000",
+                      "licenseNumber": "LS-4821",
+                      "licenseType": "SANITARY_BOOK",
+                      "licenseExpiresAt": "2026-09-20",
+                      "signatureUrl": null,
+                      "vehicleId": null,
+                      "stockLocationId": null,
+                      "createdAt": "2026-08-20T12:00:00.000Z",
+                      "updatedAt": "2026-08-20T12:00:00.000Z"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "roleKey",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Alta de usuario (admin/operario/DT), con generación de PIN temporal si es operario.",
+        "operationId": "createUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "username": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 40
+                  },
+                  "fullName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 150
+                  },
+                  "phone": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "nullable": true
+                  },
+                  "color": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "nullable": true
+                  },
+                  "roleId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "technicianProfile": {
+                    "type": "object",
+                    "properties": {
+                      "licenseNumber": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                      },
+                      "licenseType": {
+                        "type": "string",
+                        "enum": [
+                          "SANITARY_BOOK",
+                          "TECHNICAL_DIRECTOR"
+                        ]
+                      },
+                      "licenseExpiresAt": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                      },
+                      "vehicleId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "stockLocationId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      }
+                    },
+                    "required": [
+                      "licenseType"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "fullName",
+                  "roleId"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "email": {
+                          "type": "string",
+                          "format": "email"
+                        },
+                        "username": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 40,
+                          "nullable": true
+                        },
+                        "fullName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "phone": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "avatarUrl": {
+                          "type": "string",
+                          "format": "uri",
+                          "nullable": true
+                        },
+                        "color": {
+                          "type": "string",
+                          "pattern": "^#[0-9a-fA-F]{6}$",
+                          "nullable": true
+                        },
+                        "isActive": {
+                          "type": "boolean"
+                        },
+                        "lastLoginAt": {
+                          "type": "string",
+                          "format": "date-time",
+                          "nullable": true
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "membershipStatus": {
+                          "type": "string",
+                          "enum": [
+                            "ACTIVE",
+                            "SUSPENDED"
+                          ]
+                        },
+                        "roleId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "roleKey": {
+                          "type": "string"
+                        },
+                        "roleName": {
+                          "type": "string"
+                        },
+                        "technicianProfile": {
+                          "type": "object",
+                          "properties": {
+                            "userId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "tenantId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "licenseNumber": {
+                              "type": "string",
+                              "maxLength": 60,
+                              "nullable": true
+                            },
+                            "licenseType": {
+                              "type": "string",
+                              "enum": [
+                                "SANITARY_BOOK",
+                                "TECHNICAL_DIRECTOR"
+                              ]
+                            },
+                            "licenseExpiresAt": {
+                              "type": "string",
+                              "format": "date",
+                              "nullable": true
+                            },
+                            "signatureUrl": {
+                              "type": "string",
+                              "format": "uri",
+                              "nullable": true
+                            },
+                            "vehicleId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "stockLocationId": {
+                              "type": "string",
+                              "format": "uuid",
+                              "nullable": true
+                            },
+                            "createdAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updatedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "userId",
+                            "tenantId",
+                            "licenseType",
+                            "createdAt",
+                            "updatedAt"
+                          ],
+                          "additionalProperties": false,
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "email",
+                        "isActive",
+                        "createdAt",
+                        "updatedAt",
+                        "membershipStatus",
+                        "roleId",
+                        "roleKey",
+                        "roleName"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "temporaryPin": {
+                      "type": "string",
+                      "minLength": 6,
+                      "maxLength": 6,
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "user"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "user": {
+                    "id": "44444444-4444-4444-4444-444444444444",
+                    "email": "nuevo.operario@fumibug.internal",
+                    "username": "nuevo.operario",
+                    "fullName": "Nuevo Operario",
+                    "phone": null,
+                    "avatarUrl": null,
+                    "color": "#F59E0B",
+                    "isActive": true,
+                    "lastLoginAt": null,
+                    "createdAt": "2026-08-27T12:00:00.000Z",
+                    "updatedAt": "2026-08-27T12:00:00.000Z",
+                    "membershipStatus": "ACTIVE",
+                    "roleId": "33333333-3333-3333-3333-333333333333",
+                    "roleKey": "operator",
+                    "roleName": "Operario",
+                    "technicianProfile": {
+                      "userId": "44444444-4444-4444-4444-444444444444",
+                      "tenantId": "f0000000-0000-4000-8000-000100000000",
+                      "licenseNumber": null,
+                      "licenseType": "SANITARY_BOOK",
+                      "licenseExpiresAt": null,
+                      "signatureUrl": null,
+                      "vehicleId": null,
+                      "stockLocationId": null,
+                      "createdAt": "2026-08-27T12:00:00.000Z",
+                      "updatedAt": "2026-08-27T12:00:00.000Z"
+                    }
+                  },
+                  "temporaryPin": "482910"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Detalle de un usuario, con membership y ficha técnica.",
+        "operationId": "getUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "username": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 40,
+                      "nullable": true
+                    },
+                    "fullName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "phone": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "avatarUrl": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true
+                    },
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$",
+                      "nullable": true
+                    },
+                    "isActive": {
+                      "type": "boolean"
+                    },
+                    "lastLoginAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "membershipStatus": {
+                      "type": "string",
+                      "enum": [
+                        "ACTIVE",
+                        "SUSPENDED"
+                      ]
+                    },
+                    "roleId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "roleKey": {
+                      "type": "string"
+                    },
+                    "roleName": {
+                      "type": "string"
+                    },
+                    "technicianProfile": {
+                      "type": "object",
+                      "properties": {
+                        "userId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "tenantId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "licenseNumber": {
+                          "type": "string",
+                          "maxLength": 60,
+                          "nullable": true
+                        },
+                        "licenseType": {
+                          "type": "string",
+                          "enum": [
+                            "SANITARY_BOOK",
+                            "TECHNICAL_DIRECTOR"
+                          ]
+                        },
+                        "licenseExpiresAt": {
+                          "type": "string",
+                          "format": "date",
+                          "nullable": true
+                        },
+                        "signatureUrl": {
+                          "type": "string",
+                          "format": "uri",
+                          "nullable": true
+                        },
+                        "vehicleId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "stockLocationId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "userId",
+                        "tenantId",
+                        "licenseType",
+                        "createdAt",
+                        "updatedAt"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "email",
+                    "isActive",
+                    "createdAt",
+                    "updatedAt",
+                    "membershipStatus",
+                    "roleId",
+                    "roleKey",
+                    "roleName"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "22222222-2222-2222-2222-222222222222",
+                  "email": "diego@fumibug.dev",
+                  "username": "diego",
+                  "fullName": "Diego Operario",
+                  "phone": null,
+                  "avatarUrl": null,
+                  "color": "#16A34A",
+                  "isActive": true,
+                  "lastLoginAt": "2026-08-25T13:00:00.000Z",
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-20T12:00:00.000Z",
+                  "membershipStatus": "ACTIVE",
+                  "roleId": "33333333-3333-3333-3333-333333333333",
+                  "roleKey": "operator",
+                  "roleName": "Operario",
+                  "technicianProfile": {
+                    "userId": "22222222-2222-2222-2222-222222222222",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "licenseNumber": "LS-4821",
+                    "licenseType": "SANITARY_BOOK",
+                    "licenseExpiresAt": "2026-09-20",
+                    "signatureUrl": null,
+                    "vehicleId": null,
+                    "stockLocationId": null,
+                    "createdAt": "2026-08-20T12:00:00.000Z",
+                    "updatedAt": "2026-08-20T12:00:00.000Z"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Edita datos de un usuario (requiere If-Match). No cambia email/username ni rol.",
+        "operationId": "updateUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fullName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 150
+                  },
+                  "phone": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "nullable": true
+                  },
+                  "color": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$",
+                    "nullable": true
+                  },
+                  "technicianProfile": {
+                    "type": "object",
+                    "properties": {
+                      "licenseNumber": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "nullable": true
+                      },
+                      "licenseExpiresAt": {
+                        "type": "string",
+                        "format": "date",
+                        "nullable": true
+                      },
+                      "vehicleId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "stockLocationId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "username": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 40,
+                      "nullable": true
+                    },
+                    "fullName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "phone": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "avatarUrl": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true
+                    },
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$",
+                      "nullable": true
+                    },
+                    "isActive": {
+                      "type": "boolean"
+                    },
+                    "lastLoginAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "membershipStatus": {
+                      "type": "string",
+                      "enum": [
+                        "ACTIVE",
+                        "SUSPENDED"
+                      ]
+                    },
+                    "roleId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "roleKey": {
+                      "type": "string"
+                    },
+                    "roleName": {
+                      "type": "string"
+                    },
+                    "technicianProfile": {
+                      "type": "object",
+                      "properties": {
+                        "userId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "tenantId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "licenseNumber": {
+                          "type": "string",
+                          "maxLength": 60,
+                          "nullable": true
+                        },
+                        "licenseType": {
+                          "type": "string",
+                          "enum": [
+                            "SANITARY_BOOK",
+                            "TECHNICAL_DIRECTOR"
+                          ]
+                        },
+                        "licenseExpiresAt": {
+                          "type": "string",
+                          "format": "date",
+                          "nullable": true
+                        },
+                        "signatureUrl": {
+                          "type": "string",
+                          "format": "uri",
+                          "nullable": true
+                        },
+                        "vehicleId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "stockLocationId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "userId",
+                        "tenantId",
+                        "licenseType",
+                        "createdAt",
+                        "updatedAt"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "email",
+                    "isActive",
+                    "createdAt",
+                    "updatedAt",
+                    "membershipStatus",
+                    "roleId",
+                    "roleKey",
+                    "roleName"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "22222222-2222-2222-2222-222222222222",
+                  "email": "diego@fumibug.dev",
+                  "username": "diego",
+                  "fullName": "Diego Operario",
+                  "phone": "+54 9 11 5555-0000",
+                  "avatarUrl": null,
+                  "color": "#16A34A",
+                  "isActive": true,
+                  "lastLoginAt": "2026-08-25T13:00:00.000Z",
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:05:00.000Z",
+                  "membershipStatus": "ACTIVE",
+                  "roleId": "33333333-3333-3333-3333-333333333333",
+                  "roleKey": "operator",
+                  "roleName": "Operario",
+                  "technicianProfile": {
+                    "userId": "22222222-2222-2222-2222-222222222222",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "licenseNumber": "LS-4821",
+                    "licenseType": "SANITARY_BOOK",
+                    "licenseExpiresAt": "2026-09-20",
+                    "signatureUrl": null,
+                    "vehicleId": null,
+                    "stockLocationId": null,
+                    "createdAt": "2026-08-20T12:00:00.000Z",
+                    "updatedAt": "2026-08-27T12:05:00.000Z"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/reset-pin": {
+      "post": {
+        "summary": "Genera un PIN temporal para un operario y fuerza cambio en el próximo login.",
+        "operationId": "resetUserPin",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "temporaryPin": {
+                      "type": "string",
+                      "minLength": 6,
+                      "maxLength": 6
+                    }
+                  },
+                  "required": [
+                    "temporaryPin"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "temporaryPin": "731045"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/force-logout": {
+      "post": {
+        "summary": "Revoca todas las sesiones activas de un usuario.",
+        "operationId": "forceLogoutUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "revokedSessions": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "revokedSessions"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "revokedSessions": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/roles": {
+      "get": {
+        "summary": "Los roles del tenant con su matriz de permisos resuelta.",
+        "operationId": "listRoles",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "key": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "isSystem": {
+                        "type": "boolean"
+                      },
+                      "description": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "permissions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "roleId": {
+                              "type": "string",
+                              "format": "uuid"
+                            },
+                            "permissionKey": {
+                              "type": "string",
+                              "enum": [
+                                "customer.read",
+                                "customer.create",
+                                "customer.update",
+                                "customer.archive",
+                                "location.read",
+                                "location.create",
+                                "location.update",
+                                "location.archive",
+                                "contract.read",
+                                "contract.create",
+                                "contract.update",
+                                "contract.cancel",
+                                "service.read.own",
+                                "service.read.tenant",
+                                "service.create",
+                                "service.update",
+                                "service.cancel",
+                                "service.reschedule",
+                                "service.price.override",
+                                "route.read.own",
+                                "route.read.tenant",
+                                "route.create",
+                                "route.update",
+                                "route.publish",
+                                "route.unpublish",
+                                "route.cancel",
+                                "session.start",
+                                "session.finish",
+                                "session.reopen",
+                                "evidence.upload",
+                                "evidence.delete",
+                                "stop.mark_no_show",
+                                "stop.skip",
+                                "service.close",
+                                "service.validate",
+                                "service.reject",
+                                "certificate.read",
+                                "certificate.issue",
+                                "certificate.sign",
+                                "certificate.void",
+                                "supply.read",
+                                "supply.create",
+                                "supply.update",
+                                "inventory.read.own",
+                                "inventory.read.tenant",
+                                "inventory.transfer",
+                                "inventory.adjust",
+                                "inventory.allow_negative",
+                                "payment.read.own",
+                                "payment.read.tenant",
+                                "payment.create",
+                                "payment.void",
+                                "cash.read.own",
+                                "cash.read.tenant",
+                                "cash.close.own",
+                                "cash.approve_closure",
+                                "cash.adjust",
+                                "user.read",
+                                "user.create",
+                                "user.update",
+                                "user.deactivate",
+                                "role.manage",
+                                "settings.manage",
+                                "audit.read",
+                                "report.operational",
+                                "report.financial"
+                              ]
+                            },
+                            "scope": {
+                              "type": "string",
+                              "enum": [
+                                "own",
+                                "team",
+                                "tenant"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "roleId",
+                            "permissionKey",
+                            "scope"
+                          ],
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "tenantId",
+                      "key",
+                      "name",
+                      "isSystem",
+                      "createdAt",
+                      "updatedAt",
+                      "permissions"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "example": [
+                  {
+                    "id": "33333333-3333-3333-3333-333333333333",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "key": "operator",
+                    "name": "Operario",
+                    "isSystem": true,
+                    "description": "Ejecuta servicios en campo.",
+                    "createdAt": "2026-08-20T12:00:00.000Z",
+                    "updatedAt": "2026-08-20T12:00:00.000Z",
+                    "permissions": [
+                      {
+                        "roleId": "33333333-3333-3333-3333-333333333333",
+                        "permissionKey": "service.read.own",
+                        "scope": "own"
+                      }
+                    ]
+                  }
+                ]
               }
             }
           }

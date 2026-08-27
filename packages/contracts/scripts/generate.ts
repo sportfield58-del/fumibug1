@@ -43,6 +43,17 @@ function functionName(def: EndpointDef<ZodTypeAny | undefined, ZodTypeAny>): str
   return `${def.method.toLowerCase()}${capitalize(def.id)}`;
 }
 
+/** 'users/:id/stops/:stopId' → ['id', 'stopId']. */
+function pathParamNames(path: string): string[] {
+  const matches = path.match(/:([a-zA-Z_][a-zA-Z0-9_]*)/g) ?? [];
+  return matches.map((m) => m.slice(1));
+}
+
+/** 'users/:id' → '/users/{id}', para OpenAPI. */
+function toOpenApiPath(path: string): string {
+  return `/${path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, '{$1}')}`;
+}
+
 function ensureDir(filePath: string): void {
   mkdirSync(dirname(filePath), { recursive: true });
 }
@@ -61,11 +72,32 @@ function buildOpenApi(): Record<string, unknown> {
   const paths: Record<string, unknown> = {};
 
   for (const def of ENDPOINT_LIST) {
-    const key = `/${def.path}`;
+    const key = toOpenApiPath(def.path);
+    const params = pathParamNames(def.path);
     const operation: Record<string, unknown> = {
       summary: def.summary,
       operationId: def.id,
       ...(def.requiresAuth ? { security: [{ bearerAuth: [] }] } : {}),
+      ...(params.length > 0
+        ? {
+            parameters: params.map((name) => ({
+              name,
+              in: 'path',
+              required: true,
+              schema: { type: 'string' },
+            })),
+          }
+        : {}),
+      ...(def.request !== undefined
+        ? {
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': { schema: zodToJsonSchema(def.request, { target: 'openApi3' }) },
+              },
+            },
+          }
+        : {}),
       responses: {
         '200': {
           description: 'OK',
@@ -78,6 +110,13 @@ function buildOpenApi(): Record<string, unknown> {
         },
       },
     };
+    if (def.query !== undefined) {
+      const queryParams = Object.keys((zodToJsonSchema(def.query, { target: 'openApi3' }) as { properties?: object }).properties ?? {});
+      operation.parameters = [
+        ...((operation.parameters as unknown[]) ?? []),
+        ...queryParams.map((name) => ({ name, in: 'query', required: false, schema: { type: 'string' } })),
+      ];
+    }
     paths[key] = { ...((paths[key] as object) ?? {}), [def.method.toLowerCase()]: operation };
   }
 
@@ -106,13 +145,54 @@ function buildClient(): string {
   const fns: string[] = [];
 
   for (const def of ENDPOINT_LIST) {
-    // `typeof endpoints.<id>.example` le da a cada función su tipo de retorno exacto
-    // sin que el generador tenga que llevar un registro id → nombre de tipo: el campo
-    // `example` de endpoints.ts ya está tipado como z.infer<Res> en su declaración.
+    const params = pathParamNames(def.path as string);
+    const hasBody = def.request !== undefined;
+    const hasQuery = def.query !== undefined;
+
+    // `typeof endpoints.<id>.example` (y el mismo truco para .request/.query vía
+    // ReturnType<...['parse']>) le da a cada función sus tipos exactos sin que el
+    // generador tenga que llevar un registro id → nombre de tipo exportado, y sin
+    // importar `zod` acá (que no es dependencia directa de apps/web) — parse() ya
+    // está tipado end-to-end a través de ENDPOINTS, importado solo como tipo.
+    const argFields: string[] = [];
+    if (params.length > 0) {
+      argFields.push(`params: { ${params.map((p) => `${p}: string`).join('; ')} }`);
+    }
+    // `typeof a.b!.c` no es sintaxis válida dentro de un type query — `!` es un operador
+    // de expresión, no de tipo. `NonNullable<typeof a.b>['c']` es el equivalente en
+    // posición de tipo: el generador sabe (por el chequeo de hasQuery/hasBody en runtime,
+    // arriba) que este campo existe en los endpoints donde emite esta línea, aunque TS no
+    // pueda verlo desde acá.
+    if (hasQuery) {
+      argFields.push(
+        `query?: ReturnType<NonNullable<typeof endpoints.${def.id}.query>['parse']>`,
+      );
+    }
+    if (hasBody) {
+      argFields.push(
+        `body: ReturnType<NonNullable<typeof endpoints.${def.id}.request>['parse']>`,
+      );
+    }
+
+    const argsOptional = params.length === 0 && !hasBody; // query solo (o nada) → todo opcional
+    const argsDecl = argFields.length > 0 ? `args${argsOptional ? '?' : ''}: { ${argFields.join('; ')} }` : '';
+
+    let pathExpr: string;
+    if (params.length > 0) {
+      pathExpr = `\`${def.path.replace(/:([a-zA-Z_][a-zA-Z0-9_]*)/g, (_m: string, name: string) => `\${args.params.${name}}`)}\``;
+    } else {
+      pathExpr = `'${def.path}'`;
+    }
+    if (hasQuery) {
+      pathExpr = `${pathExpr} + toQueryString(args?.query)`;
+    }
+
+    const bodyArg = hasBody ? ', args.body' : '';
+
     fns.push(
       `/** ${def.method} /v1/${def.path} — ${def.summary} */\n` +
-        `export function ${functionName(def)}(): Promise<ApiResponse<typeof endpoints.${def.id}.example>> {\n` +
-        `  return request('${def.method}', '${def.path}');\n` +
+        `export function ${functionName(def)}(${argsDecl}): Promise<ApiResponse<typeof endpoints.${def.id}.example>> {\n` +
+        `  return request('${def.method}', ${pathExpr}${bodyArg});\n` +
         `}`,
     );
   }
@@ -133,7 +213,20 @@ function buildClient(): string {
     `export function configureApiClient(next: Partial<ApiClientConfig>): void {\n` +
     `  config = { ...config, ...next };\n` +
     `}\n\n` +
-    `async function request<T>(method: string, path: string): Promise<ApiResponse<T>> {\n` +
+    // Cualquier valor de query (number, boolean, string, o undefined a filtrar) → string,
+    // porque URLSearchParams solo acepta pares string/string.
+    `function toQueryString(\n` +
+    `  query: Record<string, string | number | boolean | null | undefined> | undefined,\n` +
+    `): string {\n` +
+    `  if (!query) return '';\n` +
+    `  const params = new URLSearchParams();\n` +
+    `  for (const [key, value] of Object.entries(query)) {\n` +
+    `    if (value !== undefined && value !== null) params.set(key, String(value));\n` +
+    `  }\n` +
+    `  const qs = params.toString();\n` +
+    `  return qs ? \`?\${qs}\` : '';\n` +
+    `}\n\n` +
+    `async function request<T>(method: string, path: string, body?: unknown): Promise<ApiResponse<T>> {\n` +
     `  const token = config.getAccessToken?.();\n` +
     `  const res = await fetch(\`\${config.baseUrl}/\${path}\`, {\n` +
     `    method,\n` +
@@ -141,6 +234,7 @@ function buildClient(): string {
     `      'Content-Type': 'application/json',\n` +
     `      ...(token ? { Authorization: \`Bearer \${token}\` } : {}),\n` +
     `    },\n` +
+    `    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),\n` +
     `  });\n` +
     `  return (await res.json()) as ApiResponse<T>;\n` +
     `}\n\n` +

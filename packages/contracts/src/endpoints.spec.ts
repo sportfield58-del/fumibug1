@@ -10,11 +10,12 @@ describe('ENDPOINTS', () => {
     }
   });
 
-  it('todo id de path es único y no arranca con /', () => {
-    const paths = Object.values(ENDPOINTS).map((e) => e.path);
-    expect(new Set(paths).size).toBe(paths.length);
-    for (const path of paths) {
-      expect(path.startsWith('/')).toBe(false);
+  it('todo par (method, path) es único y ningún path arranca con /', () => {
+    const defs = Object.values(ENDPOINTS);
+    const pairs = defs.map((e) => `${e.method} ${e.path}`);
+    expect(new Set(pairs).size).toBe(pairs.length);
+    for (const def of defs) {
+      expect(def.path.startsWith('/')).toBe(false);
     }
   });
 });

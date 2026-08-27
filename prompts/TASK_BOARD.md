@@ -49,12 +49,26 @@
 
 | Ítem | Depende de | Estado |
 |---|---|---|
-| PR-101 contracts: usuarios (alta con rol, libreta sanitaria, licencia, vehículo, activo/suspendido) | Bloque 0 | `[todo]` |
+| PR-101 contracts: usuarios (alta con rol, libreta sanitaria, licencia, vehículo, activo/suspendido) | Bloque 0 | `[done] → PR #15` |
 | PR-102 contracts: clientes + contactos + ubicaciones (`service_locations`) | Bloque 0 | `[todo]` |
 | PR-103 contracts: tipos de servicio, zonas, listas de precios versionadas | Bloque 0 | `[todo]` |
 | PR-104 contracts: servicios (campos, transiciones de estado ya definidas en Fase 0) | PR-103 | `[todo]` |
 | PR-105 contracts: planificador (conflictos) + rutas + publicación atómica | PR-104 | `[todo]` |
 | PR-106 contracts: evidencias, validación de cierres, dashboard, auditoría (consulta) | PR-104 | `[todo]` |
+
+**Nota de PR-101 (para quien siga):**
+- `scripts/generate.ts` (packages/contracts) no soportaba `:param` en el path ni request
+  body/query en el cliente generado — solo tenía `auth/me` y `ping`, ambos GET sin nada.
+  Lo extendí ahí mismo (necesario para casi cualquier endpoint real de acá en adelante):
+  ahora `EndpointDef` acepta `query`, y el cliente generado arma `params`/`body`/`query`
+  según corresponda. No hace falta volver a tocarlo por esto — ya soporta el patrón REST
+  estándar. Si un endpoint necesita algo raro (path con 2+ params anidados, etc.) ya
+  debería andar tal cual; probá primero antes de asumir que falta soporte.
+- Gap encontrado vs. spec: `docs/spec/03-modulos.md` §C.2 pide "licencia de conducir"
+  como dato separado de la libreta sanitaria en el operario; `TechnicianProfile` (schema
+  Prisma) no tiene ese campo. Falta una migración chica (`driverLicenseNumber`,
+  `driverLicenseExpiresAt`, ambos nullable) antes de que el alta de operario en frontend
+  lo necesite. No bloqueante para PR-201 si el flujo mínimo no lo pide todavía.
 
 ## Bloque 2 — Backend: implementación (después del contrato de su fila)
 
