@@ -9,6 +9,11 @@
 # un paso deliberado y separado, ver README.md "Deploy a producción").
 
 FROM node:24-slim AS base
+# El motor de Prisma (binario nativo) necesita libssl del sistema — sin esto falla en
+# runtime con "Prisma cannot find the required libssl system library" (y en build,
+# "generate" avisa "Prisma failed to detect the libssl/openssl version" y termina
+# generando el engine equivocado). openssl acá alcanza para las dos etapas y para runtime.
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 RUN corepack enable
 WORKDIR /repo
 
@@ -48,6 +53,9 @@ RUN pnpm exec turbo run build --filter=@fumibug/api...
 
 # --- runtime: imagen final. No hace falta pnpm acá (solo "node dist/main.js"). ---
 FROM node:24-slim AS runtime
+# El motor de Prisma corre acá, no en build — necesita libssl en ESTA imagen también
+# (runtime no hereda de "base"; instalarlo solo ahí no alcanza).
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 ENV NODE_ENV=production
 WORKDIR /repo
 COPY --from=build /repo ./
