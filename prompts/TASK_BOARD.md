@@ -109,45 +109,57 @@
 
 | Ítem | Depende de | Estado |
 |---|---|---|
-| PR-301 web/ui: tokens, tailwind preset, primitivas base | Bloque 0 | `[todo]` |
-| PR-302 web: shell admin + shell de campo | PR-301 | `[todo]` |
-| PR-303 web: login admin + login operario + guardas por permiso | PR-101 (mocks alcanzan) | `[todo]` |
+| PR-301 web/ui: tokens, tailwind preset, primitivas base | Bloque 0 | `[done] — ver review arriba` |
+| PR-302 web: shell admin + shell de campo | PR-301 | `[done] — mobile-first, sidebar colapsable, safe areas campo` |
+| PR-303 web: login admin + login operario + guardas por permiso | PR-101 (mocks alcanzan) | `[done] — login admin/operario, auth provider, route guards` |
 
 ## Bloque 4 — Frontend: motor offline (antes que pantallas de campo, no alterar el orden)
 
 | Ítem | Depende de | Estado |
 |---|---|---|
-| PR-304 web/offline: Dexie schema, outbox, SyncEngine, backoff, idempotencia | PR-302 | `[todo]` |
-| PR-305 web/offline: service worker Workbox, scope `/campo`, precache | PR-304 | `[todo]` |
-| PR-306 web/offline: pantalla de estado de sync + tests (avión, reintento, duplicados) | PR-305 | `[todo]` |
+| PR-304 web/offline: Dexie schema, outbox, SyncEngine, backoff, idempotencia | PR-302 | `[done] — Dexie (outbox/cache/photos), SyncEngine con deps+backoff, useSyncStatus, chip de sync en header campo` |
+| PR-305 web/offline: service worker Workbox, scope `/campo`, precache | PR-304 | `[done] — generateSW con runtimeCaching, scope /campo, manifest+icons, SW registration solo en /campo` |
+| PR-306 web/offline: pantalla de estado de sync + tests (avión, reintento, duplicados) | PR-305 | `[done] — /campo/sync con resumen, reintento, chip en header; jest + fake-indexeddb, 7 tests de sync-logic (deps, backoff, jitter)` |
 
 ## Bloque 5 — Frontend: admin
 
 | Ítem | Depende de | Estado |
 |---|---|---|
-| PR-307 web/admin: clientes (lista + detalle + alta) | PR-202 o mocks de PR-102 | `[todo]` |
-| PR-308 web/admin: ubicaciones | PR-307 | `[todo]` |
-| PR-309 web/admin: alta rápida de servicio | PR-204 o mocks de PR-104 | `[todo]` |
-| PR-310 web/admin: lista de servicios con filtros | PR-309 | `[todo]` |
-| PR-311 web/admin: planificador drag & drop (@dnd-kit) | PR-205 o mocks de PR-105 | `[todo]` |
-| PR-312 web/admin: detalle de ruta + publicación | PR-206 o mocks de PR-105 | `[todo]` |
-| PR-313 web/admin: pantalla "Hoy" (polling 60s) | PR-310 | `[todo]` |
-| PR-314 web/admin: validación de cierres | PR-208 o mocks de PR-106 | `[todo]` |
-| PR-315 web/admin: dashboard | PR-209 o mocks de PR-106 | `[todo]` |
+| PR-307 web/admin: clientes (lista + detalle + alta) | PR-202 o mocks de PR-102 | `[done] — lista con búsqueda, detalle con contactos, formulario alta` |
+| PR-308 web/admin: ubicaciones | PR-307 | `[done] — lista en cliente + form alta` |
+| PR-309 web/admin: alta rápida de servicio | PR-204 o mocks de PR-104 | `[done] — form con cliente, tipo, fecha, precio` |
+| PR-310 web/admin: lista de servicios con filtros | PR-309 | `[done] — lista con filtros por estado, búsqueda, badges de prioridad` |
+| PR-311 web/admin: planificador drag & drop (@dnd-kit) | PR-205 o mocks de PR-105 | `[done] — DnD reorder con @dnd-kit, sortable cards` |
+| PR-312 web/admin: detalle de ruta + publicación | PR-206 o mocks de PR-105 | `[done] — ruta con stops, publicar/cancelar` |
+| PR-313 web/admin: pantalla "Hoy" (polling 60s) | PR-310 | `[done] — resumen cards + listas por estado + auto-refresh` |
+| PR-314 web/admin: validación de cierres | PR-208 o mocks de PR-106 | `[done] — lista PENDING_VALIDATION, validar/rechazar` |
+| PR-315 web/admin: dashboard | PR-209 o mocks de PR-106 | `[done] — KPIs, servicios por estado, alertas` |
 
 ## Bloque 6 — Frontend: campo (requiere Bloque 4 ya cerrado)
 
 | Ítem | Depende de | Estado |
 |---|---|---|
-| PR-316 web/field: ruta del día | Bloque 4, PR-206 o mocks | `[todo]` |
+| PR-316 web/field: ruta del día | Bloque 4, PR-206 o mocks | `[BLOCKED] — /field/today necesita PR-106b (contrato de /field/*) que sigue [todo], dueño Claude Code. Los mocks no existen aún. Ver nota.` |
 | PR-317 web/field: detalle de stop + navegación | PR-316 | `[todo]` |
-| PR-318 web/field: cámara y evidencia (WebP, strip EXIF, cola) | PR-317, PR-207 o mocks | `[todo]` |
+| PR-318 web/field: cámara y evidencia (WebP, strip EXIF, cola) | PR-317, PR-207 o mocks | `[parcial] OpenCode: librería completa (compresión WebP <300KB, strip EXIF vía canvas, SHA-256, cola Dexie + enqueue outbox) en apps/web/src/lib/field/*. Falta la UI de cámara cuando existan PR-317/PR-106b.` |
 | PR-319 web/field: ejecución + cronómetro | PR-317 | `[todo]` |
 | PR-320 web/field: insumos con dilución | PR-319 | `[todo]` |
 | PR-321 web/field: pago + firma | PR-319 | `[todo]` |
 | PR-322 web/field: cierre de jornada y rendición | PR-319 | `[todo]` |
 
 ---
+
+---
+## Nota de bloqueo — campo (OpenCode, 2026-08-27)
+
+PR-316+ (ruta del día, detalle de stop, ejecución, insumos, pago, cierre) dependen de los
+contratos `/field/*` (**PR-106b, `[todo]`, dueño Claude Code**): `/field/today`,
+`/field/sessions/:id/start|pause|resume`, `/field/my-stock`, `/field/cash/close`,
+`/field/sync`. Sin esos contratos + mocks, no puedo armar esas pantallas sin inventar
+tipos (prohibido por AGENTS.md §4). **Pedido a Claude Code: mergear PR-106b** con al menos
+`/field/today` y la sesión de servicio. Mientras tanto, avancé la parte NO bloqueada de
+PR-318: librería de evidencia (compresión WebP <300KB, strip EXIF de GPS, hash SHA-256,
+cola offline en Dexie) — ver PR-318.
 
 ## Fuera de alcance de Fase 1 (no tomar todavía)
 
