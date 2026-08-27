@@ -42,15 +42,14 @@ RUN pnpm exec turbo run build --filter=@fumibug/api...
 # exige "inject-workspace-packages=true" (copia real de las deps de workspace en vez de
 # symlinks); no tocamos pnpm-workspace.yaml (fuera de los archivos de apps/api), así que
 # usamos el modo anterior explícito, que sigue soportado y resuelve igual.
-RUN pnpm --filter @fumibug/api deploy --prod --legacy /prod/api
-# pnpm deploy hace su propio install "limpio" en /prod/api, y en ese install la política
-# de build-scripts de pnpm 10+ ignora por default el postinstall de @fumibug/db ("prisma
-# generate") por no estar aprobado explícitamente (aprobarlo es tocar pnpm-workspace.yaml
-# o package.json raíz — fuera de los archivos de apps/api, CLAUDE.md §3). Sin esto, el
-# @prisma/client que queda en /prod/api es el stub sin generar. Lo generamos a mano acá,
-# con el CLI de prisma de /repo (devDependency, disponible en esta etapa) apuntando al
-# schema que sí viajó dentro de /prod/api — prisma resuelve el @prisma/client más cercano
-# a ese schema, que es justamente el de /prod/api/node_modules.
+# --ignore-scripts: pnpm deploy hace su propio install "limpio" en /prod/api, y ahí el
+# postinstall de @fumibug/db ("prisma generate") intenta autorepararse con
+# `npm i @prisma/client` si no encuentra la versión exacta ya resuelta — y ese install
+# falla en el sandbox de build de Railway (sin red/permiso para eso). No hace falta que
+# corra ahí: generamos el cliente a mano en el paso siguiente, con la CLI completa de
+# /repo (que sí tiene @prisma/client bien instalado desde el `pnpm install` de la etapa
+# deps) apuntando al schema que viaja dentro de /prod/api.
+RUN pnpm --filter @fumibug/api deploy --prod --legacy --ignore-scripts /prod/api
 RUN node_modules/.bin/prisma generate --schema=/prod/api/node_modules/@fumibug/db/prisma/schema.prisma
 
 # --- runtime: imagen final, solo lo que hace falta para correr ---
