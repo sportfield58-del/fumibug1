@@ -88,6 +88,10 @@
 
 ## Bloque 2 — Backend: implementación (después del contrato de su fila)
 
+> 2026-08-27, decisión del humano: este bloque queda para OpenCode, no para Claude Code
+> (que sigue con más contratos / PR-106b). Sigue siendo `apps/api` igual que siempre —
+> CLAUDE.md §4/§5 aplica sin excepción para quien lo escriba.
+
 | Ítem | Depende de | Estado |
 |---|---|---|
 | PR-201 api: usuarios CRUD + reseteo PIN + forzar logout + alerta libreta 30 días | PR-101 | `[todo]` |
