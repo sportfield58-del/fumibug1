@@ -14,6 +14,7 @@ import { AuditModule } from './common/audit/audit.module';
 import { StateMachineModule } from './common/state-machine/state-machine.module';
 import { LoggingModule } from './common/logging/logging.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 /**
  * Cableado global de seguridad — docs/spec/11-seguridad.md §K.2.
@@ -34,7 +35,15 @@ import { AuthModule } from './modules/auth/auth.module';
  * §U y CLAUDE.md §6).
  */
 @Module({
-  imports: [EnvModule, LoggingModule, TenantModule, AuditModule, StateMachineModule, AuthModule],
+  imports: [
+    EnvModule,
+    LoggingModule,
+    TenantModule,
+    AuditModule,
+    StateMachineModule,
+    AuthModule,
+    DashboardModule,
+  ],
   controllers: [AppController],
   providers: [
     // Registro secuencial = orden de ejecución garantizado por Nest.
