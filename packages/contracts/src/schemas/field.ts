@@ -166,8 +166,12 @@ export const SessionSignatureRequestSchema = z
     noSignatureReason: NoSignatureReasonSchema.nullable().optional(),
     clientEventId: z.string().uuid(),
   })
-  .refine((v) => !!v.clientSignatureUrl || !!v.noSignatureReason, {
-    message: 'Hace falta la firma o un motivo de ausencia de firma (R4).',
+  .refine((v) => !!v.clientSignatureUrl || !!v.noSignatureReason || !!v.signerName, {
+    // Sin firma dibujada (necesita PR-207/evidencia con canvas) el nombre tipeado del
+    // que recibe el servicio es la confirmación mínima aceptable — mejor eso que
+    // bloquear el cierre por una capacidad que todavía no existe. Firma dibujada real
+    // y noSignatureReason siguen siendo válidos cuando corresponda.
+    message: 'Cargá el nombre de quien firma, o el motivo de ausencia de firma (R4).',
   });
 export type SessionSignatureRequest = z.infer<typeof SessionSignatureRequestSchema>;
 

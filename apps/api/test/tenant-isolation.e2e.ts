@@ -111,6 +111,7 @@ beforeAll(async () => {
       'stop.mark_no_show',
       'stop.skip',
       'payment.create',
+      'evidence.upload',
     ],
   });
 

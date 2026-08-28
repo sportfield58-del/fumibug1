@@ -408,7 +408,7 @@ export class FieldService {
 
   private async checklistGaps(
     tx: RequestTx,
-    session: { id: string; serviceId: string; clientSignatureUrl: string | null; noSignatureReason: string | null },
+    session: { id: string; serviceId: string; clientSignatureUrl: string | null; noSignatureReason: string | null; signerName: string | null },
     input: FinishSessionRequest,
   ): Promise<Array<{ code: 'SERVICE_CLOSURE_CHECKLIST_INCOMPLETE'; field: string; message: string }>> {
     const gaps: Array<{ code: 'SERVICE_CLOSURE_CHECKLIST_INCOMPLETE'; field: string; message: string }> = [];
@@ -432,7 +432,7 @@ export class FieldService {
     if (input.paymentDecision === 'COLLECTED' && paymentCount === 0) {
       gaps.push({ code: 'SERVICE_CLOSURE_CHECKLIST_INCOMPLETE', field: 'payment', message: 'Marcaste "cobrado" pero no hay ningún pago registrado.' });
     }
-    if (!session.clientSignatureUrl && !session.noSignatureReason) {
+    if (!session.clientSignatureUrl && !session.noSignatureReason && !session.signerName) {
       gaps.push({ code: 'SERVICE_CLOSURE_CHECKLIST_INCOMPLETE', field: 'signature', message: 'Falta la firma del cliente o el motivo de su ausencia.' });
     }
     return gaps;
