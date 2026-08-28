@@ -2,15 +2,17 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Wifi, WifiOff, UploadCloud, CloudOff } from 'lucide-react'
-import { cn } from '@fumibug/ui'
+import { Wifi, WifiOff, UploadCloud, CloudOff, LogOut } from 'lucide-react'
+import { cn, Button } from '@fumibug/ui'
 import { RequireAuth } from '@/components/require-auth'
+import { useAuth } from '@/components/auth-provider'
 import { useSyncStatus } from '@/lib/offline/use-sync-status'
 import { ServiceWorkerRegistration } from '@/components/service-worker-registration'
 
 function CampoHeader(): JSX.Element {
   const [isOnline, setIsOnline] = React.useState(true)
   const sync = useSyncStatus()
+  const { logout } = useAuth()
 
   React.useEffect(() => {
     const handleOnline = (): void => setIsOnline(true)
@@ -76,6 +78,10 @@ function CampoHeader(): JSX.Element {
           )}
           <span>{isOnline ? 'En línea' : 'Sin conexión'}</span>
         </div>
+
+        <Button variant="ghost" size="icon" aria-label="Cerrar sesión" title="Cerrar sesión" onClick={logout}>
+          <LogOut className="h-4 w-4" />
+        </Button>
       </div>
     </header>
   )

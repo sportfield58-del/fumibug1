@@ -1,8 +1,9 @@
 'use client'
 
 import * as React from 'react'
-import { Menu, Bell } from 'lucide-react'
+import { Menu, Bell, LogOut } from 'lucide-react'
 import { cn, Button } from '@fumibug/ui'
+import { useAuth } from './auth-provider'
 
 interface TopbarProps {
   title?: string
@@ -21,6 +22,8 @@ function Topbar({
   className,
   children,
 }: TopbarProps): JSX.Element {
+  const { logout, user } = useAuth()
+
   return (
     <header
       className={cn(
@@ -67,6 +70,14 @@ function Topbar({
         <Button variant="ghost" size="icon" aria-label="Notificaciones">
           <Bell className="h-5 w-5" />
         </Button>
+        {user && (
+          <>
+            <span className="hidden text-caption text-fg-muted sm:inline">{user.name}</span>
+            <Button variant="ghost" size="icon" aria-label="Cerrar sesión" title="Cerrar sesión" onClick={logout}>
+              <LogOut className="h-5 w-5" />
+            </Button>
+          </>
+        )}
       </div>
     </header>
   )
