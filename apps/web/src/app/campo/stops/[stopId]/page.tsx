@@ -86,9 +86,23 @@ export default function StopDetailPage(): JSX.Element {
 
   React.useEffect(() => {
     void fetchStop()
-    const stored = typeof window !== 'undefined' ? localStorage.getItem(`campo:session:${params.stopId}`) : null
-    if (stored) setSessionId(stored)
-  }, [fetchStop, params.stopId])
+  }, [fetchStop])
+
+  // El servidor (openSessionId, GET /field/today) es la fuente de verdad — localStorage
+  // es solo un respaldo para el instante entre "iniciar servicio" y que termine el
+  // refetch. Antes dependía SOLO de localStorage, que se pierde en una ventana
+  // privada nueva o en otro dispositivo — un refresh entonces "perdía" la sesión
+  // en curso aunque siguiera abierta del lado del servidor.
+  React.useEffect(() => {
+    if (!stop) return
+    if (stop.openSessionId) {
+      setSessionId(stop.openSessionId)
+      localStorage.setItem(`campo:session:${params.stopId}`, stop.openSessionId)
+    } else {
+      const stored = localStorage.getItem(`campo:session:${params.stopId}`)
+      if (stored) setSessionId(stored)
+    }
+  }, [stop, params.stopId])
 
   const run = async (fn: () => Promise<void>): Promise<void> => {
     setBusy(true)
@@ -201,10 +215,10 @@ export default function StopDetailPage(): JSX.Element {
         }} />
       )}
       {stop.status === 'IN_PROGRESS' && !sessionId && (
-        <p className="text-caption text-fg-muted">
-          Esta parada ya está en curso pero perdí de vista la sesión (¿recargaste la página en otro momento?).
-          Volvé a "Iniciar servicio" no hace falta — probá cerrar y volver a entrar.
-        </p>
+        <div className="space-y-2">
+          <p className="text-caption text-fg-muted">No se pudo recuperar la sesión de esta parada.</p>
+          <Button variant="outline" className="w-full" onClick={() => { void fetchStop() }}>Reintentar</Button>
+        </div>
       )}
 
       {(stop.status === 'DONE' || stop.status === 'NO_SHOW' || stop.status === 'INACCESSIBLE' || stop.status === 'SKIPPED' || stop.status === 'CANCELLED') && (

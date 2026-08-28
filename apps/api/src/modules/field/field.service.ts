@@ -78,7 +78,15 @@ export class FieldService {
           },
         },
       });
-      stops = rows.map(toFieldStop);
+      // Sesión OPEN por stop — sin esto, un refresh de página o volver a entrar más
+      // tarde pierde el hilo de la ejecución en curso (antes dependía solo de un id
+      // guardado en localStorage, que no sobrevive un dispositivo/navegador distinto).
+      const openSessions = await tx.serviceSession.findMany({
+        where: { routeStopId: { in: rows.map((r) => r.id) }, status: 'OPEN' },
+        select: { routeStopId: true, id: true },
+      });
+      const openSessionByStop = new Map(openSessions.map((s) => [s.routeStopId, s.id]));
+      stops = rows.map((r) => toFieldStop(r, openSessionByStop.get(r.id) ?? null));
     }
 
     const myStock: InventoryBalance[] = await this.inventory.listInventory({}, actor);
@@ -610,7 +618,7 @@ interface RouteStopForField {
   };
 }
 
-function toFieldStop(r: RouteStopForField): FieldStop {
+function toFieldStop(r: RouteStopForField, openSessionId: string | null): FieldStop {
   return {
     id: r.id,
     tenantId: r.tenantId,
@@ -643,5 +651,6 @@ function toFieldStop(r: RouteStopForField): FieldStop {
     serviceTypeName: r.service.serviceType.name,
     notesForTechnician: r.service.notesForTechnician,
     priority: r.service.priority,
+    openSessionId,
   };
 }
