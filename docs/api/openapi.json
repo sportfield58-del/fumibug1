@@ -1356,6 +1356,390 @@
         }
       }
     },
+    "/users/{id}/activate": {
+      "post": {
+        "summary": "Activa un usuario (habilita su membership en el tenant).",
+        "operationId": "activateUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "username": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 40,
+                      "nullable": true
+                    },
+                    "fullName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "phone": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "avatarUrl": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true
+                    },
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$",
+                      "nullable": true
+                    },
+                    "isActive": {
+                      "type": "boolean"
+                    },
+                    "lastLoginAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "membershipStatus": {
+                      "type": "string",
+                      "enum": [
+                        "ACTIVE",
+                        "SUSPENDED"
+                      ]
+                    },
+                    "roleId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "roleKey": {
+                      "type": "string"
+                    },
+                    "roleName": {
+                      "type": "string"
+                    },
+                    "technicianProfile": {
+                      "type": "object",
+                      "properties": {
+                        "userId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "tenantId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "licenseNumber": {
+                          "type": "string",
+                          "maxLength": 60,
+                          "nullable": true
+                        },
+                        "licenseType": {
+                          "type": "string",
+                          "enum": [
+                            "SANITARY_BOOK",
+                            "TECHNICAL_DIRECTOR"
+                          ]
+                        },
+                        "licenseExpiresAt": {
+                          "type": "string",
+                          "format": "date",
+                          "nullable": true
+                        },
+                        "signatureUrl": {
+                          "type": "string",
+                          "format": "uri",
+                          "nullable": true
+                        },
+                        "vehicleId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "stockLocationId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "userId",
+                        "tenantId",
+                        "licenseType",
+                        "createdAt",
+                        "updatedAt"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "email",
+                    "isActive",
+                    "createdAt",
+                    "updatedAt",
+                    "membershipStatus",
+                    "roleId",
+                    "roleKey",
+                    "roleName"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "22222222-2222-2222-2222-222222222222",
+                  "email": "diego@fumibug.dev",
+                  "username": "diego.sosa",
+                  "fullName": "Diego Operario",
+                  "phone": "+54 9 11 5555-0000",
+                  "avatarUrl": null,
+                  "color": "#16A34A",
+                  "isActive": true,
+                  "lastLoginAt": "2026-08-25T13:00:00.000Z",
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:05:00.000Z",
+                  "membershipStatus": "ACTIVE",
+                  "roleId": "33333333-3333-3333-3333-333333333333",
+                  "roleKey": "technician",
+                  "roleName": "Operario",
+                  "technicianProfile": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}/deactivate": {
+      "post": {
+        "summary": "Desactiva un usuario (no puede loguearse mientras esté desactivado).",
+        "operationId": "deactivateUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "email": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "username": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 40,
+                      "nullable": true
+                    },
+                    "fullName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "phone": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "avatarUrl": {
+                      "type": "string",
+                      "format": "uri",
+                      "nullable": true
+                    },
+                    "color": {
+                      "type": "string",
+                      "pattern": "^#[0-9a-fA-F]{6}$",
+                      "nullable": true
+                    },
+                    "isActive": {
+                      "type": "boolean"
+                    },
+                    "lastLoginAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "membershipStatus": {
+                      "type": "string",
+                      "enum": [
+                        "ACTIVE",
+                        "SUSPENDED"
+                      ]
+                    },
+                    "roleId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "roleKey": {
+                      "type": "string"
+                    },
+                    "roleName": {
+                      "type": "string"
+                    },
+                    "technicianProfile": {
+                      "type": "object",
+                      "properties": {
+                        "userId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "tenantId": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "licenseNumber": {
+                          "type": "string",
+                          "maxLength": 60,
+                          "nullable": true
+                        },
+                        "licenseType": {
+                          "type": "string",
+                          "enum": [
+                            "SANITARY_BOOK",
+                            "TECHNICAL_DIRECTOR"
+                          ]
+                        },
+                        "licenseExpiresAt": {
+                          "type": "string",
+                          "format": "date",
+                          "nullable": true
+                        },
+                        "signatureUrl": {
+                          "type": "string",
+                          "format": "uri",
+                          "nullable": true
+                        },
+                        "vehicleId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "stockLocationId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "nullable": true
+                        },
+                        "createdAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "format": "date-time"
+                        }
+                      },
+                      "required": [
+                        "userId",
+                        "tenantId",
+                        "licenseType",
+                        "createdAt",
+                        "updatedAt"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "email",
+                    "isActive",
+                    "createdAt",
+                    "updatedAt",
+                    "membershipStatus",
+                    "roleId",
+                    "roleKey",
+                    "roleName"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "22222222-2222-2222-2222-222222222222",
+                  "email": "diego@fumibug.dev",
+                  "username": "diego.sosa",
+                  "fullName": "Diego Operario",
+                  "phone": "+54 9 11 5555-0000",
+                  "avatarUrl": null,
+                  "color": "#16A34A",
+                  "isActive": false,
+                  "lastLoginAt": "2026-08-25T13:00:00.000Z",
+                  "createdAt": "2026-08-20T12:00:00.000Z",
+                  "updatedAt": "2026-08-27T12:05:00.000Z",
+                  "membershipStatus": "ACTIVE",
+                  "roleId": "33333333-3333-3333-3333-333333333333",
+                  "roleKey": "technician",
+                  "roleName": "Operario",
+                  "technicianProfile": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/{id}/reset-pin": {
       "post": {
         "summary": "Genera un PIN temporal para un operario y fuerza cambio en el próximo login.",

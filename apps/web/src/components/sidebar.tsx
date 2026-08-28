@@ -19,6 +19,7 @@ import {
   Settings,
   ChevronLeft,
   Bug,
+  UserCog,
 } from 'lucide-react'
 import { cn, Button } from '@fumibug/ui'
 
@@ -41,6 +42,7 @@ const navItems: NavItem[] = [
   { label: 'Caja', href: '/admin/caja', icon: Wallet },
   { label: 'Reportes', href: '/admin/reportes', icon: BarChart3 },
   { label: 'Auditoría', href: '/admin/auditoria', icon: ScrollText },
+  { label: 'Usuarios', href: '/admin/usuarios', icon: UserCog },
   { label: 'Configuración', href: '/admin/configuracion', icon: Settings },
 ]
 

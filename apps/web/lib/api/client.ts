@@ -71,6 +71,16 @@ export function patchUpdateUser(args: { params: { id: string }; body: ReturnType
   return request('PATCH', `users/${args.params.id}`, args.body);
 }
 
+/** POST /v1/users/:id/activate — Activa un usuario (habilita su membership en el tenant). */
+export function postActivateUser(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.activateUser.example>> {
+  return request('POST', `users/${args.params.id}/activate`);
+}
+
+/** POST /v1/users/:id/deactivate — Desactiva un usuario (no puede loguearse mientras esté desactivado). */
+export function postDeactivateUser(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.deactivateUser.example>> {
+  return request('POST', `users/${args.params.id}/deactivate`);
+}
+
 /** POST /v1/users/:id/reset-pin — Genera un PIN temporal para un operario y fuerza cambio en el próximo login. */
 export function postResetUserPin(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.resetUserPin.example>> {
   return request('POST', `users/${args.params.id}/reset-pin`);

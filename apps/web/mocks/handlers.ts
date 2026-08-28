@@ -201,6 +201,52 @@ export const handlers = [
     }
   }),
   ),
+  http.post('/v1/users/:id/activate', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "22222222-2222-2222-2222-222222222222",
+      "email": "diego@fumibug.dev",
+      "username": "diego.sosa",
+      "fullName": "Diego Operario",
+      "phone": "+54 9 11 5555-0000",
+      "avatarUrl": null,
+      "color": "#16A34A",
+      "isActive": true,
+      "lastLoginAt": "2026-08-25T13:00:00.000Z",
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:05:00.000Z",
+      "membershipStatus": "ACTIVE",
+      "roleId": "33333333-3333-3333-3333-333333333333",
+      "roleKey": "technician",
+      "roleName": "Operario",
+      "technicianProfile": null
+    }
+  }),
+  ),
+  http.post('/v1/users/:id/deactivate', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "22222222-2222-2222-2222-222222222222",
+      "email": "diego@fumibug.dev",
+      "username": "diego.sosa",
+      "fullName": "Diego Operario",
+      "phone": "+54 9 11 5555-0000",
+      "avatarUrl": null,
+      "color": "#16A34A",
+      "isActive": false,
+      "lastLoginAt": "2026-08-25T13:00:00.000Z",
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-27T12:05:00.000Z",
+      "membershipStatus": "ACTIVE",
+      "roleId": "33333333-3333-3333-3333-333333333333",
+      "roleKey": "technician",
+      "roleName": "Operario",
+      "technicianProfile": null
+    }
+  }),
+  ),
   http.post('/v1/users/:id/reset-pin', () =>
     HttpResponse.json({
     "success": true,
