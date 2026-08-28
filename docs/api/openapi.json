@@ -6059,6 +6059,37 @@
                       "updatedAt": {
                         "type": "string",
                         "format": "date-time"
+                      },
+                      "customerName": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "serviceTypeName": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "location": {
+                        "type": "object",
+                        "properties": {
+                          "addressLine": {
+                            "type": "string"
+                          },
+                          "lat": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "lng": {
+                            "type": "number",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "addressLine",
+                          "lat",
+                          "lng"
+                        ],
+                        "additionalProperties": false,
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -6453,6 +6484,37 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "customerName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceTypeName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "addressLine": {
+                          "type": "string"
+                        },
+                        "lat": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "lng": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "addressLine",
+                        "lat",
+                        "lng"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -6700,6 +6762,37 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "customerName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceTypeName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "addressLine": {
+                          "type": "string"
+                        },
+                        "lat": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "lng": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "addressLine",
+                        "lat",
+                        "lng"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -7025,6 +7118,37 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "customerName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceTypeName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "addressLine": {
+                          "type": "string"
+                        },
+                        "lat": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "lng": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "addressLine",
+                        "lat",
+                        "lng"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -7304,6 +7428,37 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "customerName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceTypeName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "addressLine": {
+                          "type": "string"
+                        },
+                        "lat": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "lng": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "addressLine",
+                        "lat",
+                        "lng"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -7577,6 +7732,37 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "customerName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceTypeName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "addressLine": {
+                          "type": "string"
+                        },
+                        "lat": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "lng": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "addressLine",
+                        "lat",
+                        "lng"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -7824,6 +8010,37 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "customerName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceTypeName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "addressLine": {
+                          "type": "string"
+                        },
+                        "lat": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "lng": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "addressLine",
+                        "lat",
+                        "lng"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -8092,6 +8309,37 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "customerName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceTypeName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "addressLine": {
+                          "type": "string"
+                        },
+                        "lat": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "lng": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "addressLine",
+                        "lat",
+                        "lng"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -8360,6 +8608,37 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "customerName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceTypeName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "addressLine": {
+                          "type": "string"
+                        },
+                        "lat": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "lng": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "addressLine",
+                        "lat",
+                        "lng"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -8607,6 +8886,37 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "customerName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "serviceTypeName": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "location": {
+                      "type": "object",
+                      "properties": {
+                        "addressLine": {
+                          "type": "string"
+                        },
+                        "lat": {
+                          "type": "number",
+                          "nullable": true
+                        },
+                        "lng": {
+                          "type": "number",
+                          "nullable": true
+                        }
+                      },
+                      "required": [
+                        "addressLine",
+                        "lat",
+                        "lng"
+                      ],
+                      "additionalProperties": false,
+                      "nullable": true
                     }
                   },
                   "required": [

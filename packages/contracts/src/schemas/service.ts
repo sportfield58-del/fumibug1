@@ -44,6 +44,22 @@ export const ServiceSchema = z.object({
   version: z.number().int().positive(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  /**
+   * Enriquecido en list/get para no obligar a la pantalla a resolver customerId/
+   * serviceLocationId/serviceTypeId con llamadas aparte — "¿qué servicio es y dónde
+   * es?" tiene que verse con un solo fetch. Ausente solo si Prisma no pudo traer la
+   * relación (no debería pasar, las FK son NOT NULL).
+   */
+  customerName: z.string().nullable().optional(),
+  serviceTypeName: z.string().nullable().optional(),
+  location: z
+    .object({
+      addressLine: z.string(),
+      lat: z.number().nullable(),
+      lng: z.number().nullable(),
+    })
+    .nullable()
+    .optional(),
 });
 export type Service = z.infer<typeof ServiceSchema>;
 

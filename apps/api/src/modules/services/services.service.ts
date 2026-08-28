@@ -65,6 +65,11 @@ export class ServicesService {
       take,
       ...(query.cursor ? { skip: 1, cursor: { id: query.cursor } } : {}),
       orderBy: [{ scheduledDate: 'desc' }, { id: 'desc' }],
+      include: {
+        customer: { select: { legalName: true, tradeName: true } },
+        serviceLocation: { select: { addressLine: true, lat: true, lng: true } },
+        serviceType: { select: { name: true } },
+      },
     });
 
     const hasMore = rows.length > query.limit;
@@ -126,7 +131,14 @@ export class ServicesService {
   }
 
   async getById(id: string): Promise<Service> {
-    const row = await this.db.current().service.findFirst({ where: { id } });
+    const row = await this.db.current().service.findFirst({
+      where: { id },
+      include: {
+        customer: { select: { legalName: true, tradeName: true } },
+        serviceLocation: { select: { addressLine: true, lat: true, lng: true } },
+        serviceType: { select: { name: true } },
+      },
+    });
     if (!row) throw httpApiError('NOT_FOUND', 'Servicio no encontrado.', 404);
     return toService(row);
   }
@@ -379,6 +391,9 @@ interface ServiceRow {
   version: number;
   createdAt: Date;
   updatedAt: Date;
+  customer?: { legalName: string; tradeName: string | null };
+  serviceLocation?: { addressLine: string; lat: unknown; lng: unknown };
+  serviceType?: { name: string };
 }
 
 function toService(r: ServiceRow): Service {
@@ -412,5 +427,14 @@ function toService(r: ServiceRow): Service {
     version: r.version,
     createdAt: r.createdAt.toISOString(),
     updatedAt: r.updatedAt.toISOString(),
+    customerName: r.customer ? (r.customer.tradeName ?? r.customer.legalName) : null,
+    serviceTypeName: r.serviceType?.name ?? null,
+    location: r.serviceLocation
+      ? {
+          addressLine: r.serviceLocation.addressLine,
+          lat: r.serviceLocation.lat !== null ? Number(r.serviceLocation.lat) : null,
+          lng: r.serviceLocation.lng !== null ? Number(r.serviceLocation.lng) : null,
+        }
+      : null,
   };
 }
