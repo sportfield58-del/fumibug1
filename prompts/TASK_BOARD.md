@@ -104,6 +104,9 @@
 | PR-208 api: validación de cierres (cola, aprobación, rechazo con motivo) | PR-106, PR-206 | `[todo]` |
 | PR-209 api: dashboard (admin + owner, agregaciones) | PR-106 | `[done] — servicios hoy por estado, operarios activos (con ruta publicada hoy), sin asignar, alertas (libreta 30 días, cierres pendientes), cobrado hoy, facturado/ticket promedio del mes. Payment/CashClosure devuelven 0 hasta que existan PR-207+/caja (Fase 2) — queries reales, no hardcode.` |
 | PR-210 api: auditoría — endpoint de consulta paginado con filtros | PR-106 | `[todo]` |
+| PR-211 api+contracts+web: inventario (§N, R16-R23) | PR-106 | `[done] → PR #45 — Supply CRUD, StockLocation (depósito + una por operario, auto-provistas), saldo actual (proyección), movimientos manuales (PURCHASE/TRANSFER/ADJUSTMENT/LOSS/RETURN/EXPIRY_WRITE_OFF). TRANSFER genera el par espejo TRANSFER_OUT/IN (R21). Bloquea negativo salvo inventory.allow_negative (R19); ADJUSTMENT/LOSS/EXPIRY_WRITE_OFF piden motivo (R22); proyección con SELECT...FOR UPDATE en la misma tx (R23). CONSUMPTION (dilución, R16-R18/R20) NO está — es de la sesión de campo (PR-207/PR-106b), no se inventó. Frontend real en /admin/inventario (catálogo + saldo + alta de movimiento), reemplaza el ComingSoon. 14 tests e2e contra Postgres real nombrando cada R (apps/api/test/inventory-cash.e2e.ts) — encontraron un bug real (TRANSFER sin lotCode movía el lote equivocado) antes de mergear.` |
+| PR-212 api+contracts+web: caja (§O, R24-R31) | PR-106, PR-211 | `[done] → PR #45 — CashAccount por operario (auto-provista), Payment, CashMovement (append-only), CashClosure vía StateMachineService (OPEN→DECLARED→RECONCILED/DISPUTED). Pago CASH genera cash_movement en la misma tx (R24); no-CASH no toca la caja (R25); anular = asiento REVERSAL, nunca edita (R26); declarar calcula lo esperado de los movimientos del período abierto (R27); conciliar exige motivo si hay diferencia (R28) y la absorbe con un ADJUSTMENT a saldo cero (R29). Cuenta OFFICE NO auto-provista a propósito (ownerUserId es NOT NULL + unique(tenant,owner,currency) — asignarle un dueño arbitrario es decisión de negocio, no algo para improvisar; R25 igual queda cubierto). Frontend real en /admin/caja (cuentas + rendición + conciliación + alta de cobro manual), reemplaza el ComingSoon. Mismo archivo de test e2e que PR-211 — encontró un segundo bug real (ensureOfficeAccount colisionaba con la unique constraint en cualquier fixture de un solo usuario). Pendiente: cuenta OFFICE real, R30 (bloqueo de ruta nueva con rendición pendiente >24h), reportes de inventario/caja (§P).`  |
+| PR-213 web: mapa estático de paradas en el detalle de ruta | PR-206 | `[done] → PR #44 — Leaflet + tiles OSM (sin API key) en admin/planificador/rutas/[id], marcador por parada coloreado según estado. GET /routes/:id ahora incluye domicilio geocodificado del cliente por stop (campo \`location\` additivo). Deliberadamente NO es tracking GPS en vivo — docs/spec/19-mvp-roadmap.md lo excluye del MVP a propósito ("Técnicamente imposible en PWA"); decisión confirmada con el humano antes de implementar.` |
 
 ## Bloque 3 — Frontend: fundaciones visuales (igual que `PROMPT_FASE_1_OPENCODE.md`)
 
@@ -163,9 +166,15 @@ cola offline en Dexie) — ver PR-318.
 
 ## Fuera de alcance de Fase 1 (no tomar todavía)
 
-Insumos/inventario, caja/rendiciones, certificados, contratos recurrentes, reportes,
-notificaciones push reales — son Fase 2 (`docs/spec/19-mvp-roadmap.md`). Si terminás
-todo lo de arriba antes de que el humano defina Fase 2, avisale en vez de improvisar.
+Certificados, contratos recurrentes, reportes, notificaciones push reales — siguen
+siendo Fase 2 (`docs/spec/19-mvp-roadmap.md`). Si terminás todo lo de arriba antes de
+que el humano defina Fase 2, avisale en vez de improvisar.
+
+**Actualización 2026-08-28 (Claude Code):** Insumos/inventario y caja/rendiciones
+dejaron de estar en esta lista — el humano pidió explícitamente adelantarlos para la
+demo de hoy ("después de esto te hacés inventario y caja"). Ver PR-211/PR-212 arriba.
+Certificados/contratos recurrentes/reportes/notificaciones siguen fuera de alcance
+salvo que el humano lo pida igual de explícito.
 
 **Fix de UX (Claude Code, probando la demo real):** 6 de los 12 items del sidebar
 (`sidebar.tsx`) llevaban a un 404 — "Rutas" apuntaba a `/admin/rutas`, que nunca
@@ -173,6 +182,9 @@ existió como página propia (la funcionalidad real está en `/admin/planificado
 Certificados/Inventario/Caja/Reportes/Auditoría/Configuración no tienen pantalla
 todavía (Fase 2, o Fase 1 sin PR de frontend asignado). Agregué:
 - `admin/rutas/page.tsx`: redirect (`next/navigation`) a `/admin/planificador`.
-- `components/coming-soon.tsx` + 6 páginas finitas que lo usan, para los seis
-  módulos sin pantalla — mejor un "Todavía no está construido" que el 404 genérico
-  en medio de una demo. Cuando cada módulo real llegue, esa página se reemplaza.
+- `components/coming-soon.tsx` + páginas finitas que lo usan, para los módulos sin
+  pantalla — mejor un "Todavía no está construido" que el 404 genérico en medio de
+  una demo. Cuando cada módulo real llegue, esa página se reemplaza.
+- **Actualización 2026-08-28:** Inventario y Caja ya tienen pantalla real (PR-211/
+  PR-212) y salieron de esta lista. Siguen con ComingSoon: Certificados, Reportes,
+  Auditoría, Configuración.
