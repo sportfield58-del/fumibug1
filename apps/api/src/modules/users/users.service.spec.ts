@@ -69,6 +69,7 @@ function buildService(overrides: {
   const profileUpdate = jest.fn();
   const supabaseCreateUser = jest.fn().mockResolvedValue(undefined);
   const supabaseResetPassword = jest.fn().mockResolvedValue(undefined);
+  const supabaseResetPasswordOrProvision = jest.fn().mockResolvedValue(undefined);
   const supabaseRevokeSessions = jest.fn().mockResolvedValue(2);
 
   const tx = {
@@ -89,6 +90,7 @@ function buildService(overrides: {
   const supabase = {
     createUser: supabaseCreateUser,
     resetPassword: supabaseResetPassword,
+    resetPasswordOrProvision: supabaseResetPasswordOrProvision,
     revokeUserSessions: supabaseRevokeSessions,
     ...overrides.supabase,
   } as unknown as SupabaseAuthAdminClient;
@@ -104,6 +106,7 @@ function buildService(overrides: {
     membershipUpdate,
     supabaseCreateUser,
     supabaseResetPassword,
+    supabaseResetPasswordOrProvision,
     supabaseRevokeSessions,
     audit,
   };
@@ -219,12 +222,12 @@ describe('UsersService.update — If-Match', () => {
 });
 
 describe('UsersService.resetPin / forceLogout', () => {
-  it('reset-pin genera un PIN de 6 dígitos y lo setea en Supabase', async () => {
-    const { service, membershipFindFirst, supabaseResetPassword } = buildService();
+  it('reset-pin genera un PIN de 6 dígitos y lo setea en Supabase (o provisiona la cuenta si nunca existió)', async () => {
+    const { service, membershipFindFirst, supabaseResetPasswordOrProvision } = buildService();
     membershipFindFirst.mockResolvedValue(MEMBER_ROW);
     const result = await service.resetPin(UID);
     expect(result.temporaryPin).toMatch(/^\d{6}$/);
-    expect(supabaseResetPassword).toHaveBeenCalledWith(UID, result.temporaryPin);
+    expect(supabaseResetPasswordOrProvision).toHaveBeenCalledWith(UID, result.temporaryPin, 'diego@fumibug.internal');
   });
 
   it('force-logout revoca sesiones en Supabase y devuelve la cantidad', async () => {
@@ -235,10 +238,10 @@ describe('UsersService.resetPin / forceLogout', () => {
   });
 
   it('reset-pin de usuario inexistente → 404 sin tocar Supabase', async () => {
-    const { service, membershipFindFirst, supabaseResetPassword } = buildService();
+    const { service, membershipFindFirst, supabaseResetPasswordOrProvision } = buildService();
     membershipFindFirst.mockResolvedValue(null);
     await expectCode(service.resetPin('u-x'), 'NOT_FOUND');
-    expect(supabaseResetPassword).not.toHaveBeenCalled();
+    expect(supabaseResetPasswordOrProvision).not.toHaveBeenCalled();
   });
 });
 

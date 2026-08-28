@@ -289,7 +289,16 @@ export class UsersService {
     if (!membership) throw httpApiError('NOT_FOUND', 'Usuario no encontrado.', 404);
 
     const newPin = generatePin();
-    await this.supabase.resetPassword(id, newPin);
+    // Mismo cálculo que create() (línea ~109): si la cuenta de Supabase no existe
+    // todavía (operario sembrado directo en la DB, sin pasar por create()), se
+    // provisiona ahora con el email que create() habría usado — nunca el email de
+    // negocio de la fila (puede ser cosmético y no coincidir con ninguna cuenta real).
+    const email = membership.user.email.includes('@fumibug.internal')
+      ? membership.user.email
+      : membership.user.username
+        ? `${membership.user.username}@fumibug.internal`
+        : membership.user.email;
+    await this.supabase.resetPasswordOrProvision(id, newPin, email);
 
     await this.audit.record({
       action: 'user.reset-pin',
