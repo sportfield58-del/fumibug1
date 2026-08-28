@@ -331,5 +331,120 @@ export const CROSS_TENANT_ENDPOINTS: CrossTenantCase[] = [
       expect(res.body.error.code).toBe('NOT_FOUND');
     },
   },
+  {
+    description: 'GET /v1/routes/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/routes/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .get(`/v1/routes/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'PATCH /v1/routes/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/routes/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .patch(`/v1/routes/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .set('If-Match', `"1"`)
+        .send({ notes: 'x' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/routes/:id/stops con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/routes/:id/stops',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/routes/${crossTenantUserId}/stops`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ serviceId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'PUT /v1/routes/:id/stops/order con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/routes/:id/stops/order',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .put(`/v1/routes/${crossTenantUserId}/stops/order`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ stopIds: [crossTenantUserId] })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'DELETE /v1/routes/:id/stops/:stopId con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/routes/:id/stops/:stopId',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .delete(`/v1/routes/${crossTenantUserId}/stops/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/routes/:id/validate con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/routes/:id/validate',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/routes/${crossTenantUserId}/validate`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/routes/:id/publish con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/routes/:id/publish',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/routes/${crossTenantUserId}/publish`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/routes/:id/unpublish con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/routes/:id/unpublish',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/routes/${crossTenantUserId}/unpublish`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/routes/:id/reassign con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/routes/:id/reassign',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/routes/${crossTenantUserId}/reassign`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ newTechnicianId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/routes/:id/cancel con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/routes/:id/cancel',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/routes/${crossTenantUserId}/cancel`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
 ];
 

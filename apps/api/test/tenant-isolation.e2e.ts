@@ -94,6 +94,12 @@ beforeAll(async () => {
       'service.validate',
       'service.reject',
       'session.reopen',
+      'route.read.tenant',
+      'route.create',
+      'route.update',
+      'route.publish',
+      'route.unpublish',
+      'route.cancel',
     ],
   });
 
