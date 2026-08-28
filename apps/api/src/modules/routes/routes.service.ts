@@ -61,6 +61,23 @@ export class RoutesService {
 
   async create(input: CreateRouteRequest, actor: RequestUser): Promise<Route> {
     const tx = this.db.current();
+    const routeDate = new Date(`${input.date}T00:00:00.000Z`);
+
+    // R11: un operario, una ruta activa por día — hay un UNIQUE INDEX real en DB
+    // (routes_one_active_per_technician_per_day, WHERE status <> 'CANCELLED') que es
+    // la garantía de verdad contra una carrera; este pre-check solo evita que la
+    // violación le llegue al usuario como un 500 genérico en el caso común (sin carrera).
+    const existing = await tx.route.findFirst({
+      where: { technicianId: input.technicianId, routeDate, status: { not: 'CANCELLED' } },
+    });
+    if (existing) {
+      throw httpApiError(
+        'TECHNICIAN_ALREADY_HAS_ROUTE_THIS_DATE',
+        `Este operario ya tiene una ruta (${existing.code}) para el ${input.date} (R11).`,
+        409,
+      );
+    }
+
     const code = await this.nextCode(tx);
     const row = await tx.route.create({
       data: {
