@@ -19,6 +19,7 @@ import { UsersModule } from './modules/users/users.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.module';
 import { ServicesModule } from './modules/services/services.module';
+import { RoutesModule } from './modules/routes/routes.module';
 
 /**
  * Cableado global de seguridad — docs/spec/11-seguridad.md §K.2.
@@ -51,6 +52,7 @@ import { ServicesModule } from './modules/services/services.module';
     CustomersModule,
     ServiceCatalogModule,
     ServicesModule,
+    RoutesModule,
   ],
   controllers: [AppController],
   providers: [
