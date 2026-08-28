@@ -28,6 +28,7 @@ import type { RequestUser } from '../../common/tenant/request-context';
 import type { RequestTx } from '../../common/tenant/prisma-tenant.extension';
 import { InventoryService } from '../inventory/inventory.service';
 import { CashService } from '../cash/cash.service';
+import { argentinaTodayUtcMidnight } from '../../common/date/argentina-date';
 
 /**
  * docs/spec/03-modulos.md §C.10 "Ejecución de servicios", docs/spec/10-api.md §J.2,
@@ -58,9 +59,8 @@ export class FieldService {
 
   async getToday(actor: RequestUser): Promise<FieldTodayResponse> {
     const tx = this.db.current();
-    const todayStr = new Date().toISOString().slice(0, 10);
     const routeRow = await tx.route.findFirst({
-      where: { technicianId: actor.userId, routeDate: new Date(`${todayStr}T00:00:00.000Z`), status: { in: ['PUBLISHED', 'IN_PROGRESS'] } },
+      where: { technicianId: actor.userId, routeDate: argentinaTodayUtcMidnight(), status: { in: ['PUBLISHED', 'IN_PROGRESS'] } },
     });
 
     let stops: FieldStop[] = [];
