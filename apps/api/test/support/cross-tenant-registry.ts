@@ -446,5 +446,76 @@ export const CROSS_TENANT_ENDPOINTS: CrossTenantCase[] = [
       expect(res.body.error.code).toBe('NOT_FOUND');
     },
   },
+  {
+    description: 'PATCH /v1/supplies/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/supplies/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .patch(`/v1/supplies/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ name: 'Nuevo nombre' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'GET /v1/cash/accounts/:id/movements con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/cash/accounts/:id/movements',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .get(`/v1/cash/accounts/${crossTenantUserId}/movements`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/cash/accounts/:id/movements con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/cash/accounts/:id/movements',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/cash/accounts/${crossTenantUserId}/movements`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ amountCents: -1000, type: 'EXPENSE', description: 'test' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/cash/accounts/:id/closures con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/cash/accounts/:id/closures',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/cash/accounts/${crossTenantUserId}/closures`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ declaredCents: 1000 })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/cash/closures/:id/reconcile con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/cash/closures/:id/reconcile',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/cash/closures/${crossTenantUserId}/reconcile`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ receivedCents: 1000 })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/payments/:id/void con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/payments/:id/void',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/payments/${crossTenantUserId}/void`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ reason: 'test' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
 ];
 

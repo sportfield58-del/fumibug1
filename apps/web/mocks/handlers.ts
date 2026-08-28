@@ -1640,4 +1640,386 @@ export const handlers = [
     ]
   }),
   ),
+  http.get('/v1/supplies', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "a1000000-0000-4000-8000-000000000001",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "sku": "CIP-25EC",
+        "name": "Cipermetrina 25% EC",
+        "category": "INSECTICIDE",
+        "activeIngredient": "Cipermetrina",
+        "concentration": "25%",
+        "registryAuthority": "SENASA",
+        "registryNumber": "SENASA-12345",
+        "purchaseUnit": "L",
+        "applicationUnit": "ML",
+        "dilutionRateMlPerL": 20,
+        "dosePerSqm": null,
+        "reentryHours": 4,
+        "msdsUrl": null,
+        "unitCostCents": 850000,
+        "requiresLotTracking": true,
+        "minStock": 2,
+        "createdAt": "2026-08-20T12:00:00.000Z",
+        "updatedAt": "2026-08-20T12:00:00.000Z"
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/supplies', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "a1000000-0000-4000-8000-000000000002",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "sku": "RAT-BLOQ",
+      "name": "Rodenticida en bloque parafinado",
+      "category": "RODENTICIDE",
+      "activeIngredient": "Bromadiolona",
+      "concentration": "0.005%",
+      "registryAuthority": "SENASA",
+      "registryNumber": "SENASA-54321",
+      "purchaseUnit": "KG",
+      "applicationUnit": "G",
+      "dilutionRateMlPerL": null,
+      "dosePerSqm": null,
+      "reentryHours": null,
+      "msdsUrl": null,
+      "unitCostCents": 620000,
+      "requiresLotTracking": true,
+      "minStock": 1,
+      "createdAt": "2026-08-28T12:00:00.000Z",
+      "updatedAt": "2026-08-28T12:00:00.000Z"
+    }
+  }),
+  ),
+  http.patch('/v1/supplies/:id', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "a1000000-0000-4000-8000-000000000001",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "sku": "CIP-25EC",
+      "name": "Cipermetrina 25% EC",
+      "category": "INSECTICIDE",
+      "activeIngredient": "Cipermetrina",
+      "concentration": "25%",
+      "registryAuthority": "SENASA",
+      "registryNumber": "SENASA-12345",
+      "purchaseUnit": "L",
+      "applicationUnit": "ML",
+      "dilutionRateMlPerL": 20,
+      "dosePerSqm": null,
+      "reentryHours": 4,
+      "msdsUrl": null,
+      "unitCostCents": 900000,
+      "requiresLotTracking": true,
+      "minStock": 3,
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "updatedAt": "2026-08-28T12:30:00.000Z"
+    }
+  }),
+  ),
+  http.get('/v1/stock-locations', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "b1000000-0000-4000-8000-000000000001",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "type": "WAREHOUSE",
+        "name": "Depósito central",
+        "technicianId": null,
+        "isActive": true,
+        "createdAt": "2026-08-20T12:00:00.000Z",
+        "updatedAt": "2026-08-20T12:00:00.000Z"
+      },
+      {
+        "id": "b1000000-0000-4000-8000-000000000002",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "type": "VEHICLE",
+        "name": "Camioneta — Diego Operario",
+        "technicianId": "22222222-2222-2222-2222-222222222222",
+        "isActive": true,
+        "createdAt": "2026-08-20T12:00:00.000Z",
+        "updatedAt": "2026-08-20T12:00:00.000Z"
+      }
+    ]
+  }),
+  ),
+  http.get('/v1/inventory', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "stockLocationId": "b1000000-0000-4000-8000-000000000001",
+        "stockLocationName": "Depósito central",
+        "stockLocationType": "WAREHOUSE",
+        "supplyId": "a1000000-0000-4000-8000-000000000001",
+        "supplyName": "Cipermetrina 25% EC",
+        "supplySku": "CIP-25EC",
+        "applicationUnit": "ML",
+        "lotId": "c1000000-0000-4000-8000-000000000001",
+        "lotCode": "L2026-08",
+        "quantity": 5,
+        "minStock": 2,
+        "belowMinimum": false
+      }
+    ]
+  }),
+  ),
+  http.get('/v1/inventory/movements', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "1001",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "stockLocationId": "b1000000-0000-4000-8000-000000000002",
+        "supplyId": "a1000000-0000-4000-8000-000000000001",
+        "lotId": "c1000000-0000-4000-8000-000000000001",
+        "quantityDelta": 500,
+        "type": "TRANSFER_IN",
+        "referenceType": "inventory.transfer",
+        "referenceId": "d1000000-0000-4000-8000-000000000001",
+        "reason": null,
+        "unitCostCents": 850000,
+        "requiresAdjustment": false,
+        "performedBy": "11111111-1111-1111-1111-111111111111",
+        "createdAt": "2026-08-28T12:00:00.000Z"
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/inventory/movements', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "1002",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "stockLocationId": "b1000000-0000-4000-8000-000000000001",
+        "supplyId": "a1000000-0000-4000-8000-000000000001",
+        "lotId": "c1000000-0000-4000-8000-000000000001",
+        "quantityDelta": -500,
+        "type": "TRANSFER_OUT",
+        "referenceType": "inventory.transfer",
+        "referenceId": "d1000000-0000-4000-8000-000000000002",
+        "reason": null,
+        "unitCostCents": 850000,
+        "requiresAdjustment": false,
+        "performedBy": "11111111-1111-1111-1111-111111111111",
+        "createdAt": "2026-08-28T13:00:00.000Z"
+      },
+      {
+        "id": "1003",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "stockLocationId": "b1000000-0000-4000-8000-000000000002",
+        "supplyId": "a1000000-0000-4000-8000-000000000001",
+        "lotId": "c1000000-0000-4000-8000-000000000001",
+        "quantityDelta": 500,
+        "type": "TRANSFER_IN",
+        "referenceType": "inventory.transfer",
+        "referenceId": "d1000000-0000-4000-8000-000000000002",
+        "reason": null,
+        "unitCostCents": 850000,
+        "requiresAdjustment": false,
+        "performedBy": "11111111-1111-1111-1111-111111111111",
+        "createdAt": "2026-08-28T13:00:00.000Z"
+      }
+    ]
+  }),
+  ),
+  http.get('/v1/payments', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "e1000000-0000-4000-8000-000000000001",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+        "customerId": "55555555-5555-5555-5555-555555555555",
+        "amountCents": 4500000,
+        "currency": "ARS",
+        "method": "CASH",
+        "status": "CONFIRMED",
+        "paidAt": "2026-08-28T14:00:00.000Z",
+        "receivedBy": "22222222-2222-2222-2222-222222222222",
+        "receiptUrl": null,
+        "varianceReason": null,
+        "reversalOfId": null,
+        "voidReason": null
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/payments', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "e1000000-0000-4000-8000-000000000002",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+      "customerId": "55555555-5555-5555-5555-555555555555",
+      "amountCents": 4500000,
+      "currency": "ARS",
+      "method": "CASH",
+      "status": "CONFIRMED",
+      "paidAt": "2026-08-28T14:05:00.000Z",
+      "receivedBy": "22222222-2222-2222-2222-222222222222",
+      "receiptUrl": null,
+      "varianceReason": null,
+      "reversalOfId": null,
+      "voidReason": null
+    }
+  }),
+  ),
+  http.post('/v1/payments/:id/void', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "e1000000-0000-4000-8000-000000000001",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+      "customerId": "55555555-5555-5555-5555-555555555555",
+      "amountCents": 4500000,
+      "currency": "ARS",
+      "method": "CASH",
+      "status": "VOIDED",
+      "paidAt": "2026-08-28T14:00:00.000Z",
+      "receivedBy": "22222222-2222-2222-2222-222222222222",
+      "receiptUrl": null,
+      "varianceReason": null,
+      "reversalOfId": null,
+      "voidReason": "Cobro duplicado por error de carga."
+    }
+  }),
+  ),
+  http.get('/v1/cash/accounts', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "f1000000-0000-4000-8000-000000000001",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "ownerUserId": "22222222-2222-2222-2222-222222222222",
+        "ownerName": "Diego Operario",
+        "type": "TECHNICIAN",
+        "currency": "ARS",
+        "isActive": true,
+        "balanceCents": 4500000,
+        "openClosureId": null
+      }
+    ]
+  }),
+  ),
+  http.get('/v1/cash/accounts/:id/movements', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "2001",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "cashAccountId": "f1000000-0000-4000-8000-000000000001",
+        "amountCents": 4500000,
+        "type": "SERVICE_PAYMENT",
+        "referenceType": "payment",
+        "referenceId": "e1000000-0000-4000-8000-000000000001",
+        "closureId": null,
+        "description": null,
+        "performedBy": "22222222-2222-2222-2222-222222222222",
+        "createdAt": "2026-08-28T14:00:00.000Z"
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/cash/accounts/:id/movements', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "2002",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "cashAccountId": "f1000000-0000-4000-8000-000000000001",
+      "amountCents": -1200000,
+      "type": "EXPENSE",
+      "referenceType": null,
+      "referenceId": null,
+      "closureId": null,
+      "description": "Combustible",
+      "performedBy": "22222222-2222-2222-2222-222222222222",
+      "createdAt": "2026-08-28T15:00:00.000Z"
+    }
+  }),
+  ),
+  http.get('/v1/cash/closures', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "a2000000-0000-4000-8000-000000000001",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "cashAccountId": "f1000000-0000-4000-8000-000000000001",
+        "periodStart": "2026-08-28T08:00:00.000Z",
+        "periodEnd": "2026-08-28T18:00:00.000Z",
+        "expectedCents": 4500000,
+        "declaredCents": 4500000,
+        "receivedCents": null,
+        "status": "DECLARED",
+        "differenceReason": null,
+        "declaredBy": "22222222-2222-2222-2222-222222222222",
+        "declaredAt": "2026-08-28T18:00:00.000Z",
+        "approvedBy": null,
+        "approvedAt": null,
+        "selfApproved": false
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/cash/accounts/:id/closures', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "a2000000-0000-4000-8000-000000000001",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "cashAccountId": "f1000000-0000-4000-8000-000000000001",
+      "periodStart": "2026-08-28T08:00:00.000Z",
+      "periodEnd": "2026-08-28T18:00:00.000Z",
+      "expectedCents": 4500000,
+      "declaredCents": 4500000,
+      "receivedCents": null,
+      "status": "DECLARED",
+      "differenceReason": null,
+      "declaredBy": "22222222-2222-2222-2222-222222222222",
+      "declaredAt": "2026-08-28T18:00:00.000Z",
+      "approvedBy": null,
+      "approvedAt": null,
+      "selfApproved": false
+    }
+  }),
+  ),
+  http.post('/v1/cash/closures/:id/reconcile', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "a2000000-0000-4000-8000-000000000001",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "cashAccountId": "f1000000-0000-4000-8000-000000000001",
+      "periodStart": "2026-08-28T08:00:00.000Z",
+      "periodEnd": "2026-08-28T18:00:00.000Z",
+      "expectedCents": 4500000,
+      "declaredCents": 4500000,
+      "receivedCents": 4200000,
+      "status": "RECONCILED",
+      "differenceReason": "Faltó vuelto de un cliente.",
+      "declaredBy": "22222222-2222-2222-2222-222222222222",
+      "declaredAt": "2026-08-28T18:00:00.000Z",
+      "approvedBy": "11111111-1111-1111-1111-111111111111",
+      "approvedAt": "2026-08-28T19:00:00.000Z",
+      "selfApproved": false
+    }
+  }),
+  ),
 ];

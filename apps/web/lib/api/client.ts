@@ -320,3 +320,83 @@ export function getGetOwnerDashboard(): Promise<ApiResponse<typeof endpoints.get
 export function getListAuditLogs(args?: { query?: ReturnType<NonNullable<typeof endpoints.listAuditLogs.query>['parse']> }): Promise<ApiResponse<typeof endpoints.listAuditLogs.example>> {
   return request('GET', 'audit-logs' + toQueryString(args?.query));
 }
+
+/** GET /v1/supplies — Catálogo de insumos del tenant. */
+export function getListSupplies(): Promise<ApiResponse<typeof endpoints.listSupplies.example>> {
+  return request('GET', 'supplies');
+}
+
+/** POST /v1/supplies — Alta de insumo en el catálogo. */
+export function postCreateSupply(args: { body: ReturnType<NonNullable<typeof endpoints.createSupply.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createSupply.example>> {
+  return request('POST', 'supplies', args.body);
+}
+
+/** PATCH /v1/supplies/:id — Edita un insumo (requiere If-Match). No cambia sku. */
+export function patchUpdateSupply(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateSupply.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateSupply.example>> {
+  return request('PATCH', `supplies/${args.params.id}`, args.body);
+}
+
+/** GET /v1/stock-locations — Ubicaciones de stock del tenant (depósito central + una por operario, §N.2). */
+export function getListStockLocations(): Promise<ApiResponse<typeof endpoints.listStockLocations.example>> {
+  return request('GET', 'stock-locations');
+}
+
+/** GET /v1/inventory — Saldo actual por ubicación/insumo/lote (proyección, §N.2). */
+export function getListInventory(args?: { query?: ReturnType<NonNullable<typeof endpoints.listInventory.query>['parse']> }): Promise<ApiResponse<typeof endpoints.listInventory.example>> {
+  return request('GET', 'inventory' + toQueryString(args?.query));
+}
+
+/** GET /v1/inventory/movements — Historial de movimientos de inventario, paginado (append-only, R42). */
+export function getListInventoryMovements(args?: { query?: ReturnType<NonNullable<typeof endpoints.listInventoryMovements.query>['parse']> }): Promise<ApiResponse<typeof endpoints.listInventoryMovements.example>> {
+  return request('GET', 'inventory/movements' + toQueryString(args?.query));
+}
+
+/** POST /v1/inventory/movements — Movimiento manual de inventario: compra, transferencia, ajuste, pérdida, devolución o baja por vencimiento (R19, R21, R22). */
+export function postCreateInventoryMovement(args: { body: ReturnType<NonNullable<typeof endpoints.createInventoryMovement.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createInventoryMovement.example>> {
+  return request('POST', 'inventory/movements', args.body);
+}
+
+/** GET /v1/payments — Cobros del tenant, paginados. */
+export function getListPayments(args?: { query?: ReturnType<NonNullable<typeof endpoints.listPayments.query>['parse']> }): Promise<ApiResponse<typeof endpoints.listPayments.example>> {
+  return request('GET', 'payments' + toQueryString(args?.query));
+}
+
+/** POST /v1/payments — Registra un cobro. Si method=CASH, genera un cash_movement en la misma transacción (R24). Si es TRANSFER/otro, no toca la caja del operario (R25). */
+export function postCreatePayment(args: { body: ReturnType<NonNullable<typeof endpoints.createPayment.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createPayment.example>> {
+  return request('POST', 'payments', args.body);
+}
+
+/** POST /v1/payments/:id/void — Anula un pago con un asiento inverso — nunca se edita (R26). */
+export function postVoidPayment(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.voidPayment.request>['parse']> }): Promise<ApiResponse<typeof endpoints.voidPayment.example>> {
+  return request('POST', `payments/${args.params.id}/void`, args.body);
+}
+
+/** GET /v1/cash/accounts — Cajas del tenant con saldo calculado (R27) — scope own/tenant según permiso. */
+export function getListCashAccounts(): Promise<ApiResponse<typeof endpoints.listCashAccounts.example>> {
+  return request('GET', 'cash/accounts');
+}
+
+/** GET /v1/cash/accounts/:id/movements — Historial de movimientos de una caja, paginado (append-only, R42). */
+export function getListCashMovements(args: { params: { id: string }; query?: ReturnType<NonNullable<typeof endpoints.listCashMovements.query>['parse']> }): Promise<ApiResponse<typeof endpoints.listCashMovements.example>> {
+  return request('GET', `cash/accounts/${args.params.id}/movements` + toQueryString(args?.query));
+}
+
+/** POST /v1/cash/accounts/:id/movements — Asiento manual (gasto, ajuste, saldo inicial) — requiere cash.adjust salvo saldo inicial. */
+export function postCreateCashMovement(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.createCashMovement.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createCashMovement.example>> {
+  return request('POST', `cash/accounts/${args.params.id}/movements`, args.body);
+}
+
+/** GET /v1/cash/closures — Rendiciones del tenant, paginadas. */
+export function getListCashClosures(args?: { query?: ReturnType<NonNullable<typeof endpoints.listCashClosures.query>['parse']> }): Promise<ApiResponse<typeof endpoints.listCashClosures.example>> {
+  return request('GET', 'cash/closures' + toQueryString(args?.query));
+}
+
+/** POST /v1/cash/accounts/:id/closures — El operario declara la rendición del período abierto (R27, R28). */
+export function postDeclareCashClosure(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.declareCashClosure.request>['parse']> }): Promise<ApiResponse<typeof endpoints.declareCashClosure.example>> {
+  return request('POST', `cash/accounts/${args.params.id}/closures`, args.body);
+}
+
+/** POST /v1/cash/closures/:id/reconcile — El admin cuenta y concilia la rendición — la diferencia se absorbe con un ADJUSTMENT explícito, la caja nunca arrastra descuadre (R28, R29). */
+export function postReconcileCashClosure(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.reconcileCashClosure.request>['parse']> }): Promise<ApiResponse<typeof endpoints.reconcileCashClosure.example>> {
+  return request('POST', `cash/closures/${args.params.id}/reconcile`, args.body);
+}
