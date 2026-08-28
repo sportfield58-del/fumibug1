@@ -23,6 +23,7 @@ configureApiClient({
 async function signInWithSupabase(
   identifier: string,
   password: string,
+  mode: 'admin' | 'operario',
 ): Promise<{ accessToken: string; refreshToken: string }> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -30,12 +31,17 @@ async function signInWithSupabase(
     throw new Error('Falta configurar NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY')
   }
 
+  // Admin: `identifier` ya es el email. Operario: loguea por usuario+PIN, sin email
+  // real — el backend (users.service.ts, mismo criterio en create() y en el fallback
+  // de resetPin()) arma la cuenta de Supabase como `{username}@fumibug.internal`
+  // (docs/spec/11-seguridad.md §K.1). Si ya viene con "@" (alguien pegó un email en el
+  // campo de operario por error) se respeta tal cual en vez de duplicar el dominio.
+  const email = mode === 'admin' || identifier.includes('@') ? identifier : `${identifier}@fumibug.internal`
+
   const res = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
     method: 'POST',
     headers: { apikey: anonKey, 'Content-Type': 'application/json' },
-    // `identifier` es el email (admin). El login de operario por username+PIN
-    // (§K.1: "{username}@{tenant-slug}.fumibug.internal") llega con el flujo de PIN.
-    body: JSON.stringify({ email: identifier, password }),
+    body: JSON.stringify({ email, password }),
   })
 
   if (!res.ok) {
@@ -58,7 +64,7 @@ interface AuthContextValue {
   roleKey: string | null
   isLoading: boolean
   isAuthenticated: boolean
-  login: (identifier: string, password: string) => Promise<void>
+  login: (identifier: string, password: string, mode: 'admin' | 'operario') => Promise<void>
   logout: () => void
   can: (permission: PermissionKey) => boolean
 }
@@ -105,8 +111,8 @@ export function AuthProvider({
       })
   }, [])
 
-  const login = React.useCallback(async (identifier: string, password: string): Promise<void> => {
-    const { accessToken, refreshToken } = await signInWithSupabase(identifier, password)
+  const login = React.useCallback(async (identifier: string, password: string, mode: 'admin' | 'operario'): Promise<void> => {
+    const { accessToken, refreshToken } = await signInWithSupabase(identifier, password, mode)
     localStorage.setItem('access_token', accessToken)
     localStorage.setItem('refresh_token', refreshToken)
 
