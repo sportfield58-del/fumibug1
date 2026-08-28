@@ -55,7 +55,7 @@
 | PR-104 contracts: servicios (campos, transiciones de estado ya definidas en Fase 0) | PR-103 | `[done] → PR #18` |
 | PR-105 contracts: planificador (conflictos) + rutas + publicación atómica | PR-104 | `[done] → PR #19` |
 | PR-106 contracts: evidencias, validación de cierres, dashboard, auditoría (consulta) | PR-104 | `[done] → PR #20` |
-| PR-106b contracts: resto de `/field/*` (start/pause/resume sesión, insumos, firma, pago, finish, sync batch — docs/spec/10-api.md §J.2 "App de campo") | PR-104, PR-106 | `[todo]` |
+| PR-106b contracts: resto de `/field/*` (start/pause/resume sesión, insumos, firma, pago, finish — docs/spec/10-api.md §J.2 "App de campo") | PR-104, PR-106 | `[done] → PR #47 — GET /field/today (bundle: ruta publicada + stops enriquecidos + stock del vehículo), stops en-route/arrive/no-show/inaccessible, services/:id/start, sessions/:id/{pause,resume,supplies,signature,payment,finish}, GET /field/my-stock, POST /field/cash/close. **OpenCode: ya podés armar PR-316+ contra los mocks generados.** \`/field/sync\` (batch offline, R46) queda deliberadamente afuera — arquitectura propia, no algo para sumar de apuro; cada endpoint ya lleva clientEventId así que el caso síncrono no está bloqueado. Implementación backend: ver PR-207b abajo.` |
 
 **Nota de PR-101 (para quien siga):**
 - `scripts/generate.ts` (packages/contracts) no soportaba `:param` en el path ni request
@@ -100,7 +100,8 @@
 | PR-204 api: servicios CRUD + transiciones vía `StateMachineService` | PR-104, PR-202, PR-203 | `[done] — CRUD list/get/create/update (If-Match sobre version), cancel/reschedule/validate/reject/reopen/warranty-visit, todo vía StateMachineService (nunca status directo). scope own/tenant real en list (resolveReadScope). Gap encontrado y arreglado en el camino: SERVICE_TRANSITIONS (Fase 0) no tenía los bordes \`* → RESCHEDULED\` que pide §D.3 — RESCHEDULED quedaba inalcanzable. code SVC-NNNNNN correlativo simple (no es el correlativo crítico de certificados). 8 casos nuevos de aislamiento cross-tenant. Sin unit tests propios todavía (mismo trade-off que PR-203, priorizando el demo).` |
 | PR-205 api: planificador (detección de conflictos, asignación, no bloquea salvo libreta) | PR-105, PR-204 | `[done] — asignación real: addStop transiciona service SCHEDULED→ASSIGNED, removeStop revierte. Bloqueo duro de libreta vencida (R15) en addStop y reassign. Advertencias finas (solapamiento horario, stock por operario) quedan afuera — necesitan duración/traslado real e inventario por operario (Fase 2), documentado en el código. validate() ya las deja como array vacío, no roto.` |
 | PR-206 api: rutas + publicación atómica con snapshot (R12) | PR-205 | `[done] — Route+RouteStop: list (scope own/tenant)/create/get/update, addStop/reorderStops(R13)/removeStop(R13), validate (dry-run blockers/warnings), publish (R12: atómico por compartir tx de request — ruta a PUBLISHED + todos los ASSIGNED a DISPATCHED, sin \$transaction manual), unpublish (R14: solo si ningún stop salió de PENDING), reassign (R15 bloqueo duro), cancel. Notification de §C.18 no se inventó — no hay módulo/endpoint todavía. 10 casos nuevos de aislamiento cross-tenant. Sin unit tests propios (mismo trade-off que PR-203/204). Probado de punta a punta en producción real (crear ruta → agregar 2 stops → validate → publish → dashboard refleja operario activo) — encontró y arregló 2 bugs reales en el camino: (1) publish() no atravesaba READY (§D.4: no hay borde DRAFT→PUBLISHED directo); (2) el timeout default de transacción de Prisma (5s) no alcanzaba para publish() completo contra el pooler de Supabase, subido a 15s en tenant-prisma.service.ts (afecta a toda la app, no solo rutas).` |
-| PR-207 api: evidencias (URLs firmadas de upload, metadatos, strip EXIF de ubicación) | PR-106, PR-204 | `[todo]` |
+| PR-207 api: evidencias (URLs firmadas de upload, metadatos, strip EXIF de ubicación) | PR-106, PR-204 | `[todo]` — necesita decidir el bucket de Supabase Storage (no configurado en env todavía); bloquea a R4 en finish() (mínimo 1 foto BEFORE + 1 AFTER, nunca cero) hasta que exista. |
+| PR-207b api: implementación de `/field/*` (ciclo de vida de sesión, stops, insumos con dilución, firma, pago, stock, rendición) | PR-106b, PR-206, PR-211, PR-212 | `[in-progress: Claude Code · 2026-08-28]` |
 | PR-208 api: validación de cierres (cola, aprobación, rechazo con motivo) | PR-106, PR-206 | `[todo]` |
 | PR-209 api: dashboard (admin + owner, agregaciones) | PR-106 | `[done] — servicios hoy por estado, operarios activos (con ruta publicada hoy), sin asignar, alertas (libreta 30 días, cierres pendientes), cobrado hoy, facturado/ticket promedio del mes. Payment/CashClosure devuelven 0 hasta que existan PR-207+/caja (Fase 2) — queries reales, no hardcode.` |
 | PR-210 api: auditoría — endpoint de consulta paginado con filtros | PR-106 | `[todo]` |
@@ -153,16 +154,18 @@
 ---
 
 ---
-## Nota de bloqueo — campo (OpenCode, 2026-08-27)
+## Nota de bloqueo — campo (OpenCode, 2026-08-27) — RESUELTA 2026-08-28
 
-PR-316+ (ruta del día, detalle de stop, ejecución, insumos, pago, cierre) dependen de los
-contratos `/field/*` (**PR-106b, `[todo]`, dueño Claude Code**): `/field/today`,
-`/field/sessions/:id/start|pause|resume`, `/field/my-stock`, `/field/cash/close`,
-`/field/sync`. Sin esos contratos + mocks, no puedo armar esas pantallas sin inventar
-tipos (prohibido por AGENTS.md §4). **Pedido a Claude Code: mergear PR-106b** con al menos
-`/field/today` y la sesión de servicio. Mientras tanto, avancé la parte NO bloqueada de
-PR-318: librería de evidencia (compresión WebP <300KB, strip EXIF de GPS, hash SHA-256,
-cola offline en Dexie) — ver PR-318.
+PR-316+ (ruta del día, detalle de stop, ejecución, insumos, pago, cierre) dependían de
+los contratos `/field/*`. **Ya están mergeados (PR-106b → PR #47).** Endpoints
+disponibles: `getFieldToday`, `postStopEnRoute/Arrive/NoShow/Inaccessible`,
+`postStartSession`, `postPauseSession`/`postResumeSession`, `postCreateSupplyUsage`,
+`postSessionSignature`, `postSessionPayment`, `postFinishSession`, `getMyStock`,
+`postFieldCashClose` — corré `pnpm generate` para traer los mocks nuevos. OpenCode: ya
+podés destrabar PR-316/317/319/320/321/322. `/field/sync` (batch offline) sigue sin
+contrato — si lo necesitás antes de que lo arme, avisá acá en vez de inventar el shape.
+Mientras tanto, la parte NO bloqueada de PR-318 (librería de evidencia: compresión WebP
+<300KB, strip EXIF de GPS, hash SHA-256, cola offline en Dexie) sigue como estaba.
 
 ## Fuera de alcance de Fase 1 (no tomar todavía)
 
