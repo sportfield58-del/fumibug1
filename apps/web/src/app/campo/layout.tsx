@@ -29,7 +29,8 @@ function CampoHeader(): JSX.Element {
   }, [])
 
   return (
-    <header className="sticky top-0 z-sticky flex h-14 items-center justify-between border-b border-border bg-bg-elevated px-4 safe-top">
+    <header className="sticky top-0 z-sticky border-b border-border bg-bg-elevated safe-top">
+      <div className="mx-auto flex h-14 w-full max-w-lg items-center justify-between px-4">
       <div className="flex items-center gap-2">
         <span className="text-h3 font-bold text-primary">Fumibug</span>
       </div>
@@ -83,6 +84,7 @@ function CampoHeader(): JSX.Element {
           <LogOut className="h-4 w-4" />
         </Button>
       </div>
+      </div>
     </header>
   )
 }
@@ -98,8 +100,13 @@ export default function CampoLayout({
       <div className="flex min-h-dvh flex-col bg-bg">
         <CampoHeader />
 
+        {/* Ancho fijo centrado: en el celular ocupa toda la pantalla igual (max-w
+            supera cualquier viewport real), pero en un navegador de escritorio —
+            como al grabar la demo — no queda todo estirado de punta a punta. */}
         <main className="flex-1 overflow-y-auto pb-24">
-          {children}
+          <div className="mx-auto w-full max-w-lg">
+            {children}
+          </div>
         </main>
       </div>
     </RequireAuth>

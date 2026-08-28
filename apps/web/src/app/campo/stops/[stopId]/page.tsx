@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Navigation, MapPin, CheckCircle2, XCircle, Play, PackagePlus, DollarSign, PenLine, FileCheck } from 'lucide-react'
+import { ArrowLeft, Navigation, MapPin, CheckCircle2, XCircle, Play, PackagePlus, DollarSign, PenLine, FileCheck, Camera, Check } from 'lucide-react'
 import {
   Button,
   Skeleton,
@@ -27,6 +27,8 @@ import {
   postPostSessionSignature,
   postPostSessionPayment,
   postPostFinishSession,
+  postUploadEvidenceUrl,
+  postConfirmEvidence,
 } from '@/../../lib/api/client'
 import type { FieldStop, Supply } from '@fumibug/contracts'
 
@@ -249,6 +251,11 @@ function ExecutionPanel({ sessionId, onFinished }: { sessionId: string; serviceI
 
   return (
     <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <EvidencePhoto sessionId={sessionId} category="BEFORE" label="Foto antes" />
+        <EvidencePhoto sessionId={sessionId} category="AFTER" label="Foto después" />
+      </div>
+
       <SupplyForm sessionId={sessionId} supplies={supplies} disabled={busy} onAdded={(name) => setAddedSupplies((v) => [...v, name])} />
       {addedSupplies.length > 0 && (
         <p className="text-caption text-fg-muted">Aplicado: {addedSupplies.join(', ')}</p>
@@ -268,6 +275,77 @@ function ExecutionPanel({ sessionId, onFinished }: { sessionId: string; serviceI
         setDetails={setDetails}
         onFinished={onFinished}
       />
+    </div>
+  )
+}
+
+/**
+ * Sube directo a Supabase Storage con la URL firmada que da el backend — el archivo
+ * nunca pasa por nuestra API (docs/spec/03-modulos.md §C.11). `capture="environment"`
+ * abre la cámara trasera directo en el celular en vez de la galería.
+ */
+function EvidencePhoto({ sessionId, category, label }: { sessionId: string; category: 'BEFORE' | 'AFTER'; label: string }): JSX.Element {
+  const inputRef = React.useRef<HTMLInputElement>(null)
+  const [count, setCount] = React.useState(0)
+  const [uploading, setUploading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+
+  const onFile = async (file: File): Promise<void> => {
+    setUploading(true)
+    setError(null)
+    try {
+      const signed = await postUploadEvidenceUrl({ params: { id: sessionId }, body: { category, type: 'PHOTO', mimeType: file.type || 'image/jpeg' } })
+      if (!signed.success) { setError(signed.error.message); return }
+
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      const putRes = await fetch(signed.data.uploadUrl, {
+        method: 'PUT',
+        headers: { ...(anonKey ? { apikey: anonKey } : {}), 'Content-Type': file.type || 'image/jpeg' },
+        body: file,
+      })
+      if (!putRes.ok) { setError('No se pudo subir la foto — probá de nuevo.'); return }
+
+      const confirmed = await postConfirmEvidence({
+        params: { id: sessionId },
+        body: { storagePath: signed.data.storagePath, category, type: 'PHOTO', mimeType: file.type || 'image/jpeg', sizeBytes: file.size, clientEventId: uuid() },
+      })
+      if (confirmed.success) {
+        setCount((v) => v + 1)
+      } else {
+        setError(confirmed.error.message)
+      }
+    } catch {
+      setError('No se pudo subir la foto — probá de nuevo.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  return (
+    <div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          e.target.value = ''
+          if (file) void onFile(file)
+        }}
+      />
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full"
+        disabled={uploading}
+        onClick={() => inputRef.current?.click()}
+      >
+        {count > 0 ? <Check className="h-4 w-4 text-success" /> : <Camera className="h-4 w-4" />}
+        {uploading ? 'Subiendo...' : count > 0 ? `${label} (${count})` : label}
+      </Button>
+      {error && <p className="text-caption text-destructive mt-1">{error}</p>}
     </div>
   )
 }

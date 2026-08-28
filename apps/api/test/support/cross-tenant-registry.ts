@@ -649,5 +649,29 @@ export const CROSS_TENANT_ENDPOINTS: CrossTenantCase[] = [
       expect(res.body.error.code).toBe('NOT_FOUND');
     },
   },
+  {
+    description: 'POST /v1/field/sessions/:id/evidence/upload-url con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/sessions/:id/evidence/upload-url',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/sessions/${crossTenantUserId}/evidence/upload-url`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ category: 'BEFORE', type: 'PHOTO', mimeType: 'image/jpeg' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/field/sessions/:id/evidence con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/sessions/:id/evidence',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/sessions/${crossTenantUserId}/evidence`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ storagePath: 'x/y.jpg', category: 'BEFORE', type: 'PHOTO', clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
 ];
 
