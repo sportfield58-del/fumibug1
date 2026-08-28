@@ -16,6 +16,7 @@ import { LoggingModule } from './common/logging/logging.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { UsersModule } from './modules/users/users.module';
+import { CustomersModule } from './modules/customers/customers.module';
 
 /**
  * Cableado global de seguridad — docs/spec/11-seguridad.md §K.2.
@@ -45,6 +46,7 @@ import { UsersModule } from './modules/users/users.module';
     AuthModule,
     DashboardModule,
     UsersModule,
+    CustomersModule,
   ],
   controllers: [AppController],
   providers: [

@@ -68,12 +68,24 @@ beforeAll(async () => {
   // Para los endpoints que exigen permisos de users/* el actor debe tenerlos — un
   // 403 de PermissionGuard no probaría aislamiento cross-tenant (R40: nunca 403).
   // Las rutas de lectura exigen `user.read`; las de escritura (PATCH / :id/*)
-  // exigen `user.update`. El loop usa un solo token con ambos permisos.
+  // exigen `user.update`. Este token acumula TODOS los permisos de los módulos
+  // registrados (users, customers, locations) para que el loop de aislamiento
+  // siempre llegue hasta el 404 cross-tenant y nunca se corte en un 403.
   tokenAUserWrite = await jwks.issue({
     sub: tenantA.userId,
     tenantId: tenantA.id,
     roleKey: 'owner',
-    permissions: ['user.read', 'user.update'],
+    permissions: [
+      'user.read',
+      'user.update',
+      'customer.read',
+      'customer.create',
+      'customer.update',
+      'customer.archive',
+      'location.read',
+      'location.create',
+      'location.update',
+    ],
   });
 
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();

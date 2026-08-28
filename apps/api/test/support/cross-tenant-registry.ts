@@ -93,5 +93,110 @@ export const CROSS_TENANT_ENDPOINTS: CrossTenantCase[] = [
       expect(res.body.error.code).toBe('NOT_FOUND');
     },
   },
+  {
+    description: 'GET /v1/customers/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/customers/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .get(`/v1/customers/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'PATCH /v1/customers/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/customers/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .patch(`/v1/customers/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .set('If-Match', `"etag"`)
+        .send({ legalName: 'Nuevo' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/customers/:id/archive con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/customers/:id/archive',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/customers/${crossTenantUserId}/archive`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'GET /v1/customers/:id/summary con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/customers/:id/summary',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .get(`/v1/customers/${crossTenantUserId}/summary`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'GET /v1/customers/:id/locations con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/customers/:id/locations',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .get(`/v1/customers/${crossTenantUserId}/locations`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/customers/:id/locations con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/customers/:id/locations',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/customers/${crossTenantUserId}/locations`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ addressLine: 'X', establishmentType: 'HOME' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'GET /v1/locations/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/locations/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .get(`/v1/locations/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'PATCH /v1/locations/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/locations/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .patch(`/v1/locations/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .set('If-Match', `"etag"`)
+        .send({ label: 'Nuevo' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/locations/:id/geocode con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/locations/:id/geocode',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/locations/${crossTenantUserId}/geocode`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({})
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
 ];
 
