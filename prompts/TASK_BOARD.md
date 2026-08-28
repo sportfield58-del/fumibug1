@@ -129,8 +129,8 @@
 | PR-308 web/admin: ubicaciones | PR-307 | `[done] — lista en cliente + form alta` |
 | PR-309 web/admin: alta rápida de servicio | PR-204 o mocks de PR-104 | `[done] — form con cliente, tipo, fecha, precio` |
 | PR-310 web/admin: lista de servicios con filtros | PR-309 | `[done] — lista con filtros por estado, búsqueda, badges de prioridad` |
-| PR-311 web/admin: planificador drag & drop (@dnd-kit) | PR-205 o mocks de PR-105 | `[done] — DnD reorder con @dnd-kit, sortable cards` |
-| PR-312 web/admin: detalle de ruta + publicación | PR-206 o mocks de PR-105 | `[done] — ruta con stops, publicar/cancelar` |
+| PR-311 web/admin: planificador drag & drop (@dnd-kit) | PR-205 o mocks de PR-105 | `[done] — DnD reorder con @dnd-kit, sortable cards. Fix (Claude Code, probando la demo real): faltaba el botón "Nueva ruta" — la pantalla original solo mostraba rutas ya existentes, sin forma de crear una. Agregado (Select de operario + fecha, llama a createRoute).` |
+| PR-312 web/admin: detalle de ruta + publicación | PR-206 o mocks de PR-105 | `[done] — ruta con stops, publicar/cancelar. Fix (Claude Code, mismo motivo): faltaba UI para agregar servicios a la ruta — solo mostraba stops ya existentes. Agregado (Select de servicios sin asignar, llama a addStop).` |
 | PR-313 web/admin: pantalla "Hoy" (polling 60s) | PR-310 | `[done] — resumen cards + listas por estado + auto-refresh` |
 | PR-314 web/admin: validación de cierres | PR-208 o mocks de PR-106 | `[done] — lista PENDING_VALIDATION, validar/rechazar` |
 | PR-315 web/admin: dashboard | PR-209 o mocks de PR-106 | `[done] — KPIs, servicios por estado, alertas` |

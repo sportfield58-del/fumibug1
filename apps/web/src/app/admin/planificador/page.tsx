@@ -19,10 +19,22 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { MapPin, Clock, CheckCircle, XCircle, ArrowRight, GripVertical } from 'lucide-react'
-import { Button, Badge, EmptyState, Skeleton, Input } from '@fumibug/ui'
-import { getListRoutes } from '@/../../lib/api/client'
-import type { Route } from '@fumibug/contracts'
+import { MapPin, Clock, CheckCircle, XCircle, ArrowRight, GripVertical, Plus } from 'lucide-react'
+import {
+  Button,
+  Badge,
+  EmptyState,
+  Skeleton,
+  Input,
+  Label,
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from '@fumibug/ui'
+import { getListRoutes, getListUsers, postCreateRoute } from '@/../../lib/api/client'
+import type { Route, UserWithMembership } from '@fumibug/contracts'
 
 const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
   DRAFT: { label: 'Borrador', variant: 'secondary', icon: null },
@@ -100,6 +112,12 @@ export default function PlanificadorPage(): JSX.Element {
   const [dateFilter, setDateFilter] = React.useState(
     new Date().toISOString().split('T')[0] ?? ''
   )
+  const [technicians, setTechnicians] = React.useState<UserWithMembership[]>([])
+  const [showCreateForm, setShowCreateForm] = React.useState(false)
+  const [newTechnicianId, setNewTechnicianId] = React.useState('')
+  const [newDate, setNewDate] = React.useState(dateFilter)
+  const [isCreating, setIsCreating] = React.useState(false)
+  const [createError, setCreateError] = React.useState<string | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -133,6 +151,41 @@ export default function PlanificadorPage(): JSX.Element {
     void fetchRoutes()
   }, [fetchRoutes])
 
+  React.useEffect(() => {
+    getListUsers({ query: { roleKey: 'technician', limit: 50 } })
+      .then((res) => {
+        if (res.success) setTechnicians(res.data)
+      })
+      .catch(() => {
+        // Sin operarios en el combo no bloquea la pantalla — solo no se puede crear
+        // ruta hasta reintentar; el resto de Planificador sigue usable.
+      })
+  }, [])
+
+  const handleCreateRoute = async (): Promise<void> => {
+    if (!newTechnicianId || !newDate) {
+      setCreateError('Elegí operario y fecha.')
+      return
+    }
+    setIsCreating(true)
+    setCreateError(null)
+    try {
+      const res = await postCreateRoute({ body: { technicianId: newTechnicianId, date: newDate } })
+      if (res.success) {
+        setShowCreateForm(false)
+        setNewTechnicianId('')
+        setDateFilter(newDate)
+        void fetchRoutes()
+      } else {
+        setCreateError(res.error.message)
+      }
+    } catch {
+      setCreateError('No se pudo crear la ruta')
+    } finally {
+      setIsCreating(false)
+    }
+  }
+
   const handleDragEnd = (event: DragEndEvent): void => {
     const { active, over } = event
     if (!over || active.id === over.id) return
@@ -149,6 +202,9 @@ export default function PlanificadorPage(): JSX.Element {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-h1 font-semibold text-fg">Planificador</h1>
+        <Button onClick={() => setShowCreateForm((v) => !v)}>
+          <Plus className="h-4 w-4" /> Nueva ruta
+        </Button>
       </div>
 
       {/* Filters */}
@@ -164,6 +220,53 @@ export default function PlanificadorPage(): JSX.Element {
           />
         </div>
       </div>
+
+      {/* Crear ruta */}
+      {showCreateForm && (
+        <div className="rounded-lg border border-border bg-bg-elevated p-4 space-y-3">
+          <h2 className="text-body font-semibold text-fg">Nueva ruta</h2>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="space-y-1">
+              <Label htmlFor="new-route-technician">Operario</Label>
+              <Select value={newTechnicianId} onValueChange={setNewTechnicianId}>
+                <SelectTrigger id="new-route-technician">
+                  <SelectValue placeholder="Seleccionar operario" />
+                </SelectTrigger>
+                <SelectContent>
+                  {technicians.map((t) => (
+                    <SelectItem key={t.id} value={t.id}>
+                      {t.fullName ?? t.username ?? t.email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="new-route-date">Fecha</Label>
+              <Input
+                id="new-route-date"
+                type="date"
+                value={newDate}
+                onChange={(e) => setNewDate(e.target.value)}
+              />
+            </div>
+            <div className="flex items-end gap-2">
+              <Button onClick={() => { void handleCreateRoute() }} disabled={isCreating}>
+                {isCreating ? 'Creando...' : 'Crear ruta'}
+              </Button>
+              <Button variant="outline" onClick={() => setShowCreateForm(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+          {createError && <p className="text-caption text-destructive">{createError}</p>}
+          {technicians.length === 0 && (
+            <p className="text-caption text-fg-muted">
+              No hay operarios cargados — dalos de alta primero en Usuarios.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* Loading */}
       {isLoading && (
