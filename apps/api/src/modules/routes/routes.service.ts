@@ -260,9 +260,17 @@ export class RoutesService {
       );
     }
 
+    // §D.4: DRAFT ⇄ READY ──► PUBLISHED — no hay borde directo DRAFT→PUBLISHED en la
+    // tabla de transiciones (READY existe para separar "armando" de "lista pero no
+    // publicada todavía", §D.4). El contrato no expone una acción "marcar lista"
+    // aparte — publish() la atraviesa como paso interno cuando hace falta, dentro de
+    // la misma transacción (sigue siendo atómico para R12).
+    if (route.status === 'DRAFT') {
+      await this.stateMachine.transition({ entity: 'route', id: routeId, from: 'DRAFT', to: 'READY', actorId: actor.userId });
+    }
     // R12: ruta a PUBLISHED, TODOS los servicios ASSIGNED de sus stops a DISPATCHED —
     // atómico porque comparte la transacción del request (TransactionInterceptor).
-    await this.stateMachine.transition({ entity: 'route', id: routeId, from: route.status, to: 'PUBLISHED', actorId: actor.userId });
+    await this.stateMachine.transition({ entity: 'route', id: routeId, from: 'READY', to: 'PUBLISHED', actorId: actor.userId });
 
     const stops = await tx.routeStop.findMany({ where: { routeId }, include: { service: true } });
     for (const stop of stops) {
