@@ -5,16 +5,17 @@ import type {
   OwnerDashboardResponse,
 } from '@fumibug/contracts';
 import { TenantPrismaService } from '../../common/tenant/tenant-prisma.service';
+import { argentinaDayBounds } from '../../common/date/argentina-date';
 
 /**
  * GET /reports/dashboard-admin y /reports/dashboard-owner —
  * docs/spec/03-modulos.md §C.1, contracts/schemas/dashboard.ts (PR-106).
  *
- * "Hoy" y "este mes" en UTC por ahora (server boundary) — el refinamiento a la zona
- * horaria del tenant (Tenant.timezone) queda para cuando la diferencia importe de
- * verdad (Fumibug opera en un solo huso, América/Argentina/Buenos_Aires = UTC-3 fijo,
- * sin DST — el corrimiento de "hoy" cerca de medianoche es un caso borde aceptable
- * por ahora, no una regla de negocio pendiente).
+ * "Hoy" en el calendario de Argentina (argentinaDayBounds — ver common/date), no en
+ * UTC: con el corte en UTC, "hoy" en el servidor dejaba de coincidir con "hoy" en
+ * pantalla entre las 21:00 y medianoche hora argentina (bug real, encontrado
+ * probando la demo un día a la tarde/noche). "Este mes" (monthBounds, más abajo)
+ * sigue en UTC — el corrimiento ahí solo importa en el borde del mes, caso aceptado.
  */
 @Injectable()
 export class DashboardService {
@@ -22,7 +23,7 @@ export class DashboardService {
 
   async admin(): Promise<AdminDashboardResponse> {
     const tx = this.db.current();
-    const { start: todayStart, end: todayEnd } = dayBounds(new Date());
+    const { start: todayStart, end: todayEnd } = argentinaDayBounds();
 
     const [statusGroups, activeTechnicianRoutes, unassignedCount, expiringLicenses, pendingValidation, cashToday] =
       await Promise.all([
@@ -123,13 +124,6 @@ export class DashboardService {
       averageTicketCents,
     };
   }
-}
-
-function dayBounds(ref: Date): { start: Date; end: Date } {
-  const start = new Date(Date.UTC(ref.getUTCFullYear(), ref.getUTCMonth(), ref.getUTCDate()));
-  const end = new Date(start);
-  end.setUTCDate(end.getUTCDate() + 1);
-  return { start, end };
 }
 
 function monthBounds(ref: Date): { start: Date; end: Date } {
