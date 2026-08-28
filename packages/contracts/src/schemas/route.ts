@@ -60,6 +60,8 @@ export const RouteSchema = z.object({
   version: z.number().int().positive(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  /** Enriquecido en list/get — Planificador necesita ver el operario, no un uuid. */
+  technicianName: z.string().nullable().optional(),
 });
 export type Route = z.infer<typeof RouteSchema>;
 

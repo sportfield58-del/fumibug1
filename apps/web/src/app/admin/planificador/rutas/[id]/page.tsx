@@ -145,6 +145,7 @@ export default function RutaDetailPage(): JSX.Element {
     status: string
     routeDate: string
     technicianId: string
+    technicianName?: string | null
     publishedAt?: string | null
     startedAt?: string | null
     completedAt?: string | null
@@ -184,7 +185,7 @@ export default function RutaDetailPage(): JSX.Element {
             )}
           </h1>
           <p className="text-body text-fg-muted mt-1">
-            {r.routeDate} · Técnico: {r.technicianId.slice(0, 8)}...
+            {r.routeDate} · Técnico: {r.technicianName ?? `${r.technicianId.slice(0, 8)}...`}
           </p>
         </div>
         <div className="flex gap-2">

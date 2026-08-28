@@ -9071,6 +9071,10 @@
                       "updatedAt": {
                         "type": "string",
                         "format": "date-time"
+                      },
+                      "technicianName": {
+                        "type": "string",
+                        "nullable": true
                       }
                     },
                     "required": [
@@ -9272,6 +9276,10 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "technicianName": {
+                      "type": "string",
+                      "nullable": true
                     }
                   },
                   "required": [
@@ -9410,6 +9418,10 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "technicianName": {
+                      "type": "string",
+                      "nullable": true
                     },
                     "stops": {
                       "type": "array",
@@ -9753,6 +9765,10 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "technicianName": {
+                      "type": "string",
+                      "nullable": true
                     },
                     "stops": {
                       "type": "array",
@@ -10102,6 +10118,10 @@
                       "type": "string",
                       "format": "date-time"
                     },
+                    "technicianName": {
+                      "type": "string",
+                      "nullable": true
+                    },
                     "stops": {
                       "type": "array",
                       "items": {
@@ -10449,6 +10469,10 @@
                       "type": "string",
                       "format": "date-time"
                     },
+                    "technicianName": {
+                      "type": "string",
+                      "nullable": true
+                    },
                     "stops": {
                       "type": "array",
                       "items": {
@@ -10779,6 +10803,10 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "technicianName": {
+                      "type": "string",
+                      "nullable": true
                     },
                     "stops": {
                       "type": "array",
@@ -11171,6 +11199,10 @@
                       "type": "string",
                       "format": "date-time"
                     },
+                    "technicianName": {
+                      "type": "string",
+                      "nullable": true
+                    },
                     "stops": {
                       "type": "array",
                       "items": {
@@ -11493,6 +11525,10 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "technicianName": {
+                      "type": "string",
+                      "nullable": true
                     },
                     "stops": {
                       "type": "array",
@@ -11837,6 +11873,10 @@
                       "type": "string",
                       "format": "date-time"
                     },
+                    "technicianName": {
+                      "type": "string",
+                      "nullable": true
+                    },
                     "stops": {
                       "type": "array",
                       "items": {
@@ -12159,6 +12199,10 @@
                     "updatedAt": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "technicianName": {
+                      "type": "string",
+                      "nullable": true
                     },
                     "stops": {
                       "type": "array",
@@ -15886,6 +15930,10 @@
                         "updatedAt": {
                           "type": "string",
                           "format": "date-time"
+                        },
+                        "technicianName": {
+                          "type": "string",
+                          "nullable": true
                         }
                       },
                       "required": [
