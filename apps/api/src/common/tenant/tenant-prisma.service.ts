@@ -57,17 +57,27 @@ export class TenantPrismaService implements OnModuleInit, OnModuleDestroy {
       );
     }
 
-    return this.client.$transaction(async (tx) => {
-      // set_config(..., true) = scope de transacción. Parametrizado por Prisma,
-      // nunca concatenado (§K.5).
-      await tx.$executeRaw`SELECT set_config('app.tenant_id', ${tenantId}, true)`;
-      store.tx = tx as RequestTx;
-      try {
-        return await fn(store.tx);
-      } finally {
-        delete store.tx;
-      }
-    });
+    return this.client.$transaction(
+      async (tx) => {
+        // set_config(..., true) = scope de transacción. Parametrizado por Prisma,
+        // nunca concatenado (§K.5).
+        await tx.$executeRaw`SELECT set_config('app.tenant_id', ${tenantId}, true)`;
+        store.tx = tx as RequestTx;
+        try {
+          return await fn(store.tx);
+        } finally {
+          delete store.tx;
+        }
+      },
+      // timeout: default de Prisma es 5000ms — algunos handlers (ej. publicar una
+      // ruta, R12: atómico) encadenan varias transiciones de StateMachineService,
+      // cada una con su propio SELECT ... FOR UPDATE, dentro de esta misma
+      // transacción. Contra el connection pooler de Supabase (más latencia que una
+      // conexión directa) eso alcanzó a superar los 5s reales — encontrado
+      // probando publish() de punta a punta en producción, no una precaución
+      // teórica. 15s da margen sin volver indefinido el bloqueo de filas.
+      { timeout: 15_000 },
+    );
   }
 
   /** Cliente transaccional del request en curso, ya con tenant scoping garantizado. */
