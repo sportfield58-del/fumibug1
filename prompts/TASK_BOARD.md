@@ -166,3 +166,13 @@ cola offline en Dexie) — ver PR-318.
 Insumos/inventario, caja/rendiciones, certificados, contratos recurrentes, reportes,
 notificaciones push reales — son Fase 2 (`docs/spec/19-mvp-roadmap.md`). Si terminás
 todo lo de arriba antes de que el humano defina Fase 2, avisale en vez de improvisar.
+
+**Fix de UX (Claude Code, probando la demo real):** 6 de los 12 items del sidebar
+(`sidebar.tsx`) llevaban a un 404 — "Rutas" apuntaba a `/admin/rutas`, que nunca
+existió como página propia (la funcionalidad real está en `/admin/planificador`), y
+Certificados/Inventario/Caja/Reportes/Auditoría/Configuración no tienen pantalla
+todavía (Fase 2, o Fase 1 sin PR de frontend asignado). Agregué:
+- `admin/rutas/page.tsx`: redirect (`next/navigation`) a `/admin/planificador`.
+- `components/coming-soon.tsx` + 6 páginas finitas que lo usan, para los seis
+  módulos sin pantalla — mejor un "Todavía no está construido" que el 404 genérico
+  en medio de una demo. Cuando cada módulo real llegue, esa página se reemplaza.
