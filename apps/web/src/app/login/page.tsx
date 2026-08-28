@@ -8,6 +8,9 @@ import { useAuth } from '@/components/auth-provider'
 
 type LoginMode = 'admin' | 'operario'
 
+/** Mismo criterio que UsersService.FIELD_ROLE_KEYS en el backend. */
+const FIELD_ROLE_KEYS = new Set(['technician', 'technical_director'])
+
 export default function LoginPage(): JSX.Element {
   const [mode, setMode] = React.useState<LoginMode>('admin')
   const [identifier, setIdentifier] = React.useState('')
@@ -15,14 +18,20 @@ export default function LoginPage(): JSX.Element {
   const [showPassword, setShowPassword] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
-  const { login, isAuthenticated } = useAuth()
+  const { login, isAuthenticated, roleKey } = useAuth()
   const router = useRouter()
 
+  // Único lugar que decide a dónde va un usuario ya logueado — antes esto
+  // redirigía siempre a /admin sin mirar el rol, así que un operario recién
+  // logueado (mode='operario', login exitoso) terminaba en /admin de todos
+  // modos: el push explícito de handleSubmit corría una fracción de segundo
+  // antes de que este efecto reaccionara al isAuthenticated nuevo, y el
+  // efecto (a /admin siempre) pisaba esa navegación. Redirigir según roleKey
+  // acá, y no repetirlo en handleSubmit, elimina la carrera entera.
   React.useEffect(() => {
-    if (isAuthenticated) {
-      router.push('/admin')
-    }
-  }, [isAuthenticated, router])
+    if (!isAuthenticated) return
+    router.push(FIELD_ROLE_KEYS.has(roleKey ?? '') ? '/campo' : '/admin')
+  }, [isAuthenticated, roleKey, router])
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
@@ -31,7 +40,6 @@ export default function LoginPage(): JSX.Element {
 
     try {
       await login(identifier, password, mode)
-      router.push(mode === 'admin' ? '/admin' : '/campo')
     } catch {
       setError(
         mode === 'admin'
