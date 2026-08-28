@@ -54,6 +54,36 @@ export class SupabaseAuthAdminClient {
     });
   }
 
+  /**
+   * Resetea el PIN si la cuenta de Supabase ya existe; si no (ej. un operario
+   * sembrado directo en Postgres por `seed.ts`, que nunca pasó por `createUser`),
+   * la crea con ese mismo id — necesario porque `JwtStrategy` usa el `sub` del JWT
+   * como `user.id` tal cual (docs/spec/11-seguridad.md §K.1), así que la cuenta de
+   * Supabase y la fila de negocio tienen que compartir id siempre.
+   */
+  async resetPasswordOrProvision(userId: string, temporaryPin: string, email: string): Promise<void> {
+    const cfg = this.requireConfig();
+    const res = await fetch(`${cfg.baseUrl}/auth/v1/admin/users/${userId}`, {
+      method: 'PUT',
+      headers: this.headers(cfg),
+      body: JSON.stringify({ password: temporaryPin }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (res.ok) return;
+    if (res.status !== 404) {
+      const text = await res.text().catch(() => '');
+      this.logger.error(`Supabase Auth Admin PUT /admin/users/${userId} → ${res.status}: ${text}`);
+      throw httpApiError('INTERNAL_ERROR', 'No se pudo resetear el PIN en Supabase Auth. Reintentá o contactá soporte.', 502);
+    }
+    // 404: nunca se creó la cuenta (operario sembrado directo en la DB) — la creamos ahora, con el mismo id.
+    await this.request(cfg, '/auth/v1/admin/users', 'POST', {
+      id: userId,
+      email,
+      password: temporaryPin,
+      email_confirm: true,
+    });
+  }
+
   /** Devuelve la cantidad de refresh tokens activos del usuario en Supabase Auth. */
   async listSessions(userId: string): Promise<number> {
     const cfg = this.requireConfig();
