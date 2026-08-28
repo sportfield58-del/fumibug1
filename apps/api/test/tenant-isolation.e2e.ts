@@ -69,8 +69,8 @@ beforeAll(async () => {
   // 403 de PermissionGuard no probaría aislamiento cross-tenant (R40: nunca 403).
   // Las rutas de lectura exigen `user.read`; las de escritura (PATCH / :id/*)
   // exigen `user.update`. Este token acumula TODOS los permisos de los módulos
-  // registrados (users, customers, locations) para que el loop de aislamiento
-  // siempre llegue hasta el 404 cross-tenant y nunca se corte en un 403.
+  // registrados (users, customers, locations, service-catalog) para que el loop
+  // de aislamiento siempre llegue hasta el 404 cross-tenant y nunca se corte en 403.
   tokenAUserWrite = await jwks.issue({
     sub: tenantA.userId,
     tenantId: tenantA.id,
@@ -85,6 +85,7 @@ beforeAll(async () => {
       'location.read',
       'location.create',
       'location.update',
+      'settings.manage',
     ],
   });
 
