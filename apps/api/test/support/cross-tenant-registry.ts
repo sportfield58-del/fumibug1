@@ -237,5 +237,99 @@ export const CROSS_TENANT_ENDPOINTS: CrossTenantCase[] = [
       expect(res.body.error.code).toBe('NOT_FOUND');
     },
   },
+  {
+    description: 'GET /v1/services/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/services/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .get(`/v1/services/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'PATCH /v1/services/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/services/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .patch(`/v1/services/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .set('If-Match', `"1"`)
+        .send({ priority: 'HIGH' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/services/:id/cancel con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/services/:id/cancel',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/services/${crossTenantUserId}/cancel`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ reason: 'CUSTOMER_REQUESTED' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/services/:id/reschedule con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/services/:id/reschedule',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/services/${crossTenantUserId}/reschedule`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ newDate: '2026-09-10', reason: 'x' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/services/:id/validate con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/services/:id/validate',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/services/${crossTenantUserId}/validate`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/services/:id/reject con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/services/:id/reject',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/services/${crossTenantUserId}/reject`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ reason: 'x' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/services/:id/reopen con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/services/:id/reopen',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/services/${crossTenantUserId}/reopen`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ reason: 'x' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/services/:id/warranty-visit con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/services/:id/warranty-visit',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/services/${crossTenantUserId}/warranty-visit`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
 ];
 
