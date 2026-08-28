@@ -54,6 +54,7 @@ export class RoutesService {
       take,
       ...(query.cursor ? { skip: 1, cursor: { id: query.cursor } } : {}),
       orderBy: [{ routeDate: 'desc' }, { id: 'desc' }],
+      include: { technician: { select: { fullName: true, username: true, email: true } } },
     });
     return rows.slice(0, query.limit).map(toRoute);
   }
@@ -86,7 +87,10 @@ export class RoutesService {
 
   async getById(id: string): Promise<RouteWithStops> {
     const tx = this.db.current();
-    const row = await tx.route.findFirst({ where: { id } });
+    const row = await tx.route.findFirst({
+      where: { id },
+      include: { technician: { select: { fullName: true, username: true, email: true } } },
+    });
     if (!row) throw httpApiError('NOT_FOUND', 'Ruta no encontrada.', 404);
     const stops = await tx.routeStop.findMany({
       where: { routeId: id },
@@ -425,6 +429,7 @@ interface RouteRow {
   version: number;
   createdAt: Date;
   updatedAt: Date;
+  technician?: { fullName: string | null; username: string | null; email: string };
 }
 
 function toRoute(r: RouteRow): Route {
@@ -444,6 +449,7 @@ function toRoute(r: RouteRow): Route {
     version: r.version,
     createdAt: r.createdAt.toISOString(),
     updatedAt: r.updatedAt.toISOString(),
+    technicianName: r.technician ? (r.technician.fullName ?? r.technician.username ?? r.technician.email) : null,
   };
 }
 

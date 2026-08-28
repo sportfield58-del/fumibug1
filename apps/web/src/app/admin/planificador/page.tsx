@@ -90,7 +90,7 @@ function SortableRouteCard({ route }: { route: Route }): JSX.Element {
                 )}
               </div>
               <p className="text-caption text-fg-muted mt-1">
-                {route.routeDate} · Técnico: {route.technicianId.slice(0, 8)}...
+                {route.routeDate} · Técnico: {route.technicianName ?? `${route.technicianId.slice(0, 8)}...`}
                 {route.publishedAt && ` · Publicada ${new Date(route.publishedAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`}
               </p>
             </div>
