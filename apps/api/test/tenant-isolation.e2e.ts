@@ -106,6 +106,11 @@ beforeAll(async () => {
       'cash.close.own',
       'cash.approve_closure',
       'payment.void',
+      'session.start',
+      'session.finish',
+      'stop.mark_no_show',
+      'stop.skip',
+      'payment.create',
     ],
   });
 

@@ -354,6 +354,12 @@ export class CashService {
     return toCashClosure(updated);
   }
 
+  /** Llamado desde FieldService (POST /field/cash/close) — la caja propia del operario autenticado. */
+  async getOwnAccountId(actor: RequestUser): Promise<string> {
+    const account = await this.ensureAccount(this.db.current(), actor, actor.userId, 'TECHNICIAN');
+    return account.id;
+  }
+
   // --- Helpers ---
 
   private async assertAccountVisible(tx: RequestTx, accountId: string, actor: RequestUser): Promise<{ id: string; ownerUserId: string }> {

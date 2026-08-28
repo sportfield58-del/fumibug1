@@ -22,11 +22,12 @@ import type { RequestTx } from '../../common/tenant/prisma-tenant.extension';
 /**
  * docs/spec/13-inventario-caja.md §N, docs/spec/09-reglas.md R16-R23.
  *
- * Fase 1 de hoy: catálogo, ubicaciones (depósito + una por operario, auto-provistas),
- * saldo actual y movimientos manuales. `CONSUMPTION` (R16-R18/R20: dilución, lote,
- * descuento del vehículo del operario que ejecuta el servicio) es del PR de sesión de
- * campo (PR-207/PR-106b) — no se inventa ese flujo desde acá, solo se deja el tipo de
- * movimiento reservado (ver CreateInventoryMovementRequestSchema, que no lo admite).
+ * Catálogo, ubicaciones (depósito + una por operario, auto-provistas), saldo actual y
+ * movimientos manuales admin (PURCHASE/TRANSFER/ADJUSTMENT/LOSS/RETURN/
+ * EXPIRY_WRITE_OFF — ver `CreateInventoryMovementRequestSchema`, que a propósito NO
+ * admite `CONSUMPTION` por esa vía). `CONSUMPTION` real (R16-R18/R20) nace únicamente
+ * desde `recordConsumption()`, llamado por `FieldService` dentro de la sesión de
+ * campo — nunca desde un alta manual del admin.
  */
 @Injectable()
 export class InventoryService {
@@ -137,7 +138,11 @@ export class InventoryService {
     const scope = resolveReadScope(actor, 'inventory.read.own', 'inventory.read.tenant');
     if (scope === 'own') {
       const mine = await tx.stockLocation.findFirst({ where: { type: 'VEHICLE', technicianId: actor.userId } });
-      where['stockLocationId'] = mine?.id ?? '__none__';
+      // Todavía no tiene vehículo asignado (nadie visitó /admin/inventario ni le cargaron
+      // stock todavía) — sin stock, no hay nada que listar. Un id inválido acá rompía
+      // la query (Postgres no acepta '__none__' como UUID); [] es la respuesta correcta.
+      if (!mine) return [];
+      where['stockLocationId'] = mine.id;
     }
 
     const rows = await tx.inventory.findMany({
@@ -268,6 +273,72 @@ export class InventoryService {
       after: { stockLocationId: input.stockLocationId, delta: delta.toNumber(), reason: input.reason ?? null },
     });
     return [toMovement(movement)];
+  }
+
+  // --- Consumo en campo (R16-R18, R20) ---
+
+  /**
+   * Llamado desde FieldService, dentro de la misma transacción que crea el
+   * `service_supply_usage` (R16: "nunca uno sin el otro"). R17: descuenta SIEMPRE del
+   * vehículo del operario que ejecuta, nunca del depósito. R19: el consumo de campo
+   * SIEMPRE se acepta aunque deje el saldo negativo — acá no hay `allowNegative`
+   * condicional a un permiso, es la excepción que exige la regla.
+   */
+  async recordConsumption(params: {
+    technicianId: string;
+    supplyId: string;
+    lotId: string | null;
+    lotCode: string | null;
+    quantityApplied: number;
+    isDilutedMix: boolean;
+    actor: RequestUser;
+  }): Promise<{ movement: InventoryMovement; concentrateEquivalent: number }> {
+    const tx = this.db.current();
+    const supply = await tx.supply.findFirst({ where: { id: params.supplyId } });
+    if (!supply) throw httpApiError('NOT_FOUND', 'Insumo no encontrado.', 404);
+
+    // Auto-provisión perezosa: el operario puede ser el primero en tocar inventario
+    // (nadie visitó /admin/inventario todavía) — el consumo de campo no puede quedar
+    // bloqueado esperando que un admin dé de alta la ubicación primero.
+    const existingVehicle = await tx.stockLocation.findFirst({ where: { type: 'VEHICLE', technicianId: params.technicianId } });
+    let vehicleId: string;
+    if (existingVehicle) {
+      vehicleId = existingVehicle.id;
+    } else {
+      const tech = await tx.user.findFirst({ where: { id: params.technicianId }, select: { fullName: true, username: true, email: true } });
+      const created = await this.ensureVehicleLocation(tx, params.actor, params.technicianId, tech?.fullName ?? tech?.username ?? tech?.email ?? 'operario');
+      vehicleId = created.id;
+    }
+
+    const lotId = await this.resolveLot(tx, params.actor.tenantId, params.supplyId, params.lotId, params.lotCode);
+    if (lotId) {
+      const lot = await tx.supplyLot.findFirst({ where: { id: lotId } });
+      if (lot?.expiresOn && lot.expiresOn < new Date()) {
+        throw httpApiError('LOT_EXPIRED', `El lote ${lot.lotCode} está vencido — no se puede seleccionar para consumo nuevo (R20).`, 422);
+      }
+    }
+
+    // R18: en modo mezcla, lo que se descuenta es el concentrado equivalente
+    // (litros de mezcla × dilution_rate_ml_per_l / 1000), no el volumen de mezcla.
+    const concentrateEquivalent =
+      params.isDilutedMix && supply.dilutionRateMlPerL !== null
+        ? params.quantityApplied * Number(supply.dilutionRateMlPerL) / 1000
+        : params.quantityApplied;
+
+    const movement = await this.applyDelta(tx, {
+      stockLocationId: vehicleId,
+      supplyId: params.supplyId,
+      lotId,
+      delta: new Prisma.Decimal(concentrateEquivalent).negated(),
+      type: 'CONSUMPTION',
+      referenceType: null,
+      referenceId: null,
+      reason: null,
+      unitCostCents: null,
+      allowNegative: true, // R19
+      actor: params.actor,
+    });
+    return { movement: toMovement(movement), concentrateEquivalent };
   }
 
   // --- Helpers ---

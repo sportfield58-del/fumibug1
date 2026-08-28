@@ -22,6 +22,7 @@ import { ServicesModule } from './modules/services/services.module';
 import { RoutesModule } from './modules/routes/routes.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { CashModule } from './modules/cash/cash.module';
+import { FieldModule } from './modules/field/field.module';
 
 /**
  * Cableado global de seguridad — docs/spec/11-seguridad.md §K.2.
@@ -57,6 +58,7 @@ import { CashModule } from './modules/cash/cash.module';
     RoutesModule,
     InventoryModule,
     CashModule,
+    FieldModule,
   ],
   controllers: [AppController],
   providers: [
