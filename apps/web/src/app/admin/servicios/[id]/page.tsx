@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, Clock, AlertTriangle, CheckCircle, XCircle } from 'lucide-react'
+import { ArrowLeft, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, User, MapPin, Wrench } from 'lucide-react'
 import { Button, Badge, Skeleton } from '@fumibug/ui'
 import { getGetService } from '@/../../lib/api/client'
 
@@ -90,6 +90,9 @@ export default function ServicioDetailPage(): JSX.Element {
     notesForTechnician?: string | null
     createdAt: string
     updatedAt: string
+    customerName?: string | null
+    serviceTypeName?: string | null
+    location?: { addressLine: string; lat: number | null; lng: number | null } | null
   }
 
   const status = statusConfig[svc.status] ?? statusConfig.DRAFT
@@ -105,11 +108,12 @@ export default function ServicioDetailPage(): JSX.Element {
             </Link>
           </Button>
           <h1 className="text-h1 font-semibold text-fg">
-            {svc.code}
+            {svc.serviceTypeName ?? svc.code}
             {svc.isWarrantyVisit && (
               <Badge variant="secondary" className="ml-2">Garantía</Badge>
             )}
           </h1>
+          <p className="text-caption text-fg-muted mt-0.5">{svc.code}</p>
           {status && (
             <Badge variant={status.variant} className="gap-1 mt-1">
               {status.icon}
@@ -124,6 +128,31 @@ export default function ServicioDetailPage(): JSX.Element {
           <Button variant="outline" size="sm">
             <XCircle className="h-4 w-4" /> Cancelar
           </Button>
+        </div>
+      </div>
+
+      {/* Qué servicio es y dónde es — lo primero que hay que ver, antes que cualquier otro dato */}
+      <div className="rounded-lg border border-border bg-bg-elevated p-4 space-y-3">
+        <div className="flex items-start gap-3">
+          <Wrench className="h-5 w-5 shrink-0 text-fg-subtle mt-0.5" />
+          <div>
+            <p className="text-caption text-fg-muted">Servicio</p>
+            <p className="text-body font-medium text-fg">{svc.serviceTypeName ?? 'Sin tipo'}</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3">
+          <User className="h-5 w-5 shrink-0 text-fg-subtle mt-0.5" />
+          <div>
+            <p className="text-caption text-fg-muted">Cliente</p>
+            <p className="text-body font-medium text-fg">{svc.customerName ?? 'Sin cliente'}</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3">
+          <MapPin className="h-5 w-5 shrink-0 text-fg-subtle mt-0.5" />
+          <div>
+            <p className="text-caption text-fg-muted">Dónde</p>
+            <p className="text-body font-medium text-fg">{svc.location?.addressLine ?? 'Sin dirección'}</p>
+          </div>
         </div>
       </div>
 

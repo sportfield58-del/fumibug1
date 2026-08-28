@@ -66,6 +66,9 @@ export default function ServiciosPage(): JSX.Element {
     return services.filter(
       (s) =>
         s.code.toLowerCase().includes(q) ||
+        s.customerName?.toLowerCase().includes(q) ||
+        s.serviceTypeName?.toLowerCase().includes(q) ||
+        s.location?.addressLine.toLowerCase().includes(q) ||
         s.targetPests.some((p) => p.toLowerCase().includes(q))
     )
   }, [services, search])
@@ -87,7 +90,7 @@ export default function ServiciosPage(): JSX.Element {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle" />
           <Input
-            placeholder="Buscar por código o plaga..."
+            placeholder="Buscar por cliente, dirección, tipo, código o plaga..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -165,14 +168,15 @@ export default function ServiciosPage(): JSX.Element {
                   </div>
                   <div className="min-w-0">
                     <p className="text-body font-medium text-fg truncate">
-                      {service.code}
+                      {service.serviceTypeName ?? service.code}
                       {service.isWarrantyVisit && (
                         <Badge variant="secondary" className="ml-2 text-xs">Garantía</Badge>
                       )}
                     </p>
                     <p className="text-caption text-fg-muted truncate">
-                      {service.scheduledDate ?? 'Sin fecha'}
-                      {service.targetPests.length > 0 && ` · ${service.targetPests.join(', ')}`}
+                      {service.customerName ?? service.code}
+                      {service.location?.addressLine && ` · ${service.location.addressLine}`}
+                      {' · '}{service.scheduledDate ?? 'Sin fecha'}
                     </p>
                   </div>
                 </div>

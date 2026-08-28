@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Save, Loader2 } from 'lucide-react'
 import { Button, Input, Label, Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@fumibug/ui'
-import { postCreateService, getListCustomers, getListServiceTypes } from '@/../../lib/api/client'
-import type { Customer } from '@fumibug/contracts'
+import { postCreateService, getListCustomers, getListServiceTypes, getListCustomerLocations } from '@/../../lib/api/client'
+import type { Customer, ServiceLocation } from '@fumibug/contracts'
 
 export default function NuevoServicioPage(): JSX.Element {
   const router = useRouter()
@@ -14,6 +14,9 @@ export default function NuevoServicioPage(): JSX.Element {
   const [error, setError] = React.useState<string | null>(null)
 
   const [customerId, setCustomerId] = React.useState('')
+  const [serviceLocationId, setServiceLocationId] = React.useState('')
+  const [locations, setLocations] = React.useState<ServiceLocation[]>([])
+  const [isLoadingLocations, setIsLoadingLocations] = React.useState(false)
   const [serviceTypeId, setServiceTypeId] = React.useState('')
   const [scheduledDate, setScheduledDate] = React.useState('')
   const [windowStart, setWindowStart] = React.useState('')
@@ -35,16 +38,41 @@ export default function NuevoServicioPage(): JSX.Element {
     })
   }, [])
 
+  // Las ubicaciones dependen del cliente elegido — antes esto mandaba siempre un id
+  // fijo inexistente (00000000-...-0001), que rompía la creación con 500 (violación
+  // de FK en Postgres, sin manejo específico) para cualquier cliente, siempre.
+  React.useEffect(() => {
+    setServiceLocationId('')
+    setLocations([])
+    if (!customerId) return
+    setIsLoadingLocations(true)
+    getListCustomerLocations({ params: { id: customerId } })
+      .then((res) => {
+        if (res.success) {
+          setLocations(res.data)
+          if (res.data.length === 1 && res.data[0]) setServiceLocationId(res.data[0].id)
+        }
+      })
+      .catch(() => { /* combo vacío no bloquea el resto del form */ })
+      .finally(() => setIsLoadingLocations(false))
+  }, [customerId])
+
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault()
     setError(null)
+
+    if (!serviceLocationId) {
+      setError('Elegí una ubicación del cliente (o cargá una primero si no tiene ninguna).')
+      return
+    }
+
     setIsSubmitting(true)
 
     try {
       const res = await postCreateService({
         body: {
           customerId,
-          serviceLocationId: '00000000-0000-0000-0000-000000000001', // TODO: pick from customer locations
+          serviceLocationId,
           serviceTypeId,
           scheduledDate: scheduledDate || undefined,
           windowStart: windowStart || undefined,
@@ -97,6 +125,37 @@ export default function NuevoServicioPage(): JSX.Element {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Location — depende del cliente elegido */}
+        {customerId && (
+          <div className="space-y-2">
+            <Label>Ubicación *</Label>
+            {isLoadingLocations ? (
+              <p className="text-caption text-fg-muted">Cargando ubicaciones...</p>
+            ) : locations.length === 0 ? (
+              <p className="text-caption text-fg-muted">
+                Este cliente no tiene ubicaciones cargadas.{' '}
+                <Link href={`/admin/clientes/${customerId}/ubicaciones/nueva`} className="text-primary underline">
+                  Agregar una
+                </Link>
+                {' '}antes de crear el servicio.
+              </p>
+            ) : (
+              <Select value={serviceLocationId} onValueChange={setServiceLocationId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar ubicación" />
+                </SelectTrigger>
+                <SelectContent>
+                  {locations.map((l) => (
+                    <SelectItem key={l.id} value={l.id}>
+                      {l.label ? `${l.label} — ${l.addressLine}` : l.addressLine}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        )}
 
         {/* Service type */}
         <div className="space-y-2">
@@ -206,7 +265,7 @@ export default function NuevoServicioPage(): JSX.Element {
         )}
 
         <div className="flex gap-3">
-          <Button type="submit" disabled={isSubmitting || !customerId || !serviceTypeId}>
+          <Button type="submit" disabled={isSubmitting || !customerId || !serviceTypeId || !serviceLocationId}>
             {isSubmitting ? (
               <><Loader2 className="h-4 w-4 animate-spin" /> Guardando...</>
             ) : (
