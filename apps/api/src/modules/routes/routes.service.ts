@@ -88,7 +88,18 @@ export class RoutesService {
     const tx = this.db.current();
     const row = await tx.route.findFirst({ where: { id } });
     if (!row) throw httpApiError('NOT_FOUND', 'Ruta no encontrada.', 404);
-    const stops = await tx.routeStop.findMany({ where: { routeId: id }, orderBy: { sequence: 'asc' } });
+    const stops = await tx.routeStop.findMany({
+      where: { routeId: id },
+      orderBy: { sequence: 'asc' },
+      include: {
+        service: {
+          include: {
+            customer: { select: { legalName: true, tradeName: true } },
+            serviceLocation: { select: { addressLine: true, lat: true, lng: true } },
+          },
+        },
+      },
+    });
     return { ...toRoute(row), stops: stops.map(toRouteStop) };
   }
 
@@ -457,9 +468,15 @@ interface RouteStopRow {
   version: number;
   createdAt: Date;
   updatedAt: Date;
+  service?: {
+    customer: { legalName: string; tradeName: string | null } | null;
+    serviceLocation: { addressLine: string; lat: unknown; lng: unknown } | null;
+  };
 }
 
 function toRouteStop(r: RouteStopRow): RouteWithStops['stops'][number] {
+  const loc = r.service?.serviceLocation;
+  const customer = r.service?.customer;
   return {
     id: r.id,
     tenantId: r.tenantId,
@@ -481,5 +498,13 @@ function toRouteStop(r: RouteStopRow): RouteWithStops['stops'][number] {
     version: r.version,
     createdAt: r.createdAt.toISOString(),
     updatedAt: r.updatedAt.toISOString(),
+    location: loc
+      ? {
+          customerName: customer ? (customer.tradeName ?? customer.legalName) : '',
+          addressLine: loc.addressLine,
+          lat: loc.lat !== null ? Number(loc.lat) : null,
+          lng: loc.lng !== null ? Number(loc.lng) : null,
+        }
+      : null,
   };
 }
