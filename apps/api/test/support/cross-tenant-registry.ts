@@ -517,5 +517,137 @@ export const CROSS_TENANT_ENDPOINTS: CrossTenantCase[] = [
       expect(res.body.error.code).toBe('NOT_FOUND');
     },
   },
+  {
+    description: 'POST /v1/field/stops/:id/en-route con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/stops/:id/en-route',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/stops/${crossTenantUserId}/en-route`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ occurredAt: new Date().toISOString(), gpsStatus: 'OK', clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/field/stops/:id/arrive con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/stops/:id/arrive',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/stops/${crossTenantUserId}/arrive`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ occurredAt: new Date().toISOString(), gpsStatus: 'OK', clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/field/stops/:id/no-show con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/stops/:id/no-show',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/stops/${crossTenantUserId}/no-show`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ reason: 'CUSTOMER_ABSENT', occurredAt: new Date().toISOString(), clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/field/stops/:id/inaccessible con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/stops/:id/inaccessible',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/stops/${crossTenantUserId}/inaccessible`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ reason: 'LOOSE_ANIMAL', occurredAt: new Date().toISOString(), clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/field/services/:id/start con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/services/:id/start',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/services/${crossTenantUserId}/start`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ occurredAt: new Date().toISOString(), gpsStatus: 'OK', clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/field/sessions/:id/pause con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/sessions/:id/pause',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/sessions/${crossTenantUserId}/pause`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ occurredAt: new Date().toISOString(), clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/field/sessions/:id/resume con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/sessions/:id/resume',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/sessions/${crossTenantUserId}/resume`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ occurredAt: new Date().toISOString(), clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/field/sessions/:id/supplies con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/sessions/:id/supplies',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/sessions/${crossTenantUserId}/supplies`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ supplyId: crossTenantUserId, quantityApplied: 1, unit: 'L', applicationMethod: 'SPRAY', clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/field/sessions/:id/signature con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/sessions/:id/signature',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/sessions/${crossTenantUserId}/signature`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ noSignatureReason: 'OTHER', clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/field/sessions/:id/payment con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/sessions/:id/payment',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/sessions/${crossTenantUserId}/payment`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ amountCents: 1000, method: 'CASH', clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/field/sessions/:id/finish con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/field/sessions/:id/finish',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/field/sessions/${crossTenantUserId}/finish`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ paymentDecision: 'NOT_APPLICABLE', occurredAt: new Date().toISOString(), clientEventId: crossTenantUserId })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
 ];
 
