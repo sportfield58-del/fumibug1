@@ -2067,6 +2067,7 @@ export const ENDPOINTS = {
             lat: -34.5661,
             lng: -58.4531,
           },
+          openSessionId: null,
           serviceCode: 'SVC-000123',
           serviceStatus: 'DISPATCHED',
           serviceTypeName: 'Desinsectación',

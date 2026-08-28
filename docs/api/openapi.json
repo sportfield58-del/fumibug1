@@ -16109,6 +16109,11 @@
                           },
                           "priority": {
                             "type": "string"
+                          },
+                          "openSessionId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -16126,7 +16131,8 @@
                           "serviceStatus",
                           "serviceTypeName",
                           "notesForTechnician",
-                          "priority"
+                          "priority",
+                          "openSessionId"
                         ],
                         "additionalProperties": false
                       }
@@ -16261,6 +16267,7 @@
                         "lat": -34.5661,
                         "lng": -58.4531
                       },
+                      "openSessionId": null,
                       "serviceCode": "SVC-000123",
                       "serviceStatus": "DISPATCHED",
                       "serviceTypeName": "Desinsectación",

@@ -38,6 +38,13 @@ export const FieldStopSchema = RouteWithStopsSchema.shape.stops.element.extend({
   serviceTypeName: z.string(),
   notesForTechnician: z.string().nullable(),
   priority: z.string(),
+  /**
+   * Id de la sesión OPEN de este stop, si hay una — así la pantalla de campo puede
+   * recuperar el flujo de ejecución (insumos/pago/firma/cierre) después de un
+   * refresh o de volver a entrar, sin depender solo de localStorage (que se pierde
+   * en una ventana privada nueva o al cambiar de dispositivo).
+   */
+  openSessionId: z.string().uuid().nullable(),
 });
 export type FieldStop = z.infer<typeof FieldStopSchema>;
 
