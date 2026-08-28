@@ -26,6 +26,21 @@ export const RouteStopSchema = z.object({
   version: z.number().int().positive(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  /**
+   * Solo en GET /routes/:id (§J.2) — datos del destino del stop, para mostrar el
+   * mapa estático de paradas del Planificador (no es tracking en vivo, ver
+   * docs/spec/19-mvp-roadmap.md: "Técnicamente imposible en PWA"). `lat`/`lng` nulos
+   * cuando el domicilio del cliente no está geocodificado todavía.
+   */
+  location: z
+    .object({
+      customerName: z.string(),
+      addressLine: z.string(),
+      lat: z.number().nullable(),
+      lng: z.number().nullable(),
+    })
+    .nullable()
+    .optional(),
 });
 export type RouteStop = z.infer<typeof RouteStopSchema>;
 

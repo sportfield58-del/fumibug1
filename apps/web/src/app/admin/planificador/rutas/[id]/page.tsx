@@ -3,10 +3,18 @@
 import * as React from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { ArrowLeft, Clock, CheckCircle, XCircle, Send, Ban, Plus } from 'lucide-react'
 import { Button, Badge, Skeleton, Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@fumibug/ui'
 import { getGetRoute, getListServices, postAddStop, postPublishRoute, postCancelRoute } from '@/../../lib/api/client'
 import type { Service } from '@fumibug/contracts'
+import type { RouteStopsMapPoint } from '@/components/route-stops-map'
+
+// Leaflet toca `window` al armar el mapa — se carga solo en el cliente, nunca en SSR.
+const RouteStopsMap = dynamic(
+  () => import('@/components/route-stops-map').then((m) => m.RouteStopsMap),
+  { ssr: false },
+)
 
 const routeStatusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
   DRAFT: { label: 'Borrador', variant: 'secondary', icon: null },
@@ -150,6 +158,7 @@ export default function RutaDetailPage(): JSX.Element {
       travelMinutes?: number | null
       arrivedAt?: string | null
       enRouteAt?: string | null
+      location?: { customerName: string; addressLine: string; lat: number | null; lng: number | null } | null
     }>
   }
 
@@ -261,6 +270,34 @@ export default function RutaDetailPage(): JSX.Element {
         </div>
       )}
 
+      {/* Mapa de paradas — posiciones de los clientes, no tracking en vivo del operario */}
+      {r.stops && r.stops.length > 0 && (
+        <div>
+          <h2 className="text-h3 font-semibold text-fg mb-3">Mapa de la ruta</h2>
+          {(() => {
+            const points: RouteStopsMapPoint[] = (r.stops ?? [])
+              .filter((s) => s.location?.lat != null && s.location.lng != null)
+              .map((s) => ({
+                id: s.id,
+                sequence: s.sequence,
+                status: s.status,
+                lat: s.location!.lat as number,
+                lng: s.location!.lng as number,
+                customerName: s.location!.customerName,
+                addressLine: s.location!.addressLine,
+              }))
+            if (points.length === 0) {
+              return (
+                <p className="text-caption text-fg-muted rounded-lg border border-border bg-bg-elevated p-4">
+                  Ninguna parada tiene el domicilio del cliente geocodificado todavía.
+                </p>
+              )
+            }
+            return <RouteStopsMap points={points} />
+          })()}
+        </div>
+      )}
+
       {/* Stops */}
       {r.stops && r.stops.length > 0 && (
         <div>
@@ -281,10 +318,11 @@ export default function RutaDetailPage(): JSX.Element {
                       </span>
                       <div>
                         <p className="text-body font-medium text-fg">
-                          Servicio {stop.serviceId.slice(0, 8)}...
+                          {stop.location?.customerName || `Servicio ${stop.serviceId.slice(0, 8)}...`}
                         </p>
                         <p className="text-caption text-fg-muted">
-                          {stop.eta && `ETA: ${stop.eta}`}
+                          {stop.location?.addressLine}
+                          {stop.eta && ` · ETA: ${stop.eta}`}
                           {stop.travelMinutes && ` · ${stop.travelMinutes} min`}
                         </p>
                       </div>

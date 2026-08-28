@@ -8833,6 +8833,33 @@
                           "updatedAt": {
                             "type": "string",
                             "format": "date-time"
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "customerName": {
+                                "type": "string"
+                              },
+                              "addressLine": {
+                                "type": "string"
+                              },
+                              "lat": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "lng": {
+                                "type": "number",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "customerName",
+                              "addressLine",
+                              "lat",
+                              "lng"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -9149,6 +9176,33 @@
                           "updatedAt": {
                             "type": "string",
                             "format": "date-time"
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "customerName": {
+                                "type": "string"
+                              },
+                              "addressLine": {
+                                "type": "string"
+                              },
+                              "lat": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "lng": {
+                                "type": "number",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "customerName",
+                              "addressLine",
+                              "lat",
+                              "lng"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -9470,6 +9524,33 @@
                           "updatedAt": {
                             "type": "string",
                             "format": "date-time"
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "customerName": {
+                                "type": "string"
+                              },
+                              "addressLine": {
+                                "type": "string"
+                              },
+                              "lat": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "lng": {
+                                "type": "number",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "customerName",
+                              "addressLine",
+                              "lat",
+                              "lng"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -9790,6 +9871,33 @@
                           "updatedAt": {
                             "type": "string",
                             "format": "date-time"
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "customerName": {
+                                "type": "string"
+                              },
+                              "addressLine": {
+                                "type": "string"
+                              },
+                              "lat": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "lng": {
+                                "type": "number",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "customerName",
+                              "addressLine",
+                              "lat",
+                              "lng"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -10094,6 +10202,33 @@
                           "updatedAt": {
                             "type": "string",
                             "format": "date-time"
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "customerName": {
+                                "type": "string"
+                              },
+                              "addressLine": {
+                                "type": "string"
+                              },
+                              "lat": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "lng": {
+                                "type": "number",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "customerName",
+                              "addressLine",
+                              "lat",
+                              "lng"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -10458,6 +10593,33 @@
                           "updatedAt": {
                             "type": "string",
                             "format": "date-time"
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "customerName": {
+                                "type": "string"
+                              },
+                              "addressLine": {
+                                "type": "string"
+                              },
+                              "lat": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "lng": {
+                                "type": "number",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "customerName",
+                              "addressLine",
+                              "lat",
+                              "lng"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -10754,6 +10916,33 @@
                           "updatedAt": {
                             "type": "string",
                             "format": "date-time"
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "customerName": {
+                                "type": "string"
+                              },
+                              "addressLine": {
+                                "type": "string"
+                              },
+                              "lat": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "lng": {
+                                "type": "number",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "customerName",
+                              "addressLine",
+                              "lat",
+                              "lng"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -11070,6 +11259,33 @@
                           "updatedAt": {
                             "type": "string",
                             "format": "date-time"
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "customerName": {
+                                "type": "string"
+                              },
+                              "addressLine": {
+                                "type": "string"
+                              },
+                              "lat": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "lng": {
+                                "type": "number",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "customerName",
+                              "addressLine",
+                              "lat",
+                              "lng"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
@@ -11366,6 +11582,33 @@
                           "updatedAt": {
                             "type": "string",
                             "format": "date-time"
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "customerName": {
+                                "type": "string"
+                              },
+                              "addressLine": {
+                                "type": "string"
+                              },
+                              "lat": {
+                                "type": "number",
+                                "nullable": true
+                              },
+                              "lng": {
+                                "type": "number",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "customerName",
+                              "addressLine",
+                              "lat",
+                              "lng"
+                            ],
+                            "additionalProperties": false,
+                            "nullable": true
                           }
                         },
                         "required": [
