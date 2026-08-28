@@ -30,7 +30,7 @@ export default function LoginPage(): JSX.Element {
     setIsSubmitting(true)
 
     try {
-      await login(identifier, password)
+      await login(identifier, password, mode)
       router.push(mode === 'admin' ? '/admin' : '/campo')
     } catch {
       setError(
