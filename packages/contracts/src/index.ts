@@ -19,4 +19,5 @@ export * from './schemas/role';
 export * from './schemas/auth';
 export * from './schemas/inventory';
 export * from './schemas/cash';
+export * from './schemas/field';
 export * from './endpoints';

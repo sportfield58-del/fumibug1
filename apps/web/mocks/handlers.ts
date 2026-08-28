@@ -2022,4 +2022,359 @@ export const handlers = [
     }
   }),
   ),
+  http.get('/v1/field/today', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "route": {
+        "id": "ffffffff-1111-1111-1111-111111111111",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "code": "RT-000123",
+        "technicianId": "22222222-2222-2222-2222-222222222222",
+        "vehicleId": null,
+        "routeDate": "2026-08-28",
+        "status": "PUBLISHED",
+        "publishedAt": "2026-08-28T10:00:00.000Z",
+        "publishedBy": "11111111-1111-1111-1111-111111111111",
+        "startedAt": null,
+        "completedAt": null,
+        "notes": null,
+        "version": 1,
+        "createdAt": "2026-08-28T09:00:00.000Z",
+        "updatedAt": "2026-08-28T10:00:00.000Z"
+      },
+      "stops": [
+        {
+          "id": "aaaaaaaa-3333-3333-3333-333333333333",
+          "tenantId": "f0000000-0000-4000-8000-000100000000",
+          "routeId": "ffffffff-1111-1111-1111-111111111111",
+          "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+          "sequence": 1,
+          "status": "PENDING",
+          "eta": null,
+          "travelMinutes": 15,
+          "enRouteAt": null,
+          "arrivedAt": null,
+          "arrivalLat": null,
+          "arrivalLng": null,
+          "arrivalAccuracyM": null,
+          "gpsStatus": null,
+          "distanceFromLocationM": null,
+          "outcomeReason": null,
+          "wastedTrip": false,
+          "version": 1,
+          "createdAt": "2026-08-28T09:00:00.000Z",
+          "updatedAt": "2026-08-28T09:00:00.000Z",
+          "location": {
+            "customerName": "Consorcio Av. Libertador 4500",
+            "addressLine": "Av. Libertador 4500",
+            "lat": -34.5661,
+            "lng": -58.4531
+          },
+          "serviceCode": "SVC-000123",
+          "serviceStatus": "DISPATCHED",
+          "serviceTypeName": "Desinsectación",
+          "notesForTechnician": "Tocar timbre de portería.",
+          "priority": "NORMAL"
+        }
+      ],
+      "myStock": [
+        {
+          "stockLocationId": "b1000000-0000-4000-8000-000000000002",
+          "stockLocationName": "Camioneta — Diego Operario",
+          "stockLocationType": "VEHICLE",
+          "supplyId": "a1000000-0000-4000-8000-000000000001",
+          "supplyName": "Cipermetrina 25% EC",
+          "supplySku": "CIP-25EC",
+          "applicationUnit": "ML",
+          "lotId": "c1000000-0000-4000-8000-000000000001",
+          "lotCode": "L2026-08",
+          "quantity": 500,
+          "minStock": 100,
+          "belowMinimum": false
+        }
+      ]
+    }
+  }),
+  ),
+  http.post('/v1/field/stops/:id/en-route', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "status": "EN_ROUTE"
+    }
+  }),
+  ),
+  http.post('/v1/field/stops/:id/arrive', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "status": "ARRIVED"
+    }
+  }),
+  ),
+  http.post('/v1/field/stops/:id/no-show', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "status": "NO_SHOW"
+    }
+  }),
+  ),
+  http.post('/v1/field/stops/:id/inaccessible', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "status": "INACCESSIBLE"
+    }
+  }),
+  ),
+  http.post('/v1/field/services/:id/start', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "30303030-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+      "routeStopId": "aaaaaaaa-3333-3333-3333-333333333333",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "status": "OPEN",
+      "startedAt": "2026-08-28T13:00:00.000Z",
+      "endedAt": null,
+      "startLat": -34.5661,
+      "startLng": -58.4531,
+      "startAccuracyM": 8,
+      "endLat": null,
+      "endLng": null,
+      "endAccuracyM": null,
+      "pausedIntervals": [],
+      "closureChecklist": null,
+      "clientSignatureUrl": null,
+      "signerName": null,
+      "signerIdNumber": null,
+      "noSignatureReason": null,
+      "technicianNotes": null,
+      "reopenedCount": 0,
+      "autoClosed": false
+    }
+  }),
+  ),
+  http.post('/v1/field/sessions/:id/pause', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "30303030-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+      "routeStopId": "aaaaaaaa-3333-3333-3333-333333333333",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "status": "OPEN",
+      "startedAt": "2026-08-28T13:00:00.000Z",
+      "endedAt": null,
+      "startLat": -34.5661,
+      "startLng": -58.4531,
+      "startAccuracyM": 8,
+      "endLat": null,
+      "endLng": null,
+      "endAccuracyM": null,
+      "pausedIntervals": [
+        {
+          "pausedAt": "2026-08-28T13:20:00.000Z",
+          "resumedAt": null
+        }
+      ],
+      "closureChecklist": null,
+      "clientSignatureUrl": null,
+      "signerName": null,
+      "signerIdNumber": null,
+      "noSignatureReason": null,
+      "technicianNotes": null,
+      "reopenedCount": 0,
+      "autoClosed": false
+    }
+  }),
+  ),
+  http.post('/v1/field/sessions/:id/resume', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "30303030-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+      "routeStopId": "aaaaaaaa-3333-3333-3333-333333333333",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "status": "OPEN",
+      "startedAt": "2026-08-28T13:00:00.000Z",
+      "endedAt": null,
+      "startLat": -34.5661,
+      "startLng": -58.4531,
+      "startAccuracyM": 8,
+      "endLat": null,
+      "endLng": null,
+      "endAccuracyM": null,
+      "pausedIntervals": [
+        {
+          "pausedAt": "2026-08-28T13:20:00.000Z",
+          "resumedAt": "2026-08-28T13:25:00.000Z"
+        }
+      ],
+      "closureChecklist": null,
+      "clientSignatureUrl": null,
+      "signerName": null,
+      "signerIdNumber": null,
+      "noSignatureReason": null,
+      "technicianNotes": null,
+      "reopenedCount": 0,
+      "autoClosed": false
+    }
+  }),
+  ),
+  http.post('/v1/field/sessions/:id/supplies', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "40404040-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+      "supplyId": "a1000000-0000-4000-8000-000000000001",
+      "lotId": "c1000000-0000-4000-8000-000000000001",
+      "quantityApplied": 8,
+      "unit": "L",
+      "isDilutedMix": true,
+      "concentrateEquivalent": 160,
+      "applicationMethod": "SPRAY",
+      "treatedAreaSqm": 120,
+      "clientEventId": "50505050-2222-2222-2222-222222222222"
+    }
+  }),
+  ),
+  http.post('/v1/field/sessions/:id/signature', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "30303030-1111-1111-1111-111111111111",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+      "routeStopId": "aaaaaaaa-3333-3333-3333-333333333333",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "status": "OPEN",
+      "startedAt": "2026-08-28T13:00:00.000Z",
+      "endedAt": null,
+      "startLat": -34.5661,
+      "startLng": -58.4531,
+      "startAccuracyM": 8,
+      "endLat": null,
+      "endLng": null,
+      "endAccuracyM": null,
+      "pausedIntervals": [],
+      "closureChecklist": null,
+      "clientSignatureUrl": "https://storage.fumibug.internal/evidence/signature-123.png",
+      "signerName": "Juan Pérez",
+      "signerIdNumber": "30111222",
+      "noSignatureReason": null,
+      "technicianNotes": null,
+      "reopenedCount": 0,
+      "autoClosed": false
+    }
+  }),
+  ),
+  http.post('/v1/field/sessions/:id/payment', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "e1000000-0000-4000-8000-000000000003",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+      "customerId": "55555555-5555-5555-5555-555555555555",
+      "amountCents": 4500000,
+      "currency": "ARS",
+      "method": "CASH",
+      "status": "CONFIRMED",
+      "paidAt": "2026-08-28T13:40:00.000Z",
+      "receivedBy": "22222222-2222-2222-2222-222222222222",
+      "receiptUrl": null,
+      "varianceReason": null,
+      "reversalOfId": null,
+      "voidReason": null
+    }
+  }),
+  ),
+  http.post('/v1/field/sessions/:id/finish', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "session": {
+        "id": "30303030-1111-1111-1111-111111111111",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+        "routeStopId": "aaaaaaaa-3333-3333-3333-333333333333",
+        "technicianId": "22222222-2222-2222-2222-222222222222",
+        "status": "CLOSED",
+        "startedAt": "2026-08-28T13:00:00.000Z",
+        "endedAt": "2026-08-28T13:45:00.000Z",
+        "startLat": -34.5661,
+        "startLng": -58.4531,
+        "startAccuracyM": 8,
+        "endLat": -34.5661,
+        "endLng": -58.4531,
+        "endAccuracyM": 6,
+        "pausedIntervals": [],
+        "closureChecklist": {
+          "paymentDecision": "COLLECTED"
+        },
+        "clientSignatureUrl": "https://storage.fumibug.internal/evidence/signature-123.png",
+        "signerName": "Juan Pérez",
+        "signerIdNumber": "30111222",
+        "noSignatureReason": null,
+        "technicianNotes": null,
+        "reopenedCount": 0,
+        "autoClosed": false
+      },
+      "serviceStatus": "PENDING_VALIDATION"
+    }
+  }),
+  ),
+  http.get('/v1/field/my-stock', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "stockLocationId": "b1000000-0000-4000-8000-000000000002",
+        "stockLocationName": "Camioneta — Diego Operario",
+        "stockLocationType": "VEHICLE",
+        "supplyId": "a1000000-0000-4000-8000-000000000001",
+        "supplyName": "Cipermetrina 25% EC",
+        "supplySku": "CIP-25EC",
+        "applicationUnit": "ML",
+        "lotId": "c1000000-0000-4000-8000-000000000001",
+        "lotCode": "L2026-08",
+        "quantity": 340,
+        "minStock": 100,
+        "belowMinimum": false
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/field/cash/close', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "a2000000-0000-4000-8000-000000000002",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "cashAccountId": "f1000000-0000-4000-8000-000000000001",
+      "periodStart": "2026-08-28T08:00:00.000Z",
+      "periodEnd": "2026-08-28T18:00:00.000Z",
+      "expectedCents": 4500000,
+      "declaredCents": 4500000,
+      "receivedCents": null,
+      "status": "DECLARED",
+      "differenceReason": null,
+      "declaredBy": "22222222-2222-2222-2222-222222222222",
+      "declaredAt": "2026-08-28T18:00:00.000Z",
+      "approvedBy": null,
+      "approvedAt": null,
+      "selfApproved": false
+    }
+  }),
+  ),
 ];

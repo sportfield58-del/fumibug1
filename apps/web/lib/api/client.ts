@@ -400,3 +400,73 @@ export function postDeclareCashClosure(args: { params: { id: string }; body: Ret
 export function postReconcileCashClosure(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.reconcileCashClosure.request>['parse']> }): Promise<ApiResponse<typeof endpoints.reconcileCashClosure.example>> {
   return request('POST', `cash/closures/${args.params.id}/reconcile`, args.body);
 }
+
+/** GET /v1/field/today — Bundle completo del día del operario: ruta publicada, stops enriquecidos, stock del vehículo. */
+export function getGetFieldToday(): Promise<ApiResponse<typeof endpoints.getFieldToday.example>> {
+  return request('GET', 'field/today');
+}
+
+/** POST /v1/field/stops/:id/en-route — Marca que el operario salió hacia el stop (R47: el GPS nunca bloquea). */
+export function postPostStopEnRoute(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.postStopEnRoute.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postStopEnRoute.example>> {
+  return request('POST', `field/stops/${args.params.id}/en-route`, args.body);
+}
+
+/** POST /v1/field/stops/:id/arrive — Marca la llegada al stop (R48: la geocerca advierte, no bloquea). */
+export function postPostStopArrive(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.postStopArrive.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postStopArrive.example>> {
+  return request('POST', `field/stops/${args.params.id}/arrive`, args.body);
+}
+
+/** POST /v1/field/stops/:id/no-show — El cliente no estaba (R9: mínimo 1 foto FACADE + ≥5 min desde la llegada). */
+export function postPostStopNoShow(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.postStopNoShow.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postStopNoShow.example>> {
+  return request('POST', `field/stops/${args.params.id}/no-show`, args.body);
+}
+
+/** POST /v1/field/stops/:id/inaccessible — El lugar no fue accesible (obra, animal suelto, etc.). */
+export function postPostStopInaccessible(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.postStopInaccessible.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postStopInaccessible.example>> {
+  return request('POST', `field/stops/${args.params.id}/inaccessible`, args.body);
+}
+
+/** POST /v1/field/services/:id/start — Abre la sesión de ejecución del servicio (R2: solo el operario asignado; R3: una sesión abierta a la vez). */
+export function postPostStartSession(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.postStartSession.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postStartSession.example>> {
+  return request('POST', `field/services/${args.params.id}/start`, args.body);
+}
+
+/** POST /v1/field/sessions/:id/pause — Pausa la sesión abierta (R10: el tiempo pausado no cuenta como efectivo). */
+export function postPostPauseSession(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.postPauseSession.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postPauseSession.example>> {
+  return request('POST', `field/sessions/${args.params.id}/pause`, args.body);
+}
+
+/** POST /v1/field/sessions/:id/resume — Reanuda una sesión pausada. */
+export function postPostResumeSession(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.postResumeSession.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postResumeSession.example>> {
+  return request('POST', `field/sessions/${args.params.id}/resume`, args.body);
+}
+
+/** POST /v1/field/sessions/:id/supplies — Registra consumo de insumo con dilución (R16-R18) — genera inventory_movement CONSUMPTION en la misma transacción. */
+export function postPostCreateSupplyUsage(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.postCreateSupplyUsage.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postCreateSupplyUsage.example>> {
+  return request('POST', `field/sessions/${args.params.id}/supplies`, args.body);
+}
+
+/** POST /v1/field/sessions/:id/signature — Registra la firma del cliente o el motivo de su ausencia (R4). */
+export function postPostSessionSignature(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.postSessionSignature.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postSessionSignature.example>> {
+  return request('POST', `field/sessions/${args.params.id}/signature`, args.body);
+}
+
+/** POST /v1/field/sessions/:id/payment — Cobra el servicio desde la sesión (mismo motor que POST /payments, R24/R25). */
+export function postPostSessionPayment(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.postSessionPayment.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postSessionPayment.example>> {
+  return request('POST', `field/sessions/${args.params.id}/payment`, args.body);
+}
+
+/** POST /v1/field/sessions/:id/finish — Cierra la sesión — valida el checklist completo server-side (R4); 422 con la lista exacta de lo que falta. */
+export function postPostFinishSession(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.postFinishSession.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postFinishSession.example>> {
+  return request('POST', `field/sessions/${args.params.id}/finish`, args.body);
+}
+
+/** GET /v1/field/my-stock — Stock del vehículo del operario autenticado. */
+export function getGetMyStock(): Promise<ApiResponse<typeof endpoints.getMyStock.example>> {
+  return request('GET', 'field/my-stock');
+}
+
+/** POST /v1/field/cash/close — Rendición de la caja propia del operario al cierre de la jornada (§O.2). */
+export function postPostFieldCashClose(args: { body: ReturnType<NonNullable<typeof endpoints.postFieldCashClose.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postFieldCashClose.example>> {
+  return request('POST', 'field/cash/close', args.body);
+}
