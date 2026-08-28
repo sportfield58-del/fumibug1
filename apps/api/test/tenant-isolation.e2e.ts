@@ -86,6 +86,14 @@ beforeAll(async () => {
       'location.create',
       'location.update',
       'settings.manage',
+      'service.read.tenant',
+      'service.create',
+      'service.update',
+      'service.cancel',
+      'service.reschedule',
+      'service.validate',
+      'service.reject',
+      'session.reopen',
     ],
   });
 

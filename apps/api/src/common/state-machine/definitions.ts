@@ -26,15 +26,19 @@ export interface EntityStateMachineConfig<S extends string> {
 }
 
 /** §D.3 — incluye el árbol completo de la tabla de transiciones, no solo el diagrama. */
+// §D.3 (diagrama, línea "* → RESCHEDULED → SCHEDULED"): reprogramar es válido desde
+// cualquier estado no terminal — automático si un stop cierra NO_SHOW/INACCESSIBLE, o
+// manual vía `service.reschedule`. Gap encontrado hoy: faltaban estos bordes, dejando
+// RESCHEDULED inalcanzable pese a estar documentado como wildcard en el spec.
 const SERVICE_TRANSITIONS: Record<ServiceStatus, readonly ServiceStatus[]> = {
-  DRAFT: ['SCHEDULED', 'CANCELLED'],
-  SCHEDULED: ['ASSIGNED', 'CANCELLED'],
-  ASSIGNED: ['SCHEDULED', 'DISPATCHED', 'CANCELLED'],
-  DISPATCHED: ['ASSIGNED', 'IN_EXECUTION', 'CANCELLED'],
-  IN_EXECUTION: ['PENDING_VALIDATION', 'CANCELLED'],
-  PENDING_VALIDATION: ['COMPLETED', 'PARTIALLY_COMPLETED', 'IN_EXECUTION', 'CANCELLED'],
+  DRAFT: ['SCHEDULED', 'CANCELLED', 'RESCHEDULED'],
+  SCHEDULED: ['ASSIGNED', 'CANCELLED', 'RESCHEDULED'],
+  ASSIGNED: ['SCHEDULED', 'DISPATCHED', 'CANCELLED', 'RESCHEDULED'],
+  DISPATCHED: ['ASSIGNED', 'IN_EXECUTION', 'CANCELLED', 'RESCHEDULED'],
+  IN_EXECUTION: ['PENDING_VALIDATION', 'CANCELLED', 'RESCHEDULED'],
+  PENDING_VALIDATION: ['COMPLETED', 'PARTIALLY_COMPLETED', 'IN_EXECUTION', 'CANCELLED', 'RESCHEDULED'],
   COMPLETED: ['IN_EXECUTION'], // reopen — session.reopen, Admin/Owner, ventana 7 días (R5)
-  PARTIALLY_COMPLETED: [],
+  PARTIALLY_COMPLETED: ['RESCHEDULED'],
   RESCHEDULED: ['SCHEDULED'],
   CANCELLED: [],
 };
