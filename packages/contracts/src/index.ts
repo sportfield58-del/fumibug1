@@ -17,4 +17,6 @@ export * from './schemas/user';
 export * from './schemas/membership';
 export * from './schemas/role';
 export * from './schemas/auth';
+export * from './schemas/inventory';
+export * from './schemas/cash';
 export * from './endpoints';

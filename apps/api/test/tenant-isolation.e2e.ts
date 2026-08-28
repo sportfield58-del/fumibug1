@@ -100,6 +100,12 @@ beforeAll(async () => {
       'route.publish',
       'route.unpublish',
       'route.cancel',
+      'supply.update',
+      'cash.read.tenant',
+      'cash.adjust',
+      'cash.close.own',
+      'cash.approve_closure',
+      'payment.void',
     ],
   });
 
