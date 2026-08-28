@@ -94,7 +94,7 @@
 
 | Ítem | Depende de | Estado |
 |---|---|---|
-| PR-201 api: usuarios CRUD + reseteo PIN + forzar logout + alerta libreta 30 días | PR-101 | `[in-progress: OpenCode · 2026-08-27]` |
+| PR-201 api: usuarios CRUD + reseteo PIN + forzar logout + alerta libreta 30 días | PR-101 | `[done] — CRUD list/get/create/update (If-Match, VERSION_CONFLICT), activate/deactivate, reset-pin, force-logout. Aislamiento por app-layer desde memberships (users es tabla global sin RLS, R40: 404 cross-tenant). Roles de campo (technician/technical_director) → PIN + cuenta Supabase Auth Admin (GoTrueAdminAPI, SUPABASE_SERVICE_ROLE_KEY); el resto email sin Supabase. Typecheck/lint/build ✓, 82 unit ✓, e2e aislamiento cross-tenant 13 ✓ (6 casos users/*). Pendiente en otro PR: R15 alerta libreta 30 días (no bloqueante para CRUD). Supabase Auth Admin sin credenciales reales para test de integración — testeado por mocks.` |
 | PR-202 api: clientes + contactos + ubicaciones CRUD, geocoding con corrección manual | PR-102 | `[todo]` |
 | PR-203 api: tipos de servicio + zonas + listas de precios CRUD | PR-103 | `[todo]` |
 | PR-204 api: servicios CRUD + transiciones vía `StateMachineService` | PR-104, PR-202, PR-203 | `[todo]` |

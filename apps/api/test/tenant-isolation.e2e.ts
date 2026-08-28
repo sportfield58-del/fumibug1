@@ -33,6 +33,7 @@ let tenantA: { id: string; userId: string };
 let tenantB: { id: string; userId: string };
 let tokenAWithPermission: string;
 let tokenAWithoutPermission: string;
+let tokenAUserWrite: string;
 
 beforeAll(async () => {
   admin = new PrismaClient(); // usa DATABASE_URL (rol migrador/superusuario del Postgres de CI)
@@ -63,6 +64,16 @@ beforeAll(async () => {
     tenantId: tenantA.id,
     roleKey: 'technician',
     permissions: [],
+  });
+  // Para los endpoints que exigen permisos de users/* el actor debe tenerlos — un
+  // 403 de PermissionGuard no probaría aislamiento cross-tenant (R40: nunca 403).
+  // Las rutas de lectura exigen `user.read`; las de escritura (PATCH / :id/*)
+  // exigen `user.update`. El loop usa un solo token con ambos permisos.
+  tokenAUserWrite = await jwks.issue({
+    sub: tenantA.userId,
+    tenantId: tenantA.id,
+    roleKey: 'owner',
+    permissions: ['user.read', 'user.update'],
   });
 
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
@@ -155,9 +166,13 @@ describe('§K.4 Capa 3 — aislamiento cross-tenant', () => {
     );
   }
 
-  for (const testCase of CROSS_TENANT_ENDPOINTS) {
-    it(`${testCase.description} (${testCase.routePattern})`, async () => {
-      await testCase.run({ request: request(app.getHttpServer()), tenantAToken: tokenAWithPermission });
-    });
-  }
+    for (const testCase of CROSS_TENANT_ENDPOINTS) {
+      it(`${testCase.description} (${testCase.routePattern})`, async () => {
+        await testCase.run({
+          request: request(app.getHttpServer()),
+          tenantAToken: tokenAUserWrite,
+          crossTenantUserId: tenantB.userId,
+        });
+      });
+    }
 });

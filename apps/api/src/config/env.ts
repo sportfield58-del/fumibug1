@@ -21,6 +21,14 @@ export const EnvSchema = z.object({
   SUPABASE_URL: z.string().url().optional(),
   SUPABASE_JWKS_URL: z.string().url().optional(),
   SUPABASE_ISSUER: z.string().url().optional(),
+  /**
+   * Clave service_role de Supabase (GoTrueAdminAPI) — la usa el client admin del
+   * módulo de usuarios (crear/resetear cuenta de operario, revocar sesiones).
+   * Es un secreto real: vive en Railway/GitHub Secrets, nunca commiteado (§K.8).
+   * Opcional a nivel de validación: el client admin es el que exige su presencia
+   * al operar, para no romper el boot cuando no se usa.
+   */
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
   /** docs/spec/15-escalabilidad.md §R.2. Sin esto, Sentry queda en no-op (ver observability/sentry.ts). */
   SENTRY_DSN: z.string().url().optional(),
   /** CSV de orígenes permitidos — docs/spec/11-seguridad.md §K.9: "allowlist explícita, no *". */
