@@ -3,9 +3,10 @@
 import * as React from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Clock, CheckCircle, XCircle, Send, Ban } from 'lucide-react'
-import { Button, Badge, Skeleton } from '@fumibug/ui'
-import { getGetRoute, postPublishRoute, postCancelRoute } from '@/../../lib/api/client'
+import { ArrowLeft, Clock, CheckCircle, XCircle, Send, Ban, Plus } from 'lucide-react'
+import { Button, Badge, Skeleton, Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@fumibug/ui'
+import { getGetRoute, getListServices, postAddStop, postPublishRoute, postCancelRoute } from '@/../../lib/api/client'
+import type { Service } from '@fumibug/contracts'
 
 const routeStatusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
   DRAFT: { label: 'Borrador', variant: 'secondary', icon: null },
@@ -34,6 +35,9 @@ export default function RutaDetailPage(): JSX.Element {
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
   const [isPublishing, setIsPublishing] = React.useState(false)
+  const [unassignedServices, setUnassignedServices] = React.useState<Service[]>([])
+  const [selectedServiceId, setSelectedServiceId] = React.useState('')
+  const [isAddingStop, setIsAddingStop] = React.useState(false)
 
   const fetchRoute = React.useCallback(async () => {
     if (!params.id) return
@@ -56,6 +60,36 @@ export default function RutaDetailPage(): JSX.Element {
   React.useEffect(() => {
     void fetchRoute()
   }, [fetchRoute])
+
+  React.useEffect(() => {
+    getListServices({ query: { unassigned: true, limit: 50 } })
+      .then((res) => {
+        if (res.success) setUnassignedServices(res.data)
+      })
+      .catch(() => {
+        // sin servicios sin asignar en el combo no bloquea el resto de la pantalla
+      })
+  }, [])
+
+  const handleAddStop = async (): Promise<void> => {
+    if (!params.id || !selectedServiceId) return
+    setIsAddingStop(true)
+    try {
+      const res = await postAddStop({ params: { id: params.id }, body: { serviceId: selectedServiceId } })
+      if (res.success) {
+        setSelectedServiceId('')
+        void fetchRoute()
+        const refreshed = await getListServices({ query: { unassigned: true, limit: 50 } })
+        if (refreshed.success) setUnassignedServices(refreshed.data)
+      } else {
+        setError(res.error.message)
+      }
+    } catch {
+      setError('No se pudo agregar el servicio a la ruta')
+    } finally {
+      setIsAddingStop(false)
+    }
+  }
 
   const handlePublish = async (): Promise<void> => {
     if (!params.id) return
@@ -194,6 +228,36 @@ export default function RutaDetailPage(): JSX.Element {
           <p className="text-body text-fg-muted whitespace-pre-wrap rounded-lg border border-border bg-bg-elevated p-4">
             {r.notes}
           </p>
+        </div>
+      )}
+
+      {/* Agregar servicio a la ruta — solo mientras no está publicada */}
+      {(r.status === 'DRAFT' || r.status === 'READY') && (
+        <div className="rounded-lg border border-border bg-bg-elevated p-4 space-y-3">
+          <h2 className="text-body font-semibold text-fg">Agregar servicio</h2>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="min-w-[240px] flex-1">
+              <Select value={selectedServiceId} onValueChange={setSelectedServiceId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Servicio sin asignar" />
+                </SelectTrigger>
+                <SelectContent>
+                  {unassignedServices.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.code} {s.scheduledDate ? `· ${s.scheduledDate}` : ''}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={() => { void handleAddStop() }} disabled={isAddingStop || !selectedServiceId}>
+              <Plus className="h-4 w-4" />
+              {isAddingStop ? 'Agregando...' : 'Agregar'}
+            </Button>
+          </div>
+          {unassignedServices.length === 0 && (
+            <p className="text-caption text-fg-muted">No hay servicios sin asignar.</p>
+          )}
         </div>
       )}
 
