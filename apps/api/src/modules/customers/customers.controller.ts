@@ -9,15 +9,17 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import type {
-  CreateCustomerRequest,
-  CreateLocationRequest,
-  CustomerListQuery,
-  UpdateCustomerRequest,
+import {
+  CustomerListQuerySchema,
+  type CreateCustomerRequest,
+  type CreateLocationRequest,
+  type CustomerListQuery,
+  type UpdateCustomerRequest,
 } from '@fumibug/contracts';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RequirePermission } from '../../common/decorators/require-permission.decorator';
 import { apiSuccess } from '../../common/http/api-response';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import type { RequestUser } from '../../common/tenant/request-context';
 import { CustomersService } from './customers.service';
 import { LocationsService } from './locations.service';
@@ -46,7 +48,7 @@ export class CustomersController {
 
   @Get()
   @RequirePermission('customer.read')
-  async list(@Query() query: CustomerListQuery) {
+  async list(@Query(new ZodValidationPipe(CustomerListQuerySchema)) query: CustomerListQuery) {
     return apiSuccess(await this.customers.list(query));
   }
 

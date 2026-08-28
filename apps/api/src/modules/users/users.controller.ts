@@ -9,14 +9,16 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import type {
-  CreateUserRequest,
-  UpdateUserRequest,
-  UserListQuery,
+import {
+  UserListQuerySchema,
+  type CreateUserRequest,
+  type UpdateUserRequest,
+  type UserListQuery,
 } from '@fumibug/contracts';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RequirePermission } from '../../common/decorators/require-permission.decorator';
 import { apiSuccess } from '../../common/http/api-response';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import type { RequestUser } from '../../common/tenant/request-context';
 import { UsersService } from './users.service';
 
@@ -43,7 +45,7 @@ export class UsersController {
 
   @Get()
   @RequirePermission('user.read')
-  async list(@Query() query: UserListQuery) {
+  async list(@Query(new ZodValidationPipe(UserListQuerySchema)) query: UserListQuery) {
     const { data, meta } = await this.users.list(query);
     return { success: true as const, data, meta };
   }
