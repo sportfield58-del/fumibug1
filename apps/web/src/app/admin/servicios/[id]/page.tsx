@@ -4,8 +4,9 @@ import * as React from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, User, MapPin, Wrench } from 'lucide-react'
-import { Button, Badge, Skeleton } from '@fumibug/ui'
-import { getGetService } from '@/../../lib/api/client'
+import { Button, Badge, Skeleton, Input, Label, Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@fumibug/ui'
+import { getGetService, postRescheduleService, postCancelService } from '@/../../lib/api/client'
+import type { CancellationReason } from '@fumibug/contracts'
 
 const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
   DRAFT: { label: 'Borrador', variant: 'secondary', icon: null },
@@ -25,29 +26,28 @@ export default function ServicioDetailPage(): JSX.Element {
   const [service, setService] = React.useState<Record<string, unknown> | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+  const [showReschedule, setShowReschedule] = React.useState(false)
+  const [showCancel, setShowCancel] = React.useState(false)
+
+  const fetchService = React.useCallback(async () => {
+    if (!params.id) return
+    try {
+      const res = await getGetService({ params: { id: params.id } })
+      if (res.success) {
+        setService(res.data)
+      } else {
+        setError(res.error.message)
+      }
+    } catch {
+      setError('No se pudo cargar el servicio')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [params.id])
 
   React.useEffect(() => {
-    if (!params.id) return
-    let cancelled = false
-
-    getGetService({ params: { id: params.id } })
-      .then((res) => {
-        if (cancelled) return
-        if (res.success) {
-          setService(res.data)
-        } else {
-          setError(res.error.message)
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setError('No se pudo cargar el servicio')
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false)
-      })
-
-    return () => { cancelled = true }
-  }, [params.id])
+    void fetchService()
+  }, [fetchService])
 
   if (isLoading) {
     return (
@@ -121,15 +121,30 @@ export default function ServicioDetailPage(): JSX.Element {
             </Badge>
           )}
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
-            <Calendar className="h-4 w-4" /> Reprogramar
-          </Button>
-          <Button variant="outline" size="sm">
-            <XCircle className="h-4 w-4" /> Cancelar
-          </Button>
-        </div>
+        {svc.status !== 'COMPLETED' && svc.status !== 'CANCELLED' && (
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => { setShowReschedule((v) => !v); setShowCancel(false) }}>
+              <Calendar className="h-4 w-4" /> Reprogramar
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => { setShowCancel((v) => !v); setShowReschedule(false) }}>
+              <XCircle className="h-4 w-4" /> Cancelar
+            </Button>
+          </div>
+        )}
       </div>
+
+      {showReschedule && (
+        <RescheduleForm
+          serviceId={svc.id}
+          onDone={() => { setShowReschedule(false); void fetchService() }}
+        />
+      )}
+      {showCancel && (
+        <CancelForm
+          serviceId={svc.id}
+          onDone={() => { setShowCancel(false); void fetchService() }}
+        />
+      )}
 
       {/* Qué servicio es y dónde es — lo primero que hay que ver, antes que cualquier otro dato */}
       <div className="rounded-lg border border-border bg-bg-elevated p-4 space-y-3">
@@ -220,6 +235,121 @@ export default function ServicioDetailPage(): JSX.Element {
           </p>
         </div>
       )}
+    </div>
+  )
+}
+
+function RescheduleForm({ serviceId, onDone }: { serviceId: string; onDone: () => void }): JSX.Element {
+  const [newDate, setNewDate] = React.useState('')
+  const [reason, setReason] = React.useState('')
+  const [isSaving, setIsSaving] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+
+  const submit = async (): Promise<void> => {
+    if (!newDate || !reason) {
+      setError('Elegí la fecha nueva y contá el motivo.')
+      return
+    }
+    setIsSaving(true)
+    setError(null)
+    try {
+      const res = await postRescheduleService({ params: { id: serviceId }, body: { newDate, reason } })
+      if (res.success) {
+        onDone()
+      } else {
+        setError(res.error.message)
+      }
+    } catch {
+      setError('No se pudo reprogramar el servicio.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-border bg-bg-elevated p-4 space-y-3">
+      <h2 className="text-body font-semibold text-fg">Reprogramar servicio</h2>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1">
+          <Label htmlFor="reschedule-date">Fecha nueva</Label>
+          <Input id="reschedule-date" type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)} />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="reschedule-reason">Motivo</Label>
+          <Input id="reschedule-reason" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="El cliente pidió otro día" />
+        </div>
+      </div>
+      <Button onClick={() => { void submit() }} disabled={isSaving}>{isSaving ? 'Guardando...' : 'Confirmar reprogramación'}</Button>
+      {error && <p className="text-caption text-destructive">{error}</p>}
+    </div>
+  )
+}
+
+const CANCELLATION_REASONS: Array<{ value: CancellationReason; label: string }> = [
+  { value: 'CUSTOMER_REQUESTED', label: 'El cliente lo pidió' },
+  { value: 'WEATHER', label: 'Clima' },
+  { value: 'DATA_ENTRY_ERROR', label: 'Error de carga' },
+  { value: 'DUPLICATE', label: 'Duplicado' },
+  { value: 'OUT_OF_ZONE', label: 'Fuera de zona' },
+  { value: 'NON_PAYMENT', label: 'Falta de pago' },
+  { value: 'OTHER', label: 'Otro' },
+]
+
+function CancelForm({ serviceId, onDone }: { serviceId: string; onDone: () => void }): JSX.Element {
+  const [reason, setReason] = React.useState<CancellationReason | ''>('')
+  const [billable, setBillable] = React.useState(false)
+  const [isSaving, setIsSaving] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
+
+  const submit = async (): Promise<void> => {
+    if (!reason) {
+      setError('Elegí el motivo de cancelación.')
+      return
+    }
+    setIsSaving(true)
+    setError(null)
+    try {
+      const res = await postCancelService({ params: { id: serviceId }, body: { reason, billable } })
+      if (res.success) {
+        onDone()
+      } else {
+        setError(res.error.message)
+      }
+    } catch {
+      setError('No se pudo cancelar el servicio.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 space-y-3">
+      <h2 className="text-body font-semibold text-fg">Cancelar servicio</h2>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-1">
+          <Label>Motivo</Label>
+          <Select value={reason} onValueChange={(v) => setReason(v as CancellationReason)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Elegir motivo" />
+            </SelectTrigger>
+            <SelectContent>
+              {CANCELLATION_REASONS.map((r) => (
+                <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-end pb-2">
+          <label className="flex items-center gap-2 text-body text-fg">
+            <input type="checkbox" checked={billable} onChange={(e) => setBillable(e.target.checked)} className="h-4 w-4" />
+            Se factura igual
+          </label>
+        </div>
+      </div>
+      <Button variant="destructive" onClick={() => { void submit() }} disabled={isSaving}>
+        {isSaving ? 'Cancelando...' : 'Confirmar cancelación'}
+      </Button>
+      {error && <p className="text-caption text-destructive">{error}</p>}
     </div>
   )
 }
