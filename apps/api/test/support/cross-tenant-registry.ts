@@ -198,5 +198,44 @@ export const CROSS_TENANT_ENDPOINTS: CrossTenantCase[] = [
       expect(res.body.error.code).toBe('NOT_FOUND');
     },
   },
+  {
+    description: 'PATCH /v1/service-types/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/service-types/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .patch(`/v1/service-types/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .set('If-Match', `"etag"`)
+        .send({ name: 'Nuevo' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'PATCH /v1/zones/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/zones/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .patch(`/v1/zones/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .set('If-Match', `"etag"`)
+        .send({ name: 'Nuevo' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
+  {
+    description: 'PATCH /v1/price-lists/:id con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/price-lists/:id',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .patch(`/v1/price-lists/${crossTenantUserId}`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .set('If-Match', `"etag"`)
+        .send({ name: 'Nuevo' })
+        .expect(404);
+      expect(res.body.error.code).toBe('NOT_FOUND');
+    },
+  },
 ];
 
