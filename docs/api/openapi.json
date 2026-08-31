@@ -18483,6 +18483,2811 @@
           }
         }
       }
+    },
+    "/certificates": {
+      "get": {
+        "summary": "Lista de certificados del tenant, paginada por cursor con filtros.",
+        "operationId": "listCertificates",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "number": {
+                        "type": "integer",
+                        "exclusiveMinimum": true,
+                        "minimum": 0
+                      },
+                      "formattedNumber": {
+                        "type": "string"
+                      },
+                      "serviceId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "serviceSessionId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "customerId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "serviceLocationId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "technicalDirectorId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "technicianId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "DRAFT",
+                          "ISSUED",
+                          "SIGNED",
+                          "VOIDED"
+                        ]
+                      },
+                      "snapshot": {
+                        "type": "object",
+                        "properties": {
+                          "company": {
+                            "type": "object",
+                            "properties": {
+                              "legalName": {
+                                "type": "string"
+                              },
+                              "cuit": {
+                                "type": "string"
+                              },
+                              "habilitationNumber": {
+                                "type": "string"
+                              },
+                              "address": {
+                                "type": "string"
+                              },
+                              "phone": {
+                                "type": "string"
+                              },
+                              "logoUrl": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "legalName",
+                              "cuit",
+                              "habilitationNumber",
+                              "address",
+                              "phone"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "service": {
+                            "type": "object",
+                            "properties": {
+                              "serviceCode": {
+                                "type": "string"
+                              },
+                              "serviceTypeKey": {
+                                "type": "string"
+                              },
+                              "serviceTypeName": {
+                                "type": "string"
+                              },
+                              "scheduledDate": {
+                                "type": "string",
+                                "format": "date"
+                              },
+                              "performedAt": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "method": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "targetPests": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "treatedSurfaceSqm": {
+                                "type": "number",
+                                "minimum": 0,
+                                "nullable": true
+                              },
+                              "durationMinutes": {
+                                "type": "integer",
+                                "exclusiveMinimum": true,
+                                "minimum": 0,
+                                "nullable": true
+                              },
+                              "observations": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "serviceCode",
+                              "serviceTypeKey",
+                              "serviceTypeName",
+                              "scheduledDate",
+                              "performedAt",
+                              "targetPests"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "customer": {
+                            "type": "object",
+                            "properties": {
+                              "legalName": {
+                                "type": "string"
+                              },
+                              "documentId": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "legalName"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "location": {
+                            "type": "object",
+                            "properties": {
+                              "displayAddress": {
+                                "type": "string"
+                              },
+                              "notes": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "displayAddress"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "technician": {
+                            "type": "object",
+                            "properties": {
+                              "fullName": {
+                                "type": "string"
+                              },
+                              "sanitaryLicense": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "fullName",
+                              "sanitaryLicense"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "technicalDirector": {
+                            "type": "object",
+                            "properties": {
+                              "fullName": {
+                                "type": "string"
+                              },
+                              "licenseNumber": {
+                                "type": "string"
+                              },
+                              "licenseExpiry": {
+                                "type": "string",
+                                "format": "date"
+                              }
+                            },
+                            "required": [
+                              "fullName",
+                              "licenseNumber",
+                              "licenseExpiry"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "appliedProducts": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "productName": {
+                                  "type": "string"
+                                },
+                                "activeIngredient": {
+                                  "type": "string"
+                                },
+                                "concentration": {
+                                  "type": "string"
+                                },
+                                "regulatoryAuthority": {
+                                  "type": "string"
+                                },
+                                "regulatoryNumber": {
+                                  "type": "string"
+                                },
+                                "batchCode": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "dilution": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "quantity": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "reentryHours": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "nullable": true
+                                }
+                              },
+                              "required": [
+                                "productName",
+                                "activeIngredient",
+                                "concentration",
+                                "regulatoryAuthority",
+                                "regulatoryNumber"
+                              ],
+                              "additionalProperties": false
+                            }
+                          }
+                        },
+                        "required": [
+                          "company",
+                          "service",
+                          "customer",
+                          "location",
+                          "technician",
+                          "technicalDirector",
+                          "appliedProducts"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "pdfStoragePath": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "verificationToken": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "issuedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "signedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "voidedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                      },
+                      "voidReason": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "replacesCertificateId": {
+                        "type": "string",
+                        "format": "uuid",
+                        "nullable": true
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "tenantId",
+                      "number",
+                      "formattedNumber",
+                      "serviceId",
+                      "technicalDirectorId",
+                      "status",
+                      "snapshot",
+                      "createdAt",
+                      "updatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "example": [
+                  {
+                    "id": "10101010-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                    "tenantId": "f0000000-0000-4000-8000-000100000000",
+                    "number": 187,
+                    "formattedNumber": "CERT-2026-00187",
+                    "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+                    "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+                    "customerId": "55555555-5555-5555-5555-555555555555",
+                    "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                    "technicalDirectorId": "99999999-9999-9999-9999-999999999999",
+                    "technicianId": "22222222-2222-2222-2222-222222222222",
+                    "status": "SIGNED",
+                    "snapshot": {
+                      "company": {
+                        "legalName": "Fumibug S.R.L.",
+                        "cuit": "30-71234567-8",
+                        "habilitationNumber": "DISPO-12345",
+                        "address": "Av. Siempre Viva 742",
+                        "phone": "+54 11 5555-0000",
+                        "logoUrl": null
+                      },
+                      "service": {
+                        "serviceCode": "SVC-000123",
+                        "serviceTypeKey": "desinsectacion",
+                        "serviceTypeName": "Desinsectación",
+                        "scheduledDate": "2026-08-28",
+                        "performedAt": "2026-08-28T13:45:00.000Z",
+                        "method": "SPRAY",
+                        "targetPests": [
+                          "cucarachas"
+                        ],
+                        "treatedSurfaceSqm": 120,
+                        "durationMinutes": 45,
+                        "observations": null
+                      },
+                      "customer": {
+                        "legalName": "Comidas del Sur S.A.",
+                        "documentId": null
+                      },
+                      "location": {
+                        "displayAddress": "Av. Corrientes 1234, CABA",
+                        "notes": null
+                      },
+                      "technician": {
+                        "fullName": "Diego Operario",
+                        "sanitaryLicense": "LS-4821"
+                      },
+                      "technicalDirector": {
+                        "fullName": "Dra. Ana Directora",
+                        "licenseNumber": "DT-8891",
+                        "licenseExpiry": "2026-12-31"
+                      },
+                      "appliedProducts": [
+                        {
+                          "productName": "Cipermetrina 25% EC",
+                          "activeIngredient": "Cipermetrina",
+                          "concentration": "25%",
+                          "regulatoryAuthority": "SENASA",
+                          "regulatoryNumber": "SENASA-12345",
+                          "batchCode": "L2026-08",
+                          "dilution": "20 ml/L",
+                          "quantity": "8 L",
+                          "reentryHours": 4
+                        }
+                      ]
+                    },
+                    "pdfStoragePath": "tenants/f0000000-0000-4000-8000-000100000000/certificates/CERT-2026-00187.pdf",
+                    "verificationToken": "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+                    "issuedAt": "2026-08-28T14:00:00.000Z",
+                    "signedAt": "2026-08-28T15:00:00.000Z",
+                    "voidedAt": null,
+                    "voidReason": null,
+                    "replacesCertificateId": null,
+                    "createdAt": "2026-08-28T14:00:00.000Z",
+                    "updatedAt": "2026-08-28T15:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "customerId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "post": {
+        "summary": "Emite un certificado sobre un servicio COMPLETED y validado (R33).",
+        "operationId": "createCertificate",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "serviceId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "technicalDirectorId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "serviceId"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "number": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "formattedNumber": {
+                      "type": "string"
+                    },
+                    "serviceId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceSessionId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "technicalDirectorId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "technicianId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "ISSUED",
+                        "SIGNED",
+                        "VOIDED"
+                      ]
+                    },
+                    "snapshot": {
+                      "type": "object",
+                      "properties": {
+                        "company": {
+                          "type": "object",
+                          "properties": {
+                            "legalName": {
+                              "type": "string"
+                            },
+                            "cuit": {
+                              "type": "string"
+                            },
+                            "habilitationNumber": {
+                              "type": "string"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "phone": {
+                              "type": "string"
+                            },
+                            "logoUrl": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "legalName",
+                            "cuit",
+                            "habilitationNumber",
+                            "address",
+                            "phone"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "service": {
+                          "type": "object",
+                          "properties": {
+                            "serviceCode": {
+                              "type": "string"
+                            },
+                            "serviceTypeKey": {
+                              "type": "string"
+                            },
+                            "serviceTypeName": {
+                              "type": "string"
+                            },
+                            "scheduledDate": {
+                              "type": "string",
+                              "format": "date"
+                            },
+                            "performedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "method": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "targetPests": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "treatedSurfaceSqm": {
+                              "type": "number",
+                              "minimum": 0,
+                              "nullable": true
+                            },
+                            "durationMinutes": {
+                              "type": "integer",
+                              "exclusiveMinimum": true,
+                              "minimum": 0,
+                              "nullable": true
+                            },
+                            "observations": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "serviceCode",
+                            "serviceTypeKey",
+                            "serviceTypeName",
+                            "scheduledDate",
+                            "performedAt",
+                            "targetPests"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "customer": {
+                          "type": "object",
+                          "properties": {
+                            "legalName": {
+                              "type": "string"
+                            },
+                            "documentId": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "legalName"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "location": {
+                          "type": "object",
+                          "properties": {
+                            "displayAddress": {
+                              "type": "string"
+                            },
+                            "notes": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "displayAddress"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "technician": {
+                          "type": "object",
+                          "properties": {
+                            "fullName": {
+                              "type": "string"
+                            },
+                            "sanitaryLicense": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "fullName",
+                            "sanitaryLicense"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "technicalDirector": {
+                          "type": "object",
+                          "properties": {
+                            "fullName": {
+                              "type": "string"
+                            },
+                            "licenseNumber": {
+                              "type": "string"
+                            },
+                            "licenseExpiry": {
+                              "type": "string",
+                              "format": "date"
+                            }
+                          },
+                          "required": [
+                            "fullName",
+                            "licenseNumber",
+                            "licenseExpiry"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "appliedProducts": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "productName": {
+                                "type": "string"
+                              },
+                              "activeIngredient": {
+                                "type": "string"
+                              },
+                              "concentration": {
+                                "type": "string"
+                              },
+                              "regulatoryAuthority": {
+                                "type": "string"
+                              },
+                              "regulatoryNumber": {
+                                "type": "string"
+                              },
+                              "batchCode": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "dilution": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "quantity": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "reentryHours": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "productName",
+                              "activeIngredient",
+                              "concentration",
+                              "regulatoryAuthority",
+                              "regulatoryNumber"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "company",
+                        "service",
+                        "customer",
+                        "location",
+                        "technician",
+                        "technicalDirector",
+                        "appliedProducts"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "pdfStoragePath": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "verificationToken": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "issuedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "signedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "voidedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "voidReason": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "replacesCertificateId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "number",
+                    "formattedNumber",
+                    "serviceId",
+                    "technicalDirectorId",
+                    "status",
+                    "snapshot",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "10101010-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "number": 187,
+                  "formattedNumber": "CERT-2026-00187",
+                  "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+                  "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "technicalDirectorId": "99999999-9999-9999-9999-999999999999",
+                  "technicianId": "22222222-2222-2222-2222-222222222222",
+                  "status": "ISSUED",
+                  "snapshot": {
+                    "company": {
+                      "legalName": "Fumibug S.R.L.",
+                      "cuit": "30-71234567-8",
+                      "habilitationNumber": "DISPO-12345",
+                      "address": "Av. Siempre Viva 742",
+                      "phone": "+54 11 5555-0000",
+                      "logoUrl": null
+                    },
+                    "service": {
+                      "serviceCode": "SVC-000123",
+                      "serviceTypeKey": "desinsectacion",
+                      "serviceTypeName": "Desinsectación",
+                      "scheduledDate": "2026-08-28",
+                      "performedAt": "2026-08-28T13:45:00.000Z",
+                      "method": "SPRAY",
+                      "targetPests": [
+                        "cucarachas"
+                      ],
+                      "treatedSurfaceSqm": 120,
+                      "durationMinutes": 45,
+                      "observations": null
+                    },
+                    "customer": {
+                      "legalName": "Comidas del Sur S.A.",
+                      "documentId": null
+                    },
+                    "location": {
+                      "displayAddress": "Av. Corrientes 1234, CABA",
+                      "notes": null
+                    },
+                    "technician": {
+                      "fullName": "Diego Operario",
+                      "sanitaryLicense": "LS-4821"
+                    },
+                    "technicalDirector": {
+                      "fullName": "Dra. Ana Directora",
+                      "licenseNumber": "DT-8891",
+                      "licenseExpiry": "2026-12-31"
+                    },
+                    "appliedProducts": [
+                      {
+                        "productName": "Cipermetrina 25% EC",
+                        "activeIngredient": "Cipermetrina",
+                        "concentration": "25%",
+                        "regulatoryAuthority": "SENASA",
+                        "regulatoryNumber": "SENASA-12345",
+                        "batchCode": "L2026-08",
+                        "dilution": "20 ml/L",
+                        "quantity": "8 L",
+                        "reentryHours": 4
+                      }
+                    ]
+                  },
+                  "pdfStoragePath": "tenants/f0000000-0000-4000-8000-000100000000/certificates/CERT-2026-00187.pdf",
+                  "verificationToken": "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+                  "issuedAt": "2026-08-28T14:00:00.000Z",
+                  "signedAt": null,
+                  "voidedAt": null,
+                  "voidReason": null,
+                  "replacesCertificateId": null,
+                  "createdAt": "2026-08-28T14:00:00.000Z",
+                  "updatedAt": "2026-08-28T14:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/certificates/batch": {
+      "post": {
+        "summary": "Emisión en lote: crea tantos como pueda y devuelve los que fallaron.",
+        "operationId": "createCertificateBatch",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "serviceIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "minItems": 1,
+                    "maxItems": 50
+                  },
+                  "technicalDirectorId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "serviceIds"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "created": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "tenantId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "number": {
+                            "type": "integer",
+                            "exclusiveMinimum": true,
+                            "minimum": 0
+                          },
+                          "formattedNumber": {
+                            "type": "string"
+                          },
+                          "serviceId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "serviceSessionId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "customerId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "serviceLocationId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "technicalDirectorId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "technicianId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "DRAFT",
+                              "ISSUED",
+                              "SIGNED",
+                              "VOIDED"
+                            ]
+                          },
+                          "snapshot": {
+                            "type": "object",
+                            "properties": {
+                              "company": {
+                                "type": "object",
+                                "properties": {
+                                  "legalName": {
+                                    "type": "string"
+                                  },
+                                  "cuit": {
+                                    "type": "string"
+                                  },
+                                  "habilitationNumber": {
+                                    "type": "string"
+                                  },
+                                  "address": {
+                                    "type": "string"
+                                  },
+                                  "phone": {
+                                    "type": "string"
+                                  },
+                                  "logoUrl": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
+                                },
+                                "required": [
+                                  "legalName",
+                                  "cuit",
+                                  "habilitationNumber",
+                                  "address",
+                                  "phone"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "service": {
+                                "type": "object",
+                                "properties": {
+                                  "serviceCode": {
+                                    "type": "string"
+                                  },
+                                  "serviceTypeKey": {
+                                    "type": "string"
+                                  },
+                                  "serviceTypeName": {
+                                    "type": "string"
+                                  },
+                                  "scheduledDate": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "performedAt": {
+                                    "type": "string",
+                                    "format": "date-time"
+                                  },
+                                  "method": {
+                                    "type": "string",
+                                    "nullable": true
+                                  },
+                                  "targetPests": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "treatedSurfaceSqm": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "nullable": true
+                                  },
+                                  "durationMinutes": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": true,
+                                    "minimum": 0,
+                                    "nullable": true
+                                  },
+                                  "observations": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
+                                },
+                                "required": [
+                                  "serviceCode",
+                                  "serviceTypeKey",
+                                  "serviceTypeName",
+                                  "scheduledDate",
+                                  "performedAt",
+                                  "targetPests"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "customer": {
+                                "type": "object",
+                                "properties": {
+                                  "legalName": {
+                                    "type": "string"
+                                  },
+                                  "documentId": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
+                                },
+                                "required": [
+                                  "legalName"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "location": {
+                                "type": "object",
+                                "properties": {
+                                  "displayAddress": {
+                                    "type": "string"
+                                  },
+                                  "notes": {
+                                    "type": "string",
+                                    "nullable": true
+                                  }
+                                },
+                                "required": [
+                                  "displayAddress"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "technician": {
+                                "type": "object",
+                                "properties": {
+                                  "fullName": {
+                                    "type": "string"
+                                  },
+                                  "sanitaryLicense": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "fullName",
+                                  "sanitaryLicense"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "technicalDirector": {
+                                "type": "object",
+                                "properties": {
+                                  "fullName": {
+                                    "type": "string"
+                                  },
+                                  "licenseNumber": {
+                                    "type": "string"
+                                  },
+                                  "licenseExpiry": {
+                                    "type": "string",
+                                    "format": "date"
+                                  }
+                                },
+                                "required": [
+                                  "fullName",
+                                  "licenseNumber",
+                                  "licenseExpiry"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "appliedProducts": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "productName": {
+                                      "type": "string"
+                                    },
+                                    "activeIngredient": {
+                                      "type": "string"
+                                    },
+                                    "concentration": {
+                                      "type": "string"
+                                    },
+                                    "regulatoryAuthority": {
+                                      "type": "string"
+                                    },
+                                    "regulatoryNumber": {
+                                      "type": "string"
+                                    },
+                                    "batchCode": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "dilution": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "quantity": {
+                                      "type": "string",
+                                      "nullable": true
+                                    },
+                                    "reentryHours": {
+                                      "type": "integer",
+                                      "minimum": 0,
+                                      "nullable": true
+                                    }
+                                  },
+                                  "required": [
+                                    "productName",
+                                    "activeIngredient",
+                                    "concentration",
+                                    "regulatoryAuthority",
+                                    "regulatoryNumber"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "company",
+                              "service",
+                              "customer",
+                              "location",
+                              "technician",
+                              "technicalDirector",
+                              "appliedProducts"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "pdfStoragePath": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "verificationToken": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "issuedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "signedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "voidedAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "nullable": true
+                          },
+                          "voidReason": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "replacesCertificateId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "nullable": true
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "tenantId",
+                          "number",
+                          "formattedNumber",
+                          "serviceId",
+                          "technicalDirectorId",
+                          "status",
+                          "snapshot",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "failed": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "serviceId": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "error": {
+                            "type": "object",
+                            "properties": {
+                              "code": {
+                                "type": "string"
+                              },
+                              "message": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "message"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "serviceId",
+                          "error"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "created",
+                    "failed"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "created": [
+                    {
+                      "id": "10101010-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                      "tenantId": "f0000000-0000-4000-8000-000100000000",
+                      "number": 187,
+                      "formattedNumber": "CERT-2026-00187",
+                      "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+                      "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+                      "customerId": "55555555-5555-5555-5555-555555555555",
+                      "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                      "technicalDirectorId": "99999999-9999-9999-9999-999999999999",
+                      "technicianId": "22222222-2222-2222-2222-222222222222",
+                      "status": "ISSUED",
+                      "snapshot": {
+                        "company": {
+                          "legalName": "Fumibug S.R.L.",
+                          "cuit": "30-71234567-8",
+                          "habilitationNumber": "DISPO-12345",
+                          "address": "Av. Siempre Viva 742",
+                          "phone": "+54 11 5555-0000",
+                          "logoUrl": null
+                        },
+                        "service": {
+                          "serviceCode": "SVC-000123",
+                          "serviceTypeKey": "desinsectacion",
+                          "serviceTypeName": "Desinsectación",
+                          "scheduledDate": "2026-08-28",
+                          "performedAt": "2026-08-28T13:45:00.000Z",
+                          "method": "SPRAY",
+                          "targetPests": [
+                            "cucarachas"
+                          ],
+                          "treatedSurfaceSqm": 120,
+                          "durationMinutes": 45,
+                          "observations": null
+                        },
+                        "customer": {
+                          "legalName": "Comidas del Sur S.A.",
+                          "documentId": null
+                        },
+                        "location": {
+                          "displayAddress": "Av. Corrientes 1234, CABA",
+                          "notes": null
+                        },
+                        "technician": {
+                          "fullName": "Diego Operario",
+                          "sanitaryLicense": "LS-4821"
+                        },
+                        "technicalDirector": {
+                          "fullName": "Dra. Ana Directora",
+                          "licenseNumber": "DT-8891",
+                          "licenseExpiry": "2026-12-31"
+                        },
+                        "appliedProducts": [
+                          {
+                            "productName": "Cipermetrina 25% EC",
+                            "activeIngredient": "Cipermetrina",
+                            "concentration": "25%",
+                            "regulatoryAuthority": "SENASA",
+                            "regulatoryNumber": "SENASA-12345",
+                            "batchCode": "L2026-08",
+                            "dilution": "20 ml/L",
+                            "quantity": "8 L",
+                            "reentryHours": 4
+                          }
+                        ]
+                      },
+                      "pdfStoragePath": "tenants/f0000000-0000-4000-8000-000100000000/certificates/CERT-2026-00187.pdf",
+                      "verificationToken": "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+                      "issuedAt": "2026-08-28T14:00:00.000Z",
+                      "signedAt": null,
+                      "voidedAt": null,
+                      "voidReason": null,
+                      "replacesCertificateId": null,
+                      "createdAt": "2026-08-28T14:00:00.000Z",
+                      "updatedAt": "2026-08-28T15:00:00.000Z"
+                    }
+                  ],
+                  "failed": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/certificates/{id}/sign": {
+      "post": {
+        "summary": "Firma el certificado — solo el Director Técnico con matrícula vigente a la fecha del servicio (R36).",
+        "operationId": "signCertificate",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "number": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "formattedNumber": {
+                      "type": "string"
+                    },
+                    "serviceId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceSessionId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "technicalDirectorId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "technicianId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "ISSUED",
+                        "SIGNED",
+                        "VOIDED"
+                      ]
+                    },
+                    "snapshot": {
+                      "type": "object",
+                      "properties": {
+                        "company": {
+                          "type": "object",
+                          "properties": {
+                            "legalName": {
+                              "type": "string"
+                            },
+                            "cuit": {
+                              "type": "string"
+                            },
+                            "habilitationNumber": {
+                              "type": "string"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "phone": {
+                              "type": "string"
+                            },
+                            "logoUrl": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "legalName",
+                            "cuit",
+                            "habilitationNumber",
+                            "address",
+                            "phone"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "service": {
+                          "type": "object",
+                          "properties": {
+                            "serviceCode": {
+                              "type": "string"
+                            },
+                            "serviceTypeKey": {
+                              "type": "string"
+                            },
+                            "serviceTypeName": {
+                              "type": "string"
+                            },
+                            "scheduledDate": {
+                              "type": "string",
+                              "format": "date"
+                            },
+                            "performedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "method": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "targetPests": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "treatedSurfaceSqm": {
+                              "type": "number",
+                              "minimum": 0,
+                              "nullable": true
+                            },
+                            "durationMinutes": {
+                              "type": "integer",
+                              "exclusiveMinimum": true,
+                              "minimum": 0,
+                              "nullable": true
+                            },
+                            "observations": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "serviceCode",
+                            "serviceTypeKey",
+                            "serviceTypeName",
+                            "scheduledDate",
+                            "performedAt",
+                            "targetPests"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "customer": {
+                          "type": "object",
+                          "properties": {
+                            "legalName": {
+                              "type": "string"
+                            },
+                            "documentId": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "legalName"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "location": {
+                          "type": "object",
+                          "properties": {
+                            "displayAddress": {
+                              "type": "string"
+                            },
+                            "notes": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "displayAddress"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "technician": {
+                          "type": "object",
+                          "properties": {
+                            "fullName": {
+                              "type": "string"
+                            },
+                            "sanitaryLicense": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "fullName",
+                            "sanitaryLicense"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "technicalDirector": {
+                          "type": "object",
+                          "properties": {
+                            "fullName": {
+                              "type": "string"
+                            },
+                            "licenseNumber": {
+                              "type": "string"
+                            },
+                            "licenseExpiry": {
+                              "type": "string",
+                              "format": "date"
+                            }
+                          },
+                          "required": [
+                            "fullName",
+                            "licenseNumber",
+                            "licenseExpiry"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "appliedProducts": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "productName": {
+                                "type": "string"
+                              },
+                              "activeIngredient": {
+                                "type": "string"
+                              },
+                              "concentration": {
+                                "type": "string"
+                              },
+                              "regulatoryAuthority": {
+                                "type": "string"
+                              },
+                              "regulatoryNumber": {
+                                "type": "string"
+                              },
+                              "batchCode": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "dilution": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "quantity": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "reentryHours": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "productName",
+                              "activeIngredient",
+                              "concentration",
+                              "regulatoryAuthority",
+                              "regulatoryNumber"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "company",
+                        "service",
+                        "customer",
+                        "location",
+                        "technician",
+                        "technicalDirector",
+                        "appliedProducts"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "pdfStoragePath": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "verificationToken": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "issuedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "signedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "voidedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "voidReason": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "replacesCertificateId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "number",
+                    "formattedNumber",
+                    "serviceId",
+                    "technicalDirectorId",
+                    "status",
+                    "snapshot",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "10101010-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "number": 187,
+                  "formattedNumber": "CERT-2026-00187",
+                  "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+                  "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "technicalDirectorId": "99999999-9999-9999-9999-999999999999",
+                  "technicianId": "22222222-2222-2222-2222-222222222222",
+                  "status": "SIGNED",
+                  "snapshot": {
+                    "company": {
+                      "legalName": "Fumibug S.R.L.",
+                      "cuit": "30-71234567-8",
+                      "habilitationNumber": "DISPO-12345",
+                      "address": "Av. Siempre Viva 742",
+                      "phone": "+54 11 5555-0000",
+                      "logoUrl": null
+                    },
+                    "service": {
+                      "serviceCode": "SVC-000123",
+                      "serviceTypeKey": "desinsectacion",
+                      "serviceTypeName": "Desinsectación",
+                      "scheduledDate": "2026-08-28",
+                      "performedAt": "2026-08-28T13:45:00.000Z",
+                      "method": "SPRAY",
+                      "targetPests": [
+                        "cucarachas"
+                      ],
+                      "treatedSurfaceSqm": 120,
+                      "durationMinutes": 45,
+                      "observations": null
+                    },
+                    "customer": {
+                      "legalName": "Comidas del Sur S.A.",
+                      "documentId": null
+                    },
+                    "location": {
+                      "displayAddress": "Av. Corrientes 1234, CABA",
+                      "notes": null
+                    },
+                    "technician": {
+                      "fullName": "Diego Operario",
+                      "sanitaryLicense": "LS-4821"
+                    },
+                    "technicalDirector": {
+                      "fullName": "Dra. Ana Directora",
+                      "licenseNumber": "DT-8891",
+                      "licenseExpiry": "2026-12-31"
+                    },
+                    "appliedProducts": [
+                      {
+                        "productName": "Cipermetrina 25% EC",
+                        "activeIngredient": "Cipermetrina",
+                        "concentration": "25%",
+                        "regulatoryAuthority": "SENASA",
+                        "regulatoryNumber": "SENASA-12345",
+                        "batchCode": "L2026-08",
+                        "dilution": "20 ml/L",
+                        "quantity": "8 L",
+                        "reentryHours": 4
+                      }
+                    ]
+                  },
+                  "pdfStoragePath": "tenants/f0000000-0000-4000-8000-000100000000/certificates/CERT-2026-00187.pdf",
+                  "verificationToken": "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+                  "issuedAt": "2026-08-28T14:00:00.000Z",
+                  "signedAt": "2026-08-28T15:00:00.000Z",
+                  "voidedAt": null,
+                  "voidReason": null,
+                  "replacesCertificateId": null,
+                  "createdAt": "2026-08-28T14:00:00.000Z",
+                  "updatedAt": "2026-08-28T15:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/certificates/{id}/void": {
+      "post": {
+        "summary": "Anula un certificado firmado — es inmutable, se corrige anulando y emitiendo uno nuevo (R37).",
+        "operationId": "voidCertificate",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  }
+                },
+                "required": [
+                  "reason"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "tenantId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "number": {
+                      "type": "integer",
+                      "exclusiveMinimum": true,
+                      "minimum": 0
+                    },
+                    "formattedNumber": {
+                      "type": "string"
+                    },
+                    "serviceId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "serviceSessionId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "customerId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "serviceLocationId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "technicalDirectorId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "technicianId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "ISSUED",
+                        "SIGNED",
+                        "VOIDED"
+                      ]
+                    },
+                    "snapshot": {
+                      "type": "object",
+                      "properties": {
+                        "company": {
+                          "type": "object",
+                          "properties": {
+                            "legalName": {
+                              "type": "string"
+                            },
+                            "cuit": {
+                              "type": "string"
+                            },
+                            "habilitationNumber": {
+                              "type": "string"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "phone": {
+                              "type": "string"
+                            },
+                            "logoUrl": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "legalName",
+                            "cuit",
+                            "habilitationNumber",
+                            "address",
+                            "phone"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "service": {
+                          "type": "object",
+                          "properties": {
+                            "serviceCode": {
+                              "type": "string"
+                            },
+                            "serviceTypeKey": {
+                              "type": "string"
+                            },
+                            "serviceTypeName": {
+                              "type": "string"
+                            },
+                            "scheduledDate": {
+                              "type": "string",
+                              "format": "date"
+                            },
+                            "performedAt": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "method": {
+                              "type": "string",
+                              "nullable": true
+                            },
+                            "targetPests": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "treatedSurfaceSqm": {
+                              "type": "number",
+                              "minimum": 0,
+                              "nullable": true
+                            },
+                            "durationMinutes": {
+                              "type": "integer",
+                              "exclusiveMinimum": true,
+                              "minimum": 0,
+                              "nullable": true
+                            },
+                            "observations": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "serviceCode",
+                            "serviceTypeKey",
+                            "serviceTypeName",
+                            "scheduledDate",
+                            "performedAt",
+                            "targetPests"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "customer": {
+                          "type": "object",
+                          "properties": {
+                            "legalName": {
+                              "type": "string"
+                            },
+                            "documentId": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "legalName"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "location": {
+                          "type": "object",
+                          "properties": {
+                            "displayAddress": {
+                              "type": "string"
+                            },
+                            "notes": {
+                              "type": "string",
+                              "nullable": true
+                            }
+                          },
+                          "required": [
+                            "displayAddress"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "technician": {
+                          "type": "object",
+                          "properties": {
+                            "fullName": {
+                              "type": "string"
+                            },
+                            "sanitaryLicense": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "fullName",
+                            "sanitaryLicense"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "technicalDirector": {
+                          "type": "object",
+                          "properties": {
+                            "fullName": {
+                              "type": "string"
+                            },
+                            "licenseNumber": {
+                              "type": "string"
+                            },
+                            "licenseExpiry": {
+                              "type": "string",
+                              "format": "date"
+                            }
+                          },
+                          "required": [
+                            "fullName",
+                            "licenseNumber",
+                            "licenseExpiry"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "appliedProducts": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "productName": {
+                                "type": "string"
+                              },
+                              "activeIngredient": {
+                                "type": "string"
+                              },
+                              "concentration": {
+                                "type": "string"
+                              },
+                              "regulatoryAuthority": {
+                                "type": "string"
+                              },
+                              "regulatoryNumber": {
+                                "type": "string"
+                              },
+                              "batchCode": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "dilution": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "quantity": {
+                                "type": "string",
+                                "nullable": true
+                              },
+                              "reentryHours": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "productName",
+                              "activeIngredient",
+                              "concentration",
+                              "regulatoryAuthority",
+                              "regulatoryNumber"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "company",
+                        "service",
+                        "customer",
+                        "location",
+                        "technician",
+                        "technicalDirector",
+                        "appliedProducts"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "pdfStoragePath": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "verificationToken": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "issuedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "signedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "voidedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "voidReason": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "replacesCertificateId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "tenantId",
+                    "number",
+                    "formattedNumber",
+                    "serviceId",
+                    "technicalDirectorId",
+                    "status",
+                    "snapshot",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "id": "10101010-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                  "tenantId": "f0000000-0000-4000-8000-000100000000",
+                  "number": 187,
+                  "formattedNumber": "CERT-2026-00187",
+                  "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+                  "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+                  "customerId": "55555555-5555-5555-5555-555555555555",
+                  "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+                  "technicalDirectorId": "99999999-9999-9999-9999-999999999999",
+                  "technicianId": "22222222-2222-2222-2222-222222222222",
+                  "status": "VOIDED",
+                  "snapshot": {
+                    "company": {
+                      "legalName": "Fumibug S.R.L.",
+                      "cuit": "30-71234567-8",
+                      "habilitationNumber": "DISPO-12345",
+                      "address": "Av. Siempre Viva 742",
+                      "phone": "+54 11 5555-0000",
+                      "logoUrl": null
+                    },
+                    "service": {
+                      "serviceCode": "SVC-000123",
+                      "serviceTypeKey": "desinsectacion",
+                      "serviceTypeName": "Desinsectación",
+                      "scheduledDate": "2026-08-28",
+                      "performedAt": "2026-08-28T13:45:00.000Z",
+                      "method": "SPRAY",
+                      "targetPests": [
+                        "cucarachas"
+                      ],
+                      "treatedSurfaceSqm": 120,
+                      "durationMinutes": 45,
+                      "observations": null
+                    },
+                    "customer": {
+                      "legalName": "Comidas del Sur S.A.",
+                      "documentId": null
+                    },
+                    "location": {
+                      "displayAddress": "Av. Corrientes 1234, CABA",
+                      "notes": null
+                    },
+                    "technician": {
+                      "fullName": "Diego Operario",
+                      "sanitaryLicense": "LS-4821"
+                    },
+                    "technicalDirector": {
+                      "fullName": "Dra. Ana Directora",
+                      "licenseNumber": "DT-8891",
+                      "licenseExpiry": "2026-12-31"
+                    },
+                    "appliedProducts": [
+                      {
+                        "productName": "Cipermetrina 25% EC",
+                        "activeIngredient": "Cipermetrina",
+                        "concentration": "25%",
+                        "regulatoryAuthority": "SENASA",
+                        "regulatoryNumber": "SENASA-12345",
+                        "batchCode": "L2026-08",
+                        "dilution": "20 ml/L",
+                        "quantity": "8 L",
+                        "reentryHours": 4
+                      }
+                    ]
+                  },
+                  "pdfStoragePath": "tenants/f0000000-0000-4000-8000-000100000000/certificates/CERT-2026-00187.pdf",
+                  "verificationToken": "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+                  "issuedAt": "2026-08-28T14:00:00.000Z",
+                  "signedAt": "2026-08-28T15:00:00.000Z",
+                  "voidedAt": "2026-08-29T10:00:00.000Z",
+                  "voidReason": "Error en la dirección del cliente.",
+                  "replacesCertificateId": null,
+                  "createdAt": "2026-08-28T14:00:00.000Z",
+                  "updatedAt": "2026-08-29T10:00:00.000Z"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/certificates/{id}/pdf": {
+      "get": {
+        "summary": "URL firmada (TTL 5 min) del PDF del certificado.",
+        "operationId": "getCertificatePdf",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "url"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "url": "https://storage.fumibug.internal/signed/cert-00187.pdf?X-Amz-Expires=300"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/certificates/{id}/send": {
+      "post": {
+        "summary": "Envía el certificado por email y/o WhatsApp.",
+        "operationId": "sendCertificate",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "whatsapp": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "ok"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "ok": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/verify/{token}": {
+      "get": {
+        "summary": "Verificación pública sin auth (rate-limited): número, fecha, cliente y estado — nada más.",
+        "operationId": "getCertificateVerify",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "formattedNumber": {
+                      "type": "string"
+                    },
+                    "issuedAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "nullable": true
+                    },
+                    "customerName": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "DRAFT",
+                        "ISSUED",
+                        "SIGNED",
+                        "VOIDED"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "formattedNumber",
+                    "customerName",
+                    "status"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "formattedNumber": "CERT-2026-00187",
+                  "issuedAt": "2026-08-28T14:00:00.000Z",
+                  "customerName": "Comidas del Sur S.A.",
+                  "status": "SIGNED"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports": {
+      "get": {
+        "summary": "Reporte tipado por `type` (8 tipos del roadmap), con rangos de fecha opcionales.",
+        "operationId": "getReport",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rows": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "services_by_status"
+                                ]
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "count": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "status",
+                              "count"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "productivity_by_technician"
+                                ]
+                              },
+                              "technicianId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "technicianName": {
+                                "type": "string"
+                              },
+                              "servicesDone": {
+                                "type": "integer"
+                              },
+                              "avgMinutes": {
+                                "type": "number",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "technicianId",
+                              "technicianName",
+                              "servicesDone"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "revenue_by_period"
+                                ]
+                              },
+                              "period": {
+                                "type": "string"
+                              },
+                              "totalCents": {
+                                "type": "integer",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "period"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "collected_by_method"
+                                ]
+                              },
+                              "method": {
+                                "type": "string"
+                              },
+                              "totalCents": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "method",
+                              "totalCents"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "supply_consumption"
+                                ]
+                              },
+                              "supplyId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "supplyName": {
+                                "type": "string"
+                              },
+                              "quantityApplied": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "supplyId",
+                              "supplyName",
+                              "quantityApplied"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "stock_current"
+                                ]
+                              },
+                              "supplyId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "supplyName": {
+                                "type": "string"
+                              },
+                              "stockLocation": {
+                                "type": "string"
+                              },
+                              "balance": {
+                                "type": "number"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "supplyId",
+                              "supplyName",
+                              "stockLocation",
+                              "balance"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "settlements"
+                                ]
+                              },
+                              "accountId": {
+                                "type": "string",
+                                "format": "uuid"
+                              },
+                              "declaredCents": {
+                                "type": "integer"
+                              },
+                              "reconciled": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "declaredCents",
+                              "reconciled"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "certificates_issued"
+                                ]
+                              },
+                              "period": {
+                                "type": "string"
+                              },
+                              "count": {
+                                "type": "integer"
+                              }
+                            },
+                            "required": [
+                              "type",
+                              "period",
+                              "count"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "rows"
+                  ],
+                  "additionalProperties": false
+                },
+                "example": {
+                  "rows": [
+                    {
+                      "type": "services_by_status",
+                      "status": "COMPLETED",
+                      "count": 142
+                    },
+                    {
+                      "type": "services_by_status",
+                      "status": "SCHEDULED",
+                      "count": 38
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "technicianId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
     }
   },
   "components": {

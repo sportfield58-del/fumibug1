@@ -67,8 +67,11 @@ export const ERROR_CODE = [
 
   // --- Certificados ---
   'CERTIFICATE_SERVICE_NOT_COMPLETED', // R33
+  'CERTIFICATE_ALREADY_EXISTS', // un mismo servicio no emite dos veces (se anula y reemite)
+  'CERTIFICATE_NOT_FOUND', // 404 — no existe o no es de tu tenant (R40)
   'CERTIFICATE_SIGNER_LICENSE_INVALID', // R36
   'CERTIFICATE_ALREADY_SIGNED', // R37 — inmutable
+  'CERTIFICATE_SIGNATURE_REQUIRED', // void sin haber firmado no aplica / action require status
   'CERTIFICATE_PRODUCT_DATA_INCOMPLETE', // R38
 
   // --- Upload de evidencia ---

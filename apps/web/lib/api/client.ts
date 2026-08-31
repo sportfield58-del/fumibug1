@@ -481,3 +481,48 @@ export function getGetMyStock(): Promise<ApiResponse<typeof endpoints.getMyStock
 export function postPostFieldCashClose(args: { body: ReturnType<NonNullable<typeof endpoints.postFieldCashClose.request>['parse']> }): Promise<ApiResponse<typeof endpoints.postFieldCashClose.example>> {
   return request('POST', 'field/cash/close', args.body);
 }
+
+/** GET /v1/certificates — Lista de certificados del tenant, paginada por cursor con filtros. */
+export function getListCertificates(args?: { query?: ReturnType<NonNullable<typeof endpoints.listCertificates.query>['parse']> }): Promise<ApiResponse<typeof endpoints.listCertificates.example>> {
+  return request('GET', 'certificates' + toQueryString(args?.query));
+}
+
+/** POST /v1/certificates — Emite un certificado sobre un servicio COMPLETED y validado (R33). */
+export function postCreateCertificate(args: { body: ReturnType<NonNullable<typeof endpoints.createCertificate.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createCertificate.example>> {
+  return request('POST', 'certificates', args.body);
+}
+
+/** POST /v1/certificates/batch — Emisión en lote: crea tantos como pueda y devuelve los que fallaron. */
+export function postCreateCertificateBatch(args: { body: ReturnType<NonNullable<typeof endpoints.createCertificateBatch.request>['parse']> }): Promise<ApiResponse<typeof endpoints.createCertificateBatch.example>> {
+  return request('POST', 'certificates/batch', args.body);
+}
+
+/** POST /v1/certificates/:id/sign — Firma el certificado — solo el Director Técnico con matrícula vigente a la fecha del servicio (R36). */
+export function postSignCertificate(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.signCertificate.example>> {
+  return request('POST', `certificates/${args.params.id}/sign`);
+}
+
+/** POST /v1/certificates/:id/void — Anula un certificado firmado — es inmutable, se corrige anulando y emitiendo uno nuevo (R37). */
+export function postVoidCertificate(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.voidCertificate.request>['parse']> }): Promise<ApiResponse<typeof endpoints.voidCertificate.example>> {
+  return request('POST', `certificates/${args.params.id}/void`, args.body);
+}
+
+/** GET /v1/certificates/:id/pdf — URL firmada (TTL 5 min) del PDF del certificado. */
+export function getGetCertificatePdf(args: { params: { id: string } }): Promise<ApiResponse<typeof endpoints.getCertificatePdf.example>> {
+  return request('GET', `certificates/${args.params.id}/pdf`);
+}
+
+/** POST /v1/certificates/:id/send — Envía el certificado por email y/o WhatsApp. */
+export function postSendCertificate(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.sendCertificate.request>['parse']> }): Promise<ApiResponse<typeof endpoints.sendCertificate.example>> {
+  return request('POST', `certificates/${args.params.id}/send`, args.body);
+}
+
+/** GET /v1/public/verify/:token — Verificación pública sin auth (rate-limited): número, fecha, cliente y estado — nada más. */
+export function getGetCertificateVerify(args: { params: { token: string } }): Promise<ApiResponse<typeof endpoints.getCertificateVerify.example>> {
+  return request('GET', `public/verify/${args.params.token}`);
+}
+
+/** GET /v1/reports — Reporte tipado por `type` (8 tipos del roadmap), con rangos de fecha opcionales. */
+export function getGetReport(args?: { query?: ReturnType<NonNullable<typeof endpoints.getReport.query>['parse']> }): Promise<ApiResponse<typeof endpoints.getReport.example>> {
+  return request('GET', 'reports' + toQueryString(args?.query));
+}
