@@ -62,4 +62,62 @@ describe('AuditService', () => {
       context.run({ requestId: 'r' }, () => service.record({ action: 'x', entityType: 'y' })),
     ).rejects.toThrow(/tenantId/);
   });
+
+  it('listLogs pagina por cursor y serializa el id BigInt a string', async () => {
+    const auditLogFindMany = jest.fn().mockResolvedValue([
+      {
+        id: 1002n,
+        tenantId: 't-1',
+        actorUserId: 'u-1',
+        actorRole: 'owner',
+        action: 'route.publish',
+        entityType: 'route',
+        entityId: 'e-1',
+        before: { status: 'DRAFT' },
+        after: { status: 'PUBLISHED' },
+        diff: null,
+        severity: 'INFO',
+        ip: '9.9.9.9',
+        userAgent: 'jest',
+        requestId: 'req-1',
+        createdAt: new Date('2026-08-27T18:00:00.000Z'),
+      },
+    ]);
+    db.current.mockReturnValue({ auditLog: { create: auditLogCreate, findMany: auditLogFindMany } });
+
+    const result = await service.listLogs({ cursor: '1001', limit: 20 });
+
+    expect(auditLogFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: { lt: 1001n } },
+        orderBy: [{ id: 'desc' }],
+        take: 20,
+      }),
+    );
+    expect(result[0]).toMatchObject({
+      id: '1002',
+      actorRole: 'owner',
+      action: 'route.publish',
+      severity: 'INFO',
+      createdAt: '2026-08-27T18:00:00.000Z',
+    });
+  });
+
+  it('listLogs arma los filtros (entityType, actorUserId, from/to en createdAt)', async () => {
+    const auditLogFindMany = jest.fn().mockResolvedValue([]);
+    db.current.mockReturnValue({ auditLog: { create: auditLogCreate, findMany: auditLogFindMany } });
+
+    await service.listLogs({
+      entityType: 'service',
+      actorUserId: 'u-9',
+      from: '2026-08-01T00:00:00.000Z',
+      to: '2026-08-31T23:59:59.000Z',
+    });
+
+    const [call] = auditLogFindMany.mock.calls;
+    const where = (call as [{ where: Record<string, unknown> }])[0].where;
+    expect(where.entityType).toBe('service');
+    expect(where.actorUserId).toBe('u-9');
+    expect(where.createdAt).toEqual({ gte: new Date('2026-08-01T00:00:00.000Z'), lte: new Date('2026-08-31T23:59:59.000Z') });
+  });
 });

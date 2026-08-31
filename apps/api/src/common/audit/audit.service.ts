@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import type { AuditLog, AuditLogListQuery } from '@fumibug/contracts';
 import type { AuditSeverity, Prisma } from '@fumibug/db';
 import { RequestContextService } from '../tenant/request-context.service';
 import { TenantPrismaService } from '../tenant/tenant-prisma.service';
@@ -60,4 +61,78 @@ export class AuditService {
       },
     });
   }
+
+  /**
+   * docs/spec/03-modulos.md §C.20 / contracts listAuditLogs (PR-210): GET /audit-logs.
+   *
+   * Cursor por `id` (BigInt autoincremental, append-only → estrictamente creciente),
+   * pagina hacia atrás con `orderBy { id: 'desc' }` y `id < cursor`. El aislamiento por
+   * tenant lo pone RLS + la extensión (AuditLog es tenant-scoped): un tenant solo ve sus
+   * propios logs (R40). Append-only: nunca hay UPDATE/DELETE (trigger R42).
+   */
+  async listLogs(query: AuditLogListQuery): Promise<AuditLog[]> {
+    const tx = this.db.current();
+    const limit = query.limit ?? 20;
+
+    const createdAt: Prisma.DateTimeFilter | undefined =
+      query.from !== undefined || query.to !== undefined
+        ? {
+            ...(query.from !== undefined ? { gte: new Date(query.from) } : {}),
+            ...(query.to !== undefined ? { lte: new Date(query.to) } : {}),
+          }
+        : undefined;
+
+    const rows = await tx.auditLog.findMany({
+      where: {
+        ...(query.cursor !== undefined ? { id: { lt: BigInt(query.cursor) } } : {}),
+        ...(query.entityType !== undefined ? { entityType: query.entityType } : {}),
+        ...(query.entityId !== undefined ? { entityId: query.entityId } : {}),
+        ...(query.actorUserId !== undefined ? { actorUserId: query.actorUserId } : {}),
+        ...(query.severity !== undefined ? { severity: query.severity } : {}),
+        ...(createdAt !== undefined ? { createdAt } : {}),
+      },
+      orderBy: [{ id: 'desc' }],
+      take: limit,
+    });
+
+    return rows.map(toAuditLog);
+  }
+}
+
+interface AuditLogRow {
+  id: bigint;
+  tenantId: string;
+  actorUserId: string | null;
+  actorRole: string | null;
+  action: string;
+  entityType: string;
+  entityId: string | null;
+  before: Prisma.JsonValue | null;
+  after: Prisma.JsonValue | null;
+  diff: Prisma.JsonValue | null;
+  severity: AuditSeverity;
+  ip: string | null;
+  userAgent: string | null;
+  requestId: string | null;
+  createdAt: Date;
+}
+
+function toAuditLog(r: AuditLogRow): AuditLog {
+  return {
+    id: r.id.toString(),
+    tenantId: r.tenantId,
+    actorUserId: r.actorUserId ?? undefined,
+    actorRole: r.actorRole ?? undefined,
+    action: r.action,
+    entityType: r.entityType,
+    entityId: r.entityId ?? undefined,
+    before: r.before ?? undefined,
+    after: r.after ?? undefined,
+    diff: r.diff ?? undefined,
+    severity: r.severity,
+    ip: r.ip ?? undefined,
+    userAgent: r.userAgent ?? undefined,
+    requestId: r.requestId ?? undefined,
+    createdAt: r.createdAt.toISOString(),
+  };
 }
