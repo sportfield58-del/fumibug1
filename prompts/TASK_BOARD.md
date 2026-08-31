@@ -138,6 +138,7 @@
 | PR-313 web/admin: pantalla "Hoy" (polling 60s) | PR-310 | `[done] — resumen cards + listas por estado + auto-refresh` |
 | PR-314 web/admin: validación de cierres | PR-208 o mocks de PR-106 | `[done] — lista PENDING_VALIDATION, validar/rechazar` |
 | PR-315 web/admin: dashboard | PR-209 o mocks de PR-106 | `[done] — KPIs, servicios por estado, alertas` |
+| PR-323 web/admin: configuración (catálogo) | PR-203 | `[done] — /admin/configuracion reemplaza el ComingSoon: tres secciones (tipos de servicio, zonas, listas de precios) contra PR-203. Cada sección con loading (skeleton) / error+reintentar / empty, y form de alta (create). Lista de precios crea con un item (tipo + monto, precio en $ convertido a centavos), badge "por defecto", precios formateados ARS. icon: Wrench/MapPin/BadgeDollarSign.` |
 
 ## Bloque 6 — Frontend: campo (requiere Bloque 4 ya cerrado)
 
@@ -191,3 +192,7 @@ todavía (Fase 2, o Fase 1 sin PR de frontend asignado). Agregué:
 - **Actualización 2026-08-28:** Inventario y Caja ya tienen pantalla real (PR-211/
   PR-212) y salieron de esta lista. Siguen con ComingSoon: Certificados, Reportes,
   Auditoría, Configuración.
+- **Actualización 2026-08-29 (OpenCode):** Auditoría y Configuración ya tienen pantalla
+  real y salieron de esta lista — Auditoría (PR-210, `/admin/auditoria`) y Configuración
+  (PR-323, `/admin/configuracion`, catálogo). Siguen con ComingSoon: Certificados,
+  Reportes.
