@@ -199,54 +199,66 @@ todavía (Fase 2, o Fase 1 sin PR de frontend asignado). Agregué:
 
 ---
 
-## Bloqueado en contrato (OpenCode, 2026-08-31) — Certificados y Reportes
+## Bloqueado en contrato (OpenCode, 2026-08-31) — Certificados y Reportes — RESUELTO
 
-El humano pidió avanzar con estos dos. **No puedo sin contrato** (AGENTS §4: no invento
-tipos de la API). Verifiqué `apps/web/lib/api/client.ts` y `packages/contracts`:
+**Resuelto por OpenCode (autorizado por el humano a tocar `packages/contracts` + `apps/api`).**
+Se siguió ADR 0010 (`docs/adr/0010-contrato-certificados-y-reportes.md`) y, como no apareció
+el contrato de Claude Code en la ventana del PR, **OpenCode lo implementó completo** (decisión
+del humano: "avanza vos" / full-stack):
 
+- **Certificados (C.21, R33-R38)** — contrato en `packages/contracts/src/schemas/certificate.ts`
+  (Snapshot, list/create/batch/sign/void/pdf/send/verify), 9 endpoints en `endpoints.ts`
+  (incluye `public/verify/:token` con `requiresAuth: false`). Backend `apps/api/src/modules/
+  certificates/`: R33 (solo COMPLETED), R34 (numeración correlativa serializada por lock del
+  tenant), R35 (snapshot congelado), R36 (DT con matrícula vigente), R37 (anular/reemitir),
+  R38 (productos con registro + lote) — transiciones DRAFT→ISSUED→SIGNED→VOIDED vía
+  `StateMachineService`. Pantalla `/admin/certificados` (listado por estado, emitir, firmar,
+  anular).
+- **Reportes (8 tipos, §P)** — contrato `packages/contracts/src/schemas/reports.ts` (un único
+  `GET /reports?type=` con filas tipadas por unión discriminada, decisión del ADR 0010).
+  Backend `apps/api/src/modules/reports/` con las 8 agregaciones. Pantalla `/admin/reportes`
+  (selector de tipo + rango de fechas + tabla genérica).
+- **Nota de infraestructura**: PDF firmado (URL firmada) y envío email/WhatsApp quedan como
+  stubs tipados y compatibles (requieren módulo de storage/notificaciones, Fase 2) — no
+  bloquean la emisión/firma/anulación ni el demo.
+- `pnpm generate` regenerado; verificaciones en verde (web typecheck/lint/build/bundle, tests
+  web 7/7, contracts build+tests 10/10, api build + tests 103/103). Pendiente del repo
+  (pre-existente, no de este PR): `apps/api/src/common/audit/audit.service.spec.ts` rompe
+  `tsc --noEmit` y el lint (`listLogs` sin `limit` en el test, línea 110/117) — pasa en runtime,
+  falla solo en typecheck estático.
+
+Estado anterior (histórico):
 - **Certificados** — la spec (`docs/spec/10-api.md`) define `GET /certificates`,
   `POST /certificates`, `POST /certificates/batch`, `POST /certificates/:id/sign`,
   `POST /certificates/:id/void`, `GET /certificates/:id/pdf`, `POST /certificates/:id/send`,
-  `GET /public/verify/:token`. **Ninguno existe** en `packages/contracts` ni en el client.
-  Los permisos `certificate.read/issue/sign/void` sí existen (`permissions.ts`), y hay
-  `CertificateStatus` (`DRAFT/ISSUED/SIGNED/VOIDED`). MUST HAVE (diferencial #1,
-  `00-overview.md`; aceptación W.6 en `18-aceptacion.md`). => **Necesito contrato de
-  certificados** (seed el módulo C.21 + endpoints de `10-api.md`).
-- **Reportes** — el roadmap (`19-mvp-roadmap.md`) lista 8 reportes (servicios por
-  estado, productividad, ingresos por período, cobrado por método, consumo, stock,
-  rendiciones, certificados emitidos) y §P de inventario/caja. El client solo expone
-  los **2 dashboards** (`reports/dashboard-admin`, `reports/dashboard-owner`, ya usados
-  en `/admin`). No hay endpoint de "reportes" general. => **Necesito contrato de
-  reportes** (o reuso de las agregaciones del dashboard).
+  `GET /public/verify/:token`. **Ninguno existía** en `packages/contracts` ni en el client.
+  Andábamos con los permisos `certificate.read/issue/sign/void` ya presentes y con
+  `CertificateStatus` (`DRAFT/ISSUED/SIGNED/VOIDED`).
+- **Reportes** — el roadmap (`19-mvp-roadmap.md`) lista 8 reportes y §P de inventario/caja;
+  el client solo exponía los 2 dashboards (`reports/dashboard-admin`, `reports/dashboard-owner`).
 
-**OpenCode va a construir ambas pantallas en cuanto los contratos existan** (`pnpm
-generate`). Mientras tanto sigo con otras cosas. Nota: R15 (alerta libreta 30 días) y
-los unit tests de PR-203/204 son backend (`apps/api`) de Claude Code, no los toco.
+**Pedido de contrato formal (histórico):** `docs/adr/0010-contrato-certificados-y-reportes.md`
+(OpenCode, propuesto). Claude Code: implementá en `packages/contracts` cuando puedas; después
+OpenCode construye las dos pantallas contra `pnpm generate`.
 
-**Pedido de contrato formal:** `docs/adr/0010-contrato-certificados-y-reportes.md`
-(OpenCode, propuesto) — firma exacta de schemas + endpoints para Certificados (C.21,
-R33-R38) y Reportes (8 tipos, §P), en el estilo de `packages/contracts`. Claude Code:
-implementá en `packages/contracts` cuando puedas; después OpenCode construye las dos
-pantallas contra `pnpm generate`.
+## Segundo pedido (OpenCode, 2026-08-31) — edición bloqueada por If-Match — RESUELTO
 
-## Segundo pedido (OpenCode, 2026-08-31) — edición bloqueada por If-Match
+**Resuelto por OpenCode (autorizado por el humano a tocar `apps/api` + `packages/contracts`).**
+Implementé el soporte real de If-Match:
 
-La Configuración que armé (`/admin/configuracion`, PR-323) solo **crea**; no edita. Y
-esto no es una omisión mía: **ninguna pantalla del web edita ningún recurso** (los PATCH
-existen en el client pero no se usan). Motivo real encontrado al investigar:
+- **`packages/contracts`**: nuevo flag `ifMatch?: boolean` en `EndpointDef`, marcado en los
+  8 PATCH optimistas (`updateUser`, `updateCustomer`, `updateLocation`, `updateServiceType`,
+  `updateZone`, `updatePriceList`, `updateService`, `updateRoute`; NOTA: `updateSupply` NO
+  usa If-Match — el controller/service de inventario no valida etag).
+- **`scripts/generate.ts`**: el generador emite un arg `etag: string` en esas funciones y
+  manda `{ 'If-Match': args.etag }`; `request()` ahora acepta/mergea headers.
+- **`apps/web/lib/api/client.ts`**: regenerado — `patchUpdateServiceType/Zone/PriceList` ya
+  piden `etag`.
+- **Frontend**: edición real en `/admin/configuracion` (tipos de servicio, zonas, listas de
+  precios) con `etag = "\"<updatedAt>\""` y manejo de `VERSION_CONFLICT` (mensaje "refrescá y
+  volvé a intentar"). El alta de lista de precios mantiene su item de precio; la edición no
+  toca los items (update parcial). Commit `4520a8e`.
+- Verificación: web typecheck/lint/build ✓, contracts build ✓, web 7/7 y api 103/103 tests ✓.
 
-- Todos los PATCH requieren el header `If-Match: "<updatedAt.toISOString()>"` obligatorio
-  (`apps/api/.../service-catalog.service.ts` → `assertIfMatch`; igual en customers,
-  users, locations, services, routes). Sin él → `409 VERSION_CONFLICT`.
-- El client **generado** `apps/web/lib/api/client.ts` (`request()`) solo manda
-  `Content-Type` y `Authorization`; las funciones PATCH no aceptan un header/etag. Y no
-  puedo editar a mano los generados (AGENTS §3, se regenera con `pnpm generate`).
-
-=> **Necesito que el cliente generado soporte el header If-Match** (y que las funciones
-PATCH reciban el etag), para poder construir edición real en Configuración (y en el
-resto del web). Es un cambio de `pnpm generate` / contracts, de Claude Code. Cuando
-exista, OpenCode agrega editar/eliminar a `/admin/configuracion` y a clientes/usuarios.
-
-> Nota: la lista de precios ya valida superposición de vigencia en el backend
-> (`BUSINESS_RULE_VIOLATION` 422, `assertNoOverlap`) — el form de alta lo muestra como
-> error genérico hoy; con contrato nuevo se puede tipar el `error.code`.
+Los demás PATCH (clientes, usuarios, etc.) ya tienen el mecanismo disponible para cuando se
+wireen sus formularios de edición.

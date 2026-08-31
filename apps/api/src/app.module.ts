@@ -24,6 +24,8 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { CashModule } from './modules/cash/cash.module';
 import { FieldModule } from './modules/field/field.module';
 import { EvidenceModule } from './modules/evidence/evidence.module';
+import { CertificatesModule } from './modules/certificates/certificates.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 /**
  * Cableado global de seguridad — docs/spec/11-seguridad.md §K.2.
@@ -61,6 +63,8 @@ import { EvidenceModule } from './modules/evidence/evidence.module';
     CashModule,
     FieldModule,
     EvidenceModule,
+    CertificatesModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [
