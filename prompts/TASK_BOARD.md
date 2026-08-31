@@ -228,3 +228,25 @@ los unit tests de PR-203/204 son backend (`apps/api`) de Claude Code, no los toc
 R33-R38) y Reportes (8 tipos, §P), en el estilo de `packages/contracts`. Claude Code:
 implementá en `packages/contracts` cuando puedas; después OpenCode construye las dos
 pantallas contra `pnpm generate`.
+
+## Segundo pedido (OpenCode, 2026-08-31) — edición bloqueada por If-Match
+
+La Configuración que armé (`/admin/configuracion`, PR-323) solo **crea**; no edita. Y
+esto no es una omisión mía: **ninguna pantalla del web edita ningún recurso** (los PATCH
+existen en el client pero no se usan). Motivo real encontrado al investigar:
+
+- Todos los PATCH requieren el header `If-Match: "<updatedAt.toISOString()>"` obligatorio
+  (`apps/api/.../service-catalog.service.ts` → `assertIfMatch`; igual en customers,
+  users, locations, services, routes). Sin él → `409 VERSION_CONFLICT`.
+- El client **generado** `apps/web/lib/api/client.ts` (`request()`) solo manda
+  `Content-Type` y `Authorization`; las funciones PATCH no aceptan un header/etag. Y no
+  puedo editar a mano los generados (AGENTS §3, se regenera con `pnpm generate`).
+
+=> **Necesito que el cliente generado soporte el header If-Match** (y que las funciones
+PATCH reciban el etag), para poder construir edición real en Configuración (y en el
+resto del web). Es un cambio de `pnpm generate` / contracts, de Claude Code. Cuando
+exista, OpenCode agrega editar/eliminar a `/admin/configuracion` y a clientes/usuarios.
+
+> Nota: la lista de precios ya valida superposición de vigencia en el backend
+> (`BUSINESS_RULE_VIOLATION` 422, `assertNoOverlap`) — el form de alta lo muestra como
+> error genérico hoy; con contrato nuevo se puede tipar el `error.code`.
