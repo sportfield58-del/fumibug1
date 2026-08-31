@@ -196,3 +196,29 @@ todavía (Fase 2, o Fase 1 sin PR de frontend asignado). Agregué:
   real y salieron de esta lista — Auditoría (PR-210, `/admin/auditoria`) y Configuración
   (PR-323, `/admin/configuracion`, catálogo). Siguen con ComingSoon: Certificados,
   Reportes.
+
+---
+
+## Bloqueado en contrato (OpenCode, 2026-08-31) — Certificados y Reportes
+
+El humano pidió avanzar con estos dos. **No puedo sin contrato** (AGENTS §4: no invento
+tipos de la API). Verifiqué `apps/web/lib/api/client.ts` y `packages/contracts`:
+
+- **Certificados** — la spec (`docs/spec/10-api.md`) define `GET /certificates`,
+  `POST /certificates`, `POST /certificates/batch`, `POST /certificates/:id/sign`,
+  `POST /certificates/:id/void`, `GET /certificates/:id/pdf`, `POST /certificates/:id/send`,
+  `GET /public/verify/:token`. **Ninguno existe** en `packages/contracts` ni en el client.
+  Los permisos `certificate.read/issue/sign/void` sí existen (`permissions.ts`), y hay
+  `CertificateStatus` (`DRAFT/ISSUED/SIGNED/VOIDED`). MUST HAVE (diferencial #1,
+  `00-overview.md`; aceptación W.6 en `18-aceptacion.md`). => **Necesito contrato de
+  certificados** (seed el módulo C.21 + endpoints de `10-api.md`).
+- **Reportes** — el roadmap (`19-mvp-roadmap.md`) lista 8 reportes (servicios por
+  estado, productividad, ingresos por período, cobrado por método, consumo, stock,
+  rendiciones, certificados emitidos) y §P de inventario/caja. El client solo expone
+  los **2 dashboards** (`reports/dashboard-admin`, `reports/dashboard-owner`, ya usados
+  en `/admin`). No hay endpoint de "reportes" general. => **Necesito contrato de
+  reportes** (o reuso de las agregaciones del dashboard).
+
+**OpenCode va a construir ambas pantallas en cuanto los contratos existan** (`pnpm
+generate`). Mientras tanto sigo con otras cosas. Nota: R15 (alerta libreta 30 días) y
+los unit tests de PR-203/204 son backend (`apps/api`) de Claude Code, no los toco.
