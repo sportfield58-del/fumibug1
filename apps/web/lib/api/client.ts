@@ -28,13 +28,14 @@ function toQueryString(
   return qs ? `?${qs}` : '';
 }
 
-async function request<T>(method: string, path: string, body?: unknown): Promise<ApiResponse<T>> {
+async function request<T>(method: string, path: string, body?: unknown, headers?: Record<string, string>): Promise<ApiResponse<T>> {
   const token = config.getAccessToken?.();
   const res = await fetch(`${config.baseUrl}/${path}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(headers ?? {}),
     },
     ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
   });
@@ -67,8 +68,8 @@ export function getGetUser(args: { params: { id: string } }): Promise<ApiRespons
 }
 
 /** PATCH /v1/users/:id — Edita datos de un usuario (requiere If-Match). No cambia email/username ni rol. */
-export function patchUpdateUser(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateUser.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateUser.example>> {
-  return request('PATCH', `users/${args.params.id}`, args.body);
+export function patchUpdateUser(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateUser.request>['parse']>; etag: string }): Promise<ApiResponse<typeof endpoints.updateUser.example>> {
+  return request('PATCH', `users/${args.params.id}`, args.body, { 'If-Match': args.etag });
 }
 
 /** POST /v1/users/:id/activate — Activa un usuario (habilita su membership en el tenant). */
@@ -112,8 +113,8 @@ export function getGetCustomer(args: { params: { id: string } }): Promise<ApiRes
 }
 
 /** PATCH /v1/customers/:id — Edita un cliente (requiere If-Match). Reemplaza la lista de contactos si se envía. */
-export function patchUpdateCustomer(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateCustomer.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateCustomer.example>> {
-  return request('PATCH', `customers/${args.params.id}`, args.body);
+export function patchUpdateCustomer(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateCustomer.request>['parse']>; etag: string }): Promise<ApiResponse<typeof endpoints.updateCustomer.example>> {
+  return request('PATCH', `customers/${args.params.id}`, args.body, { 'If-Match': args.etag });
 }
 
 /** POST /v1/customers/:id/archive — Archiva un cliente (soft delete — CLAUDE.md §5, sin DELETE de negocio). */
@@ -142,8 +143,8 @@ export function getGetLocation(args: { params: { id: string } }): Promise<ApiRes
 }
 
 /** PATCH /v1/locations/:id — Edita una ubicación (requiere If-Match). */
-export function patchUpdateLocation(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateLocation.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateLocation.example>> {
-  return request('PATCH', `locations/${args.params.id}`, args.body);
+export function patchUpdateLocation(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateLocation.request>['parse']>; etag: string }): Promise<ApiResponse<typeof endpoints.updateLocation.example>> {
+  return request('PATCH', `locations/${args.params.id}`, args.body, { 'If-Match': args.etag });
 }
 
 /** POST /v1/locations/:id/geocode — Geocodifica una ubicación (o aplica corrección manual de lat/lng). */
@@ -162,8 +163,8 @@ export function postCreateServiceType(args: { body: ReturnType<NonNullable<typeo
 }
 
 /** PATCH /v1/service-types/:id — Edita un tipo de servicio (requiere If-Match). No cambia key. */
-export function patchUpdateServiceType(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateServiceType.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateServiceType.example>> {
-  return request('PATCH', `service-types/${args.params.id}`, args.body);
+export function patchUpdateServiceType(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateServiceType.request>['parse']>; etag: string }): Promise<ApiResponse<typeof endpoints.updateServiceType.example>> {
+  return request('PATCH', `service-types/${args.params.id}`, args.body, { 'If-Match': args.etag });
 }
 
 /** GET /v1/zones — Zonas del tenant (filtro del planificador, §C.7). */
@@ -177,8 +178,8 @@ export function postCreateZone(args: { body: ReturnType<NonNullable<typeof endpo
 }
 
 /** PATCH /v1/zones/:id — Edita una zona (requiere If-Match). */
-export function patchUpdateZone(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateZone.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateZone.example>> {
-  return request('PATCH', `zones/${args.params.id}`, args.body);
+export function patchUpdateZone(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateZone.request>['parse']>; etag: string }): Promise<ApiResponse<typeof endpoints.updateZone.example>> {
+  return request('PATCH', `zones/${args.params.id}`, args.body, { 'If-Match': args.etag });
 }
 
 /** GET /v1/price-lists — Listas de precios del tenant, con sus items. */
@@ -192,8 +193,8 @@ export function postCreatePriceList(args: { body: ReturnType<NonNullable<typeof 
 }
 
 /** PATCH /v1/price-lists/:id — Edita una lista de precios (requiere If-Match). Reemplaza items si se envían. */
-export function patchUpdatePriceList(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updatePriceList.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updatePriceList.example>> {
-  return request('PATCH', `price-lists/${args.params.id}`, args.body);
+export function patchUpdatePriceList(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updatePriceList.request>['parse']>; etag: string }): Promise<ApiResponse<typeof endpoints.updatePriceList.example>> {
+  return request('PATCH', `price-lists/${args.params.id}`, args.body, { 'If-Match': args.etag });
 }
 
 /** GET /v1/services — Lista filtrada de servicios. */
@@ -212,8 +213,8 @@ export function getGetService(args: { params: { id: string } }): Promise<ApiResp
 }
 
 /** PATCH /v1/services/:id — Edita un servicio (requiere If-Match). No cambia cliente ni estado. */
-export function patchUpdateService(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateService.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateService.example>> {
-  return request('PATCH', `services/${args.params.id}`, args.body);
+export function patchUpdateService(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateService.request>['parse']>; etag: string }): Promise<ApiResponse<typeof endpoints.updateService.example>> {
+  return request('PATCH', `services/${args.params.id}`, args.body, { 'If-Match': args.etag });
 }
 
 /** POST /v1/services/:id/cancel — Cancela un servicio. */
@@ -262,8 +263,8 @@ export function getGetRoute(args: { params: { id: string } }): Promise<ApiRespon
 }
 
 /** PATCH /v1/routes/:id — Edita una ruta (requiere If-Match). */
-export function patchUpdateRoute(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateRoute.request>['parse']> }): Promise<ApiResponse<typeof endpoints.updateRoute.example>> {
-  return request('PATCH', `routes/${args.params.id}`, args.body);
+export function patchUpdateRoute(args: { params: { id: string }; body: ReturnType<NonNullable<typeof endpoints.updateRoute.request>['parse']>; etag: string }): Promise<ApiResponse<typeof endpoints.updateRoute.example>> {
+  return request('PATCH', `routes/${args.params.id}`, args.body, { 'If-Match': args.etag });
 }
 
 /** POST /v1/routes/:id/stops — Agrega un servicio a la ruta como nuevo stop. */

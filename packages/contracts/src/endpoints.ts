@@ -134,6 +134,12 @@ export interface EndpointDef<
   request?: Req;
   /** Query string de GET (ej. paginación, filtros). */
   query?: Qry;
+  /**
+   * PATCH con versión optimista: el cliente debe mandar el header
+   * `If-Match: "<updatedAt.toISOString()>"` obligatorio (VERSION_CONFLICT si no
+   * coincide). El `generator` emite un arg `etag` en la función del cliente.
+   */
+  ifMatch?: boolean;
   response: Res;
   example: z.infer<Res>;
 }
@@ -434,6 +440,7 @@ export const ENDPOINTS = {
     path: 'users/:id',
     summary: 'Edita datos de un usuario (requiere If-Match). No cambia email/username ni rol.',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateUserRequestSchema,
     response: UserWithMembershipSchema,
     example: {
@@ -671,6 +678,7 @@ export const ENDPOINTS = {
     path: 'customers/:id',
     summary: 'Edita un cliente (requiere If-Match). Reemplaza la lista de contactos si se envía.',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateCustomerRequestSchema,
     response: CustomerWithContactsSchema,
     example: {
@@ -854,6 +862,7 @@ export const ENDPOINTS = {
     path: 'locations/:id',
     summary: 'Edita una ubicación (requiere If-Match).',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateLocationRequestSchema,
     response: ServiceLocationSchema,
     example: {
@@ -970,6 +979,7 @@ export const ENDPOINTS = {
     path: 'service-types/:id',
     summary: 'Edita un tipo de servicio (requiere If-Match). No cambia key.',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateServiceTypeRequestSchema,
     response: ServiceTypeSchema,
     example: {
@@ -1029,6 +1039,7 @@ export const ENDPOINTS = {
     path: 'zones/:id',
     summary: 'Edita una zona (requiere If-Match).',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateZoneRequestSchema,
     response: ZoneSchema,
     example: {
@@ -1102,6 +1113,7 @@ export const ENDPOINTS = {
     path: 'price-lists/:id',
     summary: 'Edita una lista de precios (requiere If-Match). Reemplaza items si se envían.',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdatePriceListRequestSchema,
     response: PriceListWithItemsSchema,
     example: {
@@ -1162,6 +1174,7 @@ export const ENDPOINTS = {
     path: 'services/:id',
     summary: 'Edita un servicio (requiere If-Match). No cambia cliente ni estado.',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateServiceRequestSchema,
     response: ServiceSchema,
     example: exampleService({ version: 2 }),
@@ -1321,6 +1334,7 @@ export const ENDPOINTS = {
     path: 'routes/:id',
     summary: 'Edita una ruta (requiere If-Match).',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateRouteRequestSchema,
     response: RouteWithStopsSchema,
     example: exampleRoute({ version: 2, notes: 'Sale más temprano por lluvia.' }),
