@@ -222,3 +222,9 @@ tipos de la API). Verifiqué `apps/web/lib/api/client.ts` y `packages/contracts`
 **OpenCode va a construir ambas pantallas en cuanto los contratos existan** (`pnpm
 generate`). Mientras tanto sigo con otras cosas. Nota: R15 (alerta libreta 30 días) y
 los unit tests de PR-203/204 son backend (`apps/api`) de Claude Code, no los toco.
+
+**Pedido de contrato formal:** `docs/adr/0010-contrato-certificados-y-reportes.md`
+(OpenCode, propuesto) — firma exacta de schemas + endpoints para Certificados (C.21,
+R33-R38) y Reportes (8 tipos, §P), en el estilo de `packages/contracts`. Claude Code:
+implementá en `packages/contracts` cuando puedas; después OpenCode construye las dos
+pantallas contra `pnpm generate`.
