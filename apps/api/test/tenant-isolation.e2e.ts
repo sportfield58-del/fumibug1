@@ -112,6 +112,9 @@ beforeAll(async () => {
       'stop.skip',
       'payment.create',
       'evidence.upload',
+      'certificate.read',
+      'certificate.sign',
+      'certificate.void',
     ],
   });
 

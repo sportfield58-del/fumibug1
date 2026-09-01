@@ -673,5 +673,59 @@ export const CROSS_TENANT_ENDPOINTS: CrossTenantCase[] = [
       expect(res.body.error.code).toBe('NOT_FOUND');
     },
   },
+  {
+    description: 'POST /v1/certificates/:id/sign con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/certificates/:id/sign',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/certificates/${crossTenantUserId}/sign`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('CERTIFICATE_NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/certificates/:id/void con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/certificates/:id/void',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/certificates/${crossTenantUserId}/void`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({ reason: 'test' })
+        .expect(404);
+      expect(res.body.error.code).toBe('CERTIFICATE_NOT_FOUND');
+    },
+  },
+  {
+    description: 'GET /v1/certificates/:id/pdf con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/certificates/:id/pdf',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .get(`/v1/certificates/${crossTenantUserId}/pdf`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .expect(404);
+      expect(res.body.error.code).toBe('CERTIFICATE_NOT_FOUND');
+    },
+  },
+  {
+    description: 'POST /v1/certificates/:id/send con id de OTRO tenant → 404 (R40)',
+    routePattern: '/v1/certificates/:id/send',
+    run: async ({ request, tenantAToken, crossTenantUserId }) => {
+      const res = await request
+        .post(`/v1/certificates/${crossTenantUserId}/send`)
+        .set('Authorization', `Bearer ${tenantAToken}`)
+        .send({})
+        .expect(404);
+      expect(res.body.error.code).toBe('CERTIFICATE_NOT_FOUND');
+    },
+  },
+  {
+    description: 'GET /v1/public/verify/:token con token que no existe → 404 (endpoint público, sin límite de tenant)',
+    routePattern: '/v1/public/verify/:token',
+    run: async ({ request, crossTenantUserId }) => {
+      const res = await request.get(`/v1/public/verify/${crossTenantUserId}`).expect(404);
+      expect(res.body.error.code).toBe('CERTIFICATE_NOT_FOUND');
+    },
+  },
 ];
 

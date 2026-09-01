@@ -108,14 +108,16 @@ describe('AuditService', () => {
     db.current.mockReturnValue({ auditLog: { create: auditLogCreate, findMany: auditLogFindMany } });
 
     await service.listLogs({
+      limit: 20,
       entityType: 'service',
       actorUserId: 'u-9',
       from: '2026-08-01T00:00:00.000Z',
       to: '2026-08-31T23:59:59.000Z',
     });
 
-    const [call] = auditLogFindMany.mock.calls;
-    const where = (call as [{ where: Record<string, unknown> }])[0].where;
+    const calls = auditLogFindMany.mock.calls as Array<[{ where: Record<string, unknown> }]>;
+    expect(calls).toHaveLength(1);
+    const where = calls[0]![0].where;
     expect(where.entityType).toBe('service');
     expect(where.actorUserId).toBe('u-9');
     expect(where.createdAt).toEqual({ gte: new Date('2026-08-01T00:00:00.000Z'), lte: new Date('2026-08-31T23:59:59.000Z') });

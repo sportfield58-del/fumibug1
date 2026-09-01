@@ -73,7 +73,10 @@ export class ReportsService {
 
       case 'revenue_by_period': {
         const services = await tx.service.findMany({
-          where: { status: 'COMPLETED', ...(query.technicianId ? {} : {}) },
+          where: {
+            status: 'COMPLETED',
+            ...(query.technicianId ? { routeStops: { some: { route: { technicianId: query.technicianId } } } } : {}),
+          },
           include: { serviceSessions: { where: { status: 'CLOSED' }, select: { endedAt: true }, take: 1 } },
         });
         const byPeriod = new Map<string, bigint>();
@@ -100,7 +103,7 @@ export class ReportsService {
           where: {
             status: 'CONFIRMED',
             ...(hasRange ? { paidAt: range } : {}),
-            ...(query.technicianId ? {} : {}),
+            ...(query.technicianId ? { receivedBy: query.technicianId } : {}),
           },
           orderBy: { _sum: { amountCents: 'desc' } },
         });
