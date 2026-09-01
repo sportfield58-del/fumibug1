@@ -2,10 +2,16 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Search, Plus, Calendar, Clock, AlertTriangle, CheckCircle, MoreHorizontal } from 'lucide-react'
+import { Search, Plus, Calendar, Clock, AlertTriangle, CheckCircle, MoreHorizontal, UserCheck } from 'lucide-react'
 import { Button, Input, Badge, EmptyState, Skeleton, Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@fumibug/ui'
-import { getListServices } from '@/../../lib/api/client'
-import type { Service } from '@fumibug/contracts'
+import {
+  getListServices,
+  getListRoutes,
+  postCreateRoute,
+  postAddStop,
+  getListUsers,
+} from '@/../../lib/api/client'
+import type { Service, UserWithMembership, Route } from '@fumibug/contracts'
 
 const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
   DRAFT: { label: 'Borrador', variant: 'secondary', icon: null },
@@ -27,12 +33,20 @@ const priorityConfig: Record<string, { label: string; className: string }> = {
   URGENT: { label: 'Urgente', className: 'bg-destructive-subtle text-destructive' },
 }
 
+const FIELD_ROLE_KEYS = new Set(['technician', 'technical_director'])
+
+/** Estados en los que un servicio todavía puede asignarse a un operario (via ruta). */
+const ASSIGNABLE = new Set(['DRAFT', 'SCHEDULED', 'ASSIGNED'])
+
 export default function ServiciosPage(): JSX.Element {
   const [search, setSearch] = React.useState('')
   const [statusFilter, setStatusFilter] = React.useState<string | null>(null)
   const [services, setServices] = React.useState<Service[]>([])
+  const [operarios, setOperarios] = React.useState<UserWithMembership[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+  const [assigning, setAssigning] = React.useState<Record<string, boolean>>({})
+  const [feedback, setFeedback] = React.useState<Record<string, string>>({})
 
   const fetchServices = React.useCallback(async () => {
     setIsLoading(true)
@@ -56,9 +70,57 @@ export default function ServiciosPage(): JSX.Element {
     }
   }, [statusFilter])
 
+  const fetchOperarios = React.useCallback(async () => {
+    const res = await getListUsers({ query: { limit: 100 } })
+    if (res.success) setOperarios(res.data.filter((u) => FIELD_ROLE_KEYS.has(u.roleKey)))
+  }, [])
+
   React.useEffect(() => {
     void fetchServices()
-  }, [fetchServices])
+    void fetchOperarios()
+  }, [fetchServices, fetchOperarios])
+
+  /**
+   * Asigna un servicio a un operario usando el flujo real del modelo: lo agrega a la
+   * ruta del operario para la fecha del servicio (creándola si no existe). Reasignar
+   * en ASSIGNED agrega un segundo stop — el servicio pasa a la ruta nueva (R11 no
+   * impide un servicio en dos rutas DRAFT; publish() usa la última ruta).
+   */
+  const assignOperario = async (service: Service, operarioId: string): Promise<void> => {
+    setAssigning((s) => ({ ...s, [service.id]: true }))
+    setFeedback((f) => ({ ...f, [service.id]: '' }))
+    try {
+      const date = service.scheduledDate ?? new Date().toISOString().slice(0, 10)
+      const routesRes = await getListRoutes({ query: { date, technicianId: operarioId, limit: 20 } })
+      if (!routesRes.success) {
+        setFeedback((f) => ({ ...f, [service.id]: 'No se pudo buscar la ruta del operario.' }))
+        return
+      }
+      const route = routesRes.data.find((r: Route) => ['DRAFT', 'READY', 'PUBLISHED'].includes(r.status))
+      let routeId: string
+      if (route) {
+        routeId = route.id
+      } else {
+        const created = await postCreateRoute({ body: { technicianId: operarioId, date } })
+        if (!created.success) {
+          setFeedback((f) => ({ ...f, [service.id]: created.error.message }))
+          return
+        }
+        routeId = created.data.id
+      }
+      const addRes = await postAddStop({ params: { id: routeId }, body: { serviceId: service.id } })
+      if (addRes.success) {
+        setFeedback((f) => ({ ...f, [service.id]: 'Asignado ✓' }))
+        void fetchServices()
+      } else {
+        setFeedback((f) => ({ ...f, [service.id]: addRes.error.message }))
+      }
+    } catch {
+      setFeedback((f) => ({ ...f, [service.id]: 'No se pudo asignar.' }))
+    } finally {
+      setAssigning((s) => ({ ...s, [service.id]: false }))
+    }
+  }
 
   const filteredServices = React.useMemo(() => {
     if (!search) return services
@@ -69,7 +131,8 @@ export default function ServiciosPage(): JSX.Element {
         s.customerName?.toLowerCase().includes(q) ||
         s.serviceTypeName?.toLowerCase().includes(q) ||
         s.location?.addressLine.toLowerCase().includes(q) ||
-        s.targetPests.some((p) => p.toLowerCase().includes(q))
+        s.targetPests.some((p) => p.toLowerCase().includes(q)) ||
+        s.technicianName?.toLowerCase().includes(q)
     )
   }, [services, search])
 
@@ -90,7 +153,7 @@ export default function ServiciosPage(): JSX.Element {
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle" />
           <Input
-            placeholder="Buscar por cliente, dirección, tipo, código o plaga..."
+            placeholder="Buscar por cliente, dirección, tipo, código, plaga u operario..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"
@@ -157,12 +220,11 @@ export default function ServiciosPage(): JSX.Element {
             const priority = priorityConfig[service.priority] ?? priorityConfig.NORMAL
             if (!status || !priority) return null
             return (
-              <Link
-                key={service.id}
-                href={`/admin/servicios/${service.id}`}
-                className="flex items-center justify-between px-4 py-3 transition-colors hover:bg-bg-sunken"
-              >
-                <div className="flex items-center gap-3 min-w-0">
+              <div key={service.id} className="flex items-center justify-between px-4 py-3">
+                <Link
+                  href={`/admin/servicios/${service.id}`}
+                  className="flex items-center gap-3 min-w-0"
+                >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-subtle">
                     <Calendar className="h-5 w-5 text-primary" />
                   </div>
@@ -178,8 +240,17 @@ export default function ServiciosPage(): JSX.Element {
                       {service.location?.addressLine && ` · ${service.location.addressLine}`}
                       {' · '}{service.scheduledDate ?? 'Sin fecha'}
                     </p>
+                    <p className="text-caption truncate">
+                      {service.technicianName ? (
+                        <span className="inline-flex items-center gap-1 text-primary">
+                          <UserCheck className="h-3 w-3" />{service.technicianName}
+                        </span>
+                      ) : (
+                        <span className="text-fg-muted">Sin operario asignado</span>
+                      )}
+                    </p>
                   </div>
-                </div>
+                </Link>
 
                 <div className="flex items-center gap-2 shrink-0">
                   <Badge variant={status.variant} className="gap-1">
@@ -189,9 +260,33 @@ export default function ServiciosPage(): JSX.Element {
                   <span className={`hidden sm:inline-flex text-caption px-2 py-0.5 rounded-full ${priority.className}`}>
                     {priority.label}
                   </span>
+                  {ASSIGNABLE.has(service.status) && (
+                    <Select
+                      value=""
+                      onValueChange={(operarioId) => { void assignOperario(service, operarioId) }}
+                      {...(assigning[service.id] ? { disabled: true } : {})}
+                    >
+                      <SelectTrigger className="w-44" aria-label={`Asignar operario a ${service.code}`}>
+                        <SelectValue placeholder={assigning[service.id] ? 'Asignando...' : 'Asignar operario'} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {operarios.map((o) => (
+                          <SelectItem key={o.id} value={o.id}>
+                            {o.fullName ?? o.username}
+                          </SelectItem>
+                        ))}
+                        {operarios.length === 0 && (
+                          <div className="px-2 py-1.5 text-caption text-fg-muted">No hay operarios cargados.</div>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  {feedback[service.id] && (
+                    <span className="text-caption text-fg-muted">{feedback[service.id]}</span>
+                  )}
                   <MoreHorizontal className="h-4 w-4 text-fg-subtle" />
                 </div>
-              </Link>
+              </div>
             )
           })}
         </div>

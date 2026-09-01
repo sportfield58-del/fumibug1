@@ -52,6 +52,15 @@ export const ServiceSchema = z.object({
    */
   customerName: z.string().nullable().optional(),
   serviceTypeName: z.string().nullable().optional(),
+  /**
+   * Operario asignado via ruta (Service —< RouteStop >— Route.technicianId). Se
+   * enriquece en list/get igual que customerName/serviceTypeName, para que la lista
+   * de servicios muestre "quién lo hace" sin resolver rutas aparte. `technicianId` es
+   * el del operario de la ruta más reciente/más avanzada que contiene este servicio
+   * (un servicio puede aparecer en una sola ruta a la vez — R11).
+   */
+  technicianId: z.string().uuid().nullable().optional(),
+  technicianName: z.string().nullable().optional(),
   location: z
     .object({
       addressLine: z.string(),
