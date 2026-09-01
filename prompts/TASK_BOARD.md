@@ -284,3 +284,29 @@ Implementé el soporte real de If-Match:
 
 Los demás PATCH (clientes, usuarios, etc.) ya tienen el mecanismo disponible para cuando se
 wireen sus formularios de edición.
+## Módulo de operarios (OpenCode, 2026-09-01) — apartado + vinculación a servicios — DEPLOYADO
+
+Encontrado como commit local sin pushear en el working directory compartido (mismo patrón que
+PR64). Rebaseado sobre `sportfield/main`, revisado, y mergeado (PR #66, squash).
+
+- Pantalla nueva `/admin/operarios`: lista de técnicos/DTs con ficha técnica (libreta/matrícula,
+  vencimiento), alta con rol + reporte de PIN temporal, resetear PIN, activar/desactivar.
+- `/admin/servicios`: selector para asignar/reasignar operario por servicio, usando el flujo
+  real de rutas (busca ruta DRAFT/READY/PUBLISHED del operario para la fecha del servicio, la
+  crea si no existe, agrega el stop). Muestra el operario asignado en lista y detalle.
+- Contrato `Service`: `technicianId`/`technicianName` enriquecidos en list/get (via
+  `routeStops`). Unifica `roleKey` de operario a `'technician'` en los ejemplos del contrato
+  (ya coincidía con el valor real usado en el backend — los ejemplos tenían `'operator'`
+  obsoleto).
+
+Encontrado en la revisión y arreglado antes de mergear:
+- El enriquecimiento de `technicianId`/`technicianName` tomaba el `routeStop` más reciente por
+  `createdAt` sin filtrar `status` — si la ruta de un operario se cancelaba (`RouteStatus.
+  CANCELLED`), el servicio seguía mostrando ese operario como asignado en lista y detalle,
+  aunque la ruta ya no existiera funcionalmente. Agregado filtro `status != CANCELLED` tanto en
+  el `routeStop` como en la `route`, en `list()` y `getById()` de `services.service.ts`.
+
+Verificado: contracts build ✓, api typecheck/lint ✓, web typecheck/lint ✓, 103 unit + 93 e2e
+(incluye tenant-isolation, sin rutas nuevas que registrar) ✓, build de producción de web ✓.
+Deploy confirmado: Railway y Vercel en verde sobre el commit de merge (`11c177f`), bundle nuevo
+de `/admin/operarios` (`page-a7f85be060dfd012.js`) sirviendo en Vercel.
