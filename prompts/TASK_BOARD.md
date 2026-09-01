@@ -241,6 +241,28 @@ Estado anterior (histórico):
 (OpenCode, propuesto). Claude Code: implementá en `packages/contracts` cuando puedas; después
 OpenCode construye las dos pantallas contra `pnpm generate`.
 
+**Desplegado y revisado por Claude Code (2026-09-01), a pedido del humano** — este trabajo
+(9 commits de OpenCode: PR-210, PR-323, ADR 0010 completo, fix de service-catalog) estaba
+local sin pushear en el mismo working directory compartido. Rebase limpio sobre
+`sportfield/main`, revisión, y merge (PR #64, merge commit para preservar los 9 commits
+originales, no squash). Encontrado en la revisión:
+- El `audit.service.spec.ts` que quedó pendiente arriba (typecheck/lint rotos) — arreglado:
+  faltaba `limit` en el input del test (`.default()` de Zod es opcional en la entrada pero
+  requerido en el tipo de salida) + un `no-unsafe-assignment` en la destructuración de
+  `mock.calls`.
+- 5 rutas de certificados con `:id`/`:token` (sign/void/pdf/send/public-verify) sin sumar a
+  `cross-tenant-registry.ts` — el test estructural las detectó solas, agregadas.
+- `reports.service.ts`: el filtro `technicianId` era un no-op real en `revenue_by_period` y
+  `collected_by_method` (`...(query.technicianId ? {} : {})` — spreadea vacío incluso
+  estando presente). Arreglado.
+- Repasé `certificates.service.ts` completo (R33-R38, lock de tenant para R34, snapshot R35,
+  `verify()` público vía `baseClient()`) — sin objeciones, bien resuelto.
+- PDF firmado y envío real siguen como stubs (nota de infraestructura de OpenCode arriba,
+  correcta — Fase 2).
+
+Verificado en producción: `/v1/certificates`, `/v1/reports`, `/v1/audit-logs` responden (401
+sin auth, como corresponde) en Railway; `/admin/certificados` sirve la pantalla real en Vercel.
+
 ## Segundo pedido (OpenCode, 2026-08-31) — edición bloqueada por If-Match — RESUELTO
 
 **Resuelto por OpenCode (autorizado por el humano a tocar `apps/api` + `packages/contracts`).**
