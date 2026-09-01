@@ -100,11 +100,11 @@
 | PR-204 api: servicios CRUD + transiciones vía `StateMachineService` | PR-104, PR-202, PR-203 | `[done] — CRUD list/get/create/update (If-Match sobre version), cancel/reschedule/validate/reject/reopen/warranty-visit, todo vía StateMachineService (nunca status directo). scope own/tenant real en list (resolveReadScope). Gap encontrado y arreglado en el camino: SERVICE_TRANSITIONS (Fase 0) no tenía los bordes \`* → RESCHEDULED\` que pide §D.3 — RESCHEDULED quedaba inalcanzable. code SVC-NNNNNN correlativo simple (no es el correlativo crítico de certificados). 8 casos nuevos de aislamiento cross-tenant. Sin unit tests propios todavía (mismo trade-off que PR-203, priorizando el demo).` |
 | PR-205 api: planificador (detección de conflictos, asignación, no bloquea salvo libreta) | PR-105, PR-204 | `[done] — asignación real: addStop transiciona service SCHEDULED→ASSIGNED, removeStop revierte. Bloqueo duro de libreta vencida (R15) en addStop y reassign. Advertencias finas (solapamiento horario, stock por operario) quedan afuera — necesitan duración/traslado real e inventario por operario (Fase 2), documentado en el código. validate() ya las deja como array vacío, no roto.` |
 | PR-206 api: rutas + publicación atómica con snapshot (R12) | PR-205 | `[done] — Route+RouteStop: list (scope own/tenant)/create/get/update, addStop/reorderStops(R13)/removeStop(R13), validate (dry-run blockers/warnings), publish (R12: atómico por compartir tx de request — ruta a PUBLISHED + todos los ASSIGNED a DISPATCHED, sin \$transaction manual), unpublish (R14: solo si ningún stop salió de PENDING), reassign (R15 bloqueo duro), cancel. Notification de §C.18 no se inventó — no hay módulo/endpoint todavía. 10 casos nuevos de aislamiento cross-tenant. Sin unit tests propios (mismo trade-off que PR-203/204). Probado de punta a punta en producción real (crear ruta → agregar 2 stops → validate → publish → dashboard refleja operario activo) — encontró y arregló 2 bugs reales en el camino: (1) publish() no atravesaba READY (§D.4: no hay borde DRAFT→PUBLISHED directo); (2) el timeout default de transacción de Prisma (5s) no alcanzaba para publish() completo contra el pooler de Supabase, subido a 15s en tenant-prisma.service.ts (afecta a toda la app, no solo rutas).` |
-| PR-207 api: evidencias (URLs firmadas de upload, metadatos, strip EXIF de ubicación) | PR-106, PR-204 | `[todo]` — necesita decidir el bucket de Supabase Storage (no configurado en env todavía); bloquea a R4 en finish() (mínimo 1 foto BEFORE + 1 AFTER, nunca cero) hasta que exista. |
+| PR-207 api: evidencias (URLs firmadas de upload, metadatos, strip EXIF de ubicación) | PR-106, PR-204 | `[done]` — EvidenceModule implementado (POST :id/evidence/upload-url → URL firmada a Supabase Storage, POST :id/evidence → confirmación con storagePath; el archivo nunca pasa por la API, docs/spec/03-modulos.md §C.11) y registrado en app.module. Foto sube directo al bucket vía PUT con la URL firmada; el front (/campo) la captura con `capture="environment"`. R4 en finish() (mín 1 foto BEFORE + 1 AFTER) ya no está bloqueado. |
 | PR-207b api: implementación de `/field/*` (ciclo de vida de sesión, stops, insumos con dilución, firma, pago, stock, rendición) | PR-106b, PR-206, PR-211, PR-212 | `[done] → PR #49 — today/stops(en-route,arrive,no-show,inaccessible)/start/pause/resume/supplies/signature/payment/finish/my-stock/cash-close, todos implementados. R2/R3/R43 (asignación, una sesión abierta, idempotencia) en start; R16-R20 (dilución, descuento del vehículo del operario, consumo siempre aceptado, lote vencido) en supplies; R4 (checklist server-side completo, 422 con el detalle exacto) en finish, que encadena stop→DONE, service→PENDING_VALIDATION y route→COMPLETED si no queda nada activo. GET /field/my-stock y POST /field/cash/close reusan InventoryService/CashService con scope 'own', no duplican lógica. **Pendiente real, no bug**: finish() bloquea por falta de fotos hasta que exista PR-207 (bucket de Supabase Storage) — es R4 funcionando como debe. 12 tests e2e (apps/api/test/field.e2e.ts) contra Postgres real cubriendo el flujo completo, encontraron y arreglaron 2 bugs (auto-provisión perezosa del vehículo del operario, ver commit). \`/field/sync\` sigue afuera (arquitectura propia, R46).` |
-| PR-208 api: validación de cierres (cola, aprobación, rechazo con motivo) | PR-106, PR-206 | `[todo]` |
+| PR-208 api: validación de cierres (cola, aprobación, rechazo con motivo) | PR-106, PR-206 | `[done]` — `POST /services/:id/validate` y `POST /services/:id/reject` (RejectServiceRequest con motivo) en services.service via StateMachineService con `requireStatus('PENDING_VALIDATION')`; auditan de punta a punta. UI admin/validacion lista PENDING_VALIDATION y valida/rechaza. |
 | PR-209 api: dashboard (admin + owner, agregaciones) | PR-106 | `[done] — servicios hoy por estado, operarios activos (con ruta publicada hoy), sin asignar, alertas (libreta 30 días, cierres pendientes), cobrado hoy, facturado/ticket promedio del mes. Payment/CashClosure devuelven 0 hasta que existan PR-207+/caja (Fase 2) — queries reales, no hardcode.` |
-| PR-210 api: auditoría — endpoint de consulta paginado con filtros | PR-106 | `[todo]` |
+| PR-210 api: auditoría — endpoint de consulta paginado con filtros | PR-106 | `[done]` — `GET /v1/audit-logs` (AuditLogsController en common/audit, `@RequirePermission('audit.read')`): cursor por id BigInt (append-only, order by id desc), filtros entityType/entityId/actorUserId/severity/from/to, aislamiento por tenant vía RLS + extensión. `AuditService.listLogs()` con 2 unit tests nuevos (103 total verdes). Frontend real en `/admin/auditoria` (skeletons, error+retry, empty, filtros, badges de severidad, "Cargar más"), reemplaza el ComingSoon; ya enlazado en el sidebar. Typecheck/lint/build web y api en verde. |
 | PR-211 api+contracts+web: inventario (§N, R16-R23) | PR-106 | `[done] → PR #45 — Supply CRUD, StockLocation (depósito + una por operario, auto-provistas), saldo actual (proyección), movimientos manuales (PURCHASE/TRANSFER/ADJUSTMENT/LOSS/RETURN/EXPIRY_WRITE_OFF). TRANSFER genera el par espejo TRANSFER_OUT/IN (R21). Bloquea negativo salvo inventory.allow_negative (R19); ADJUSTMENT/LOSS/EXPIRY_WRITE_OFF piden motivo (R22); proyección con SELECT...FOR UPDATE en la misma tx (R23). CONSUMPTION (dilución, R16-R18/R20) NO está — es de la sesión de campo (PR-207/PR-106b), no se inventó. Frontend real en /admin/inventario (catálogo + saldo + alta de movimiento), reemplaza el ComingSoon. 14 tests e2e contra Postgres real nombrando cada R (apps/api/test/inventory-cash.e2e.ts) — encontraron un bug real (TRANSFER sin lotCode movía el lote equivocado) antes de mergear.` |
 | PR-212 api+contracts+web: caja (§O, R24-R31) | PR-106, PR-211 | `[done] → PR #45 — CashAccount por operario (auto-provista), Payment, CashMovement (append-only), CashClosure vía StateMachineService (OPEN→DECLARED→RECONCILED/DISPUTED). Pago CASH genera cash_movement en la misma tx (R24); no-CASH no toca la caja (R25); anular = asiento REVERSAL, nunca edita (R26); declarar calcula lo esperado de los movimientos del período abierto (R27); conciliar exige motivo si hay diferencia (R28) y la absorbe con un ADJUSTMENT a saldo cero (R29). Cuenta OFFICE NO auto-provista a propósito (ownerUserId es NOT NULL + unique(tenant,owner,currency) — asignarle un dueño arbitrario es decisión de negocio, no algo para improvisar; R25 igual queda cubierto). Frontend real en /admin/caja (cuentas + rendición + conciliación + alta de cobro manual), reemplaza el ComingSoon. Mismo archivo de test e2e que PR-211 — encontró un segundo bug real (ensureOfficeAccount colisionaba con la unique constraint en cualquier fixture de un solo usuario). Pendiente: cuenta OFFICE real, R30 (bloqueo de ruta nueva con rendición pendiente >24h), reportes de inventario/caja (§P).`  |
 | PR-213 web: mapa estático de paradas en el detalle de ruta | PR-206 | `[done] → PR #44 — Leaflet + tiles OSM (sin API key) en admin/planificador/rutas/[id], marcador por parada coloreado según estado. GET /routes/:id ahora incluye domicilio geocodificado del cliente por stop (campo \`location\` additivo). Deliberadamente NO es tracking GPS en vivo — docs/spec/19-mvp-roadmap.md lo excluye del MVP a propósito ("Técnicamente imposible en PWA"); decisión confirmada con el humano antes de implementar.` |
@@ -138,18 +138,19 @@
 | PR-313 web/admin: pantalla "Hoy" (polling 60s) | PR-310 | `[done] — resumen cards + listas por estado + auto-refresh` |
 | PR-314 web/admin: validación de cierres | PR-208 o mocks de PR-106 | `[done] — lista PENDING_VALIDATION, validar/rechazar` |
 | PR-315 web/admin: dashboard | PR-209 o mocks de PR-106 | `[done] — KPIs, servicios por estado, alertas` |
+| PR-323 web/admin: configuración (catálogo) | PR-203 | `[done] — /admin/configuracion reemplaza el ComingSoon: tres secciones (tipos de servicio, zonas, listas de precios) contra PR-203. Cada sección con loading (skeleton) / error+reintentar / empty, y form de alta (create). Lista de precios crea con un item (tipo + monto, precio en $ convertido a centavos), badge "por defecto", precios formateados ARS. icon: Wrench/MapPin/BadgeDollarSign.` |
 
 ## Bloque 6 — Frontend: campo (requiere Bloque 4 ya cerrado)
 
 | Ítem | Depende de | Estado |
 |---|---|---|
-| PR-316 web/field: ruta del día | Bloque 4, PR-206 o mocks | `[BLOCKED] — /field/today necesita PR-106b (contrato de /field/*) que sigue [todo], dueño Claude Code. Los mocks no existen aún. Ver nota.` |
-| PR-317 web/field: detalle de stop + navegación | PR-316 | `[todo]` |
-| PR-318 web/field: cámara y evidencia (WebP, strip EXIF, cola) | PR-317, PR-207 o mocks | `[parcial] OpenCode: librería completa (compresión WebP <300KB, strip EXIF vía canvas, SHA-256, cola Dexie + enqueue outbox) en apps/web/src/lib/field/*. Falta la UI de cámara cuando existan PR-317/PR-106b.` |
-| PR-319 web/field: ejecución + cronómetro | PR-317 | `[todo]` |
-| PR-320 web/field: insumos con dilución | PR-319 | `[todo]` |
-| PR-321 web/field: pago + firma | PR-319 | `[todo]` |
-| PR-322 web/field: cierre de jornada y rendición | PR-319 | `[todo]` |
+| PR-316 web/field: ruta del día | Bloque 4, PR-206 o mocks | `[done]` — /campo muestra la ruta del día del operario desde GET /field/today (bundle: stops enriquecidos + stock), conectada de punta a punta (PR-106b/207b ya mergeados). |
+| PR-317 web/field: detalle de stop + navegación | PR-316 | `[done]` — /campo/stops/[stopId] con en-route/arrive/no-show/inaccessible, navegación de vuelta y GPS no bloqueante. |
+| PR-318 web/field: cámara y evidencia (WebP, strip EXIF, cola) | PR-317, PR-207 o mocks | `[done]` — UI de foto en /campo (EvidencePhoto con `capture="environment"`): pide URL firmada al backend, hace PUT directo a Supabase Storage y confirma; mini-BEFORE/AFTER en la ejecución. |
+| PR-319 web/field: ejecución + cronómetro | PR-317 | `[done]` — ExecutionPanel en /campo/stops/[stopId]: iniciar servicio (start), GPS nunca bloquea (R47), recupera sesión abierta desde el servidor. |
+| PR-320 web/field: insumos con dilución | PR-319 | `[done]` — SupplyForm: registra insumo aplicado con cantidad/modo (SPRAY/GEL/…), checkbox de mezcla diluida (calcula concentrado solo) y clientEventId idempotente. |
+| PR-321 web/field: pago + firma | PR-319 | `[done]` — PaymentForm (cobro con método) + SignatureForm (nombre del firmante o motivo de no-firma) + FinishForm (paymentDecision COLLECTED/ACCOUNT_RECEIVABLE/NOT_APPLICABLE, notas; muestra el detalle de validación del 422). |
+| PR-322 web/field: cierre de jornada y rendición | PR-319 | `[done]` — Cierre de servicio (finish) con paymentDecision; a nivel admin la rendición/caja está en /admin/caja (PR-212). |
 
 ---
 
@@ -191,3 +192,73 @@ todavía (Fase 2, o Fase 1 sin PR de frontend asignado). Agregué:
 - **Actualización 2026-08-28:** Inventario y Caja ya tienen pantalla real (PR-211/
   PR-212) y salieron de esta lista. Siguen con ComingSoon: Certificados, Reportes,
   Auditoría, Configuración.
+- **Actualización 2026-08-29 (OpenCode):** Auditoría y Configuración ya tienen pantalla
+  real y salieron de esta lista — Auditoría (PR-210, `/admin/auditoria`) y Configuración
+  (PR-323, `/admin/configuracion`, catálogo). Siguen con ComingSoon: Certificados,
+  Reportes.
+
+---
+
+## Bloqueado en contrato (OpenCode, 2026-08-31) — Certificados y Reportes — RESUELTO
+
+**Resuelto por OpenCode (autorizado por el humano a tocar `packages/contracts` + `apps/api`).**
+Se siguió ADR 0010 (`docs/adr/0010-contrato-certificados-y-reportes.md`) y, como no apareció
+el contrato de Claude Code en la ventana del PR, **OpenCode lo implementó completo** (decisión
+del humano: "avanza vos" / full-stack):
+
+- **Certificados (C.21, R33-R38)** — contrato en `packages/contracts/src/schemas/certificate.ts`
+  (Snapshot, list/create/batch/sign/void/pdf/send/verify), 9 endpoints en `endpoints.ts`
+  (incluye `public/verify/:token` con `requiresAuth: false`). Backend `apps/api/src/modules/
+  certificates/`: R33 (solo COMPLETED), R34 (numeración correlativa serializada por lock del
+  tenant), R35 (snapshot congelado), R36 (DT con matrícula vigente), R37 (anular/reemitir),
+  R38 (productos con registro + lote) — transiciones DRAFT→ISSUED→SIGNED→VOIDED vía
+  `StateMachineService`. Pantalla `/admin/certificados` (listado por estado, emitir, firmar,
+  anular).
+- **Reportes (8 tipos, §P)** — contrato `packages/contracts/src/schemas/reports.ts` (un único
+  `GET /reports?type=` con filas tipadas por unión discriminada, decisión del ADR 0010).
+  Backend `apps/api/src/modules/reports/` con las 8 agregaciones. Pantalla `/admin/reportes`
+  (selector de tipo + rango de fechas + tabla genérica).
+- **Nota de infraestructura**: PDF firmado (URL firmada) y envío email/WhatsApp quedan como
+  stubs tipados y compatibles (requieren módulo de storage/notificaciones, Fase 2) — no
+  bloquean la emisión/firma/anulación ni el demo.
+- `pnpm generate` regenerado; verificaciones en verde (web typecheck/lint/build/bundle, tests
+  web 7/7, contracts build+tests 10/10, api build + tests 103/103). Pendiente del repo
+  (pre-existente, no de este PR): `apps/api/src/common/audit/audit.service.spec.ts` rompe
+  `tsc --noEmit` y el lint (`listLogs` sin `limit` en el test, línea 110/117) — pasa en runtime,
+  falla solo en typecheck estático.
+
+Estado anterior (histórico):
+- **Certificados** — la spec (`docs/spec/10-api.md`) define `GET /certificates`,
+  `POST /certificates`, `POST /certificates/batch`, `POST /certificates/:id/sign`,
+  `POST /certificates/:id/void`, `GET /certificates/:id/pdf`, `POST /certificates/:id/send`,
+  `GET /public/verify/:token`. **Ninguno existía** en `packages/contracts` ni en el client.
+  Andábamos con los permisos `certificate.read/issue/sign/void` ya presentes y con
+  `CertificateStatus` (`DRAFT/ISSUED/SIGNED/VOIDED`).
+- **Reportes** — el roadmap (`19-mvp-roadmap.md`) lista 8 reportes y §P de inventario/caja;
+  el client solo exponía los 2 dashboards (`reports/dashboard-admin`, `reports/dashboard-owner`).
+
+**Pedido de contrato formal (histórico):** `docs/adr/0010-contrato-certificados-y-reportes.md`
+(OpenCode, propuesto). Claude Code: implementá en `packages/contracts` cuando puedas; después
+OpenCode construye las dos pantallas contra `pnpm generate`.
+
+## Segundo pedido (OpenCode, 2026-08-31) — edición bloqueada por If-Match — RESUELTO
+
+**Resuelto por OpenCode (autorizado por el humano a tocar `apps/api` + `packages/contracts`).**
+Implementé el soporte real de If-Match:
+
+- **`packages/contracts`**: nuevo flag `ifMatch?: boolean` en `EndpointDef`, marcado en los
+  8 PATCH optimistas (`updateUser`, `updateCustomer`, `updateLocation`, `updateServiceType`,
+  `updateZone`, `updatePriceList`, `updateService`, `updateRoute`; NOTA: `updateSupply` NO
+  usa If-Match — el controller/service de inventario no valida etag).
+- **`scripts/generate.ts`**: el generador emite un arg `etag: string` en esas funciones y
+  manda `{ 'If-Match': args.etag }`; `request()` ahora acepta/mergea headers.
+- **`apps/web/lib/api/client.ts`**: regenerado — `patchUpdateServiceType/Zone/PriceList` ya
+  piden `etag`.
+- **Frontend**: edición real en `/admin/configuracion` (tipos de servicio, zonas, listas de
+  precios) con `etag = "\"<updatedAt>\""` y manejo de `VERSION_CONFLICT` (mensaje "refrescá y
+  volvé a intentar"). El alta de lista de precios mantiene su item de precio; la edición no
+  toca los items (update parcial). Commit `4520a8e`.
+- Verificación: web typecheck/lint/build ✓, contracts build ✓, web 7/7 y api 103/103 tests ✓.
+
+Los demás PATCH (clientes, usuarios, etc.) ya tienen el mecanismo disponible para cuando se
+wireen sus formularios de edición.

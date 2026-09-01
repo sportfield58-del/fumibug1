@@ -104,6 +104,20 @@ import {
   StopGpsEventRequestSchema,
   StopOutcomeRequestSchema,
 } from './schemas/field';
+import {
+  CertificateBatchResultSchema,
+  CertificateListQuerySchema,
+  CertificatePdfUrlSchema,
+  CertificateSchema,
+  CertificateVerifyResultSchema,
+  CreateCertificateBatchRequestSchema,
+  CreateCertificateRequestSchema,
+  SendCertificateRequestSchema,
+  SendCertificateResultSchema,
+  VoidCertificateRequestSchema,
+  type Certificate,
+} from './schemas/certificate';
+import { ReportQuerySchema, ReportResponseSchema } from './schemas/reports';
 
 /**
  * Registro de endpoints — la fuente desde la que `scripts/generate.ts` produce
@@ -134,6 +148,12 @@ export interface EndpointDef<
   request?: Req;
   /** Query string de GET (ej. paginación, filtros). */
   query?: Qry;
+  /**
+   * PATCH con versión optimista: el cliente debe mandar el header
+   * `If-Match: "<updatedAt.toISOString()>"` obligatorio (VERSION_CONFLICT si no
+   * coincide). El `generator` emite un arg `etag` en la función del cliente.
+   */
+  ifMatch?: boolean;
   response: Res;
   example: z.infer<Res>;
 }
@@ -238,6 +258,76 @@ function exampleRoute(overrides: Partial<RouteWithStops> = {}): RouteWithStops {
         updatedAt: '2026-08-27T12:00:00.000Z',
       },
     ],
+    ...overrides,
+  };
+}
+
+/** Reusado por los endpoints de /certificates. */
+function exampleCertificate(overrides: Partial<Certificate> = {}): Certificate {
+  return {
+    id: '10101010-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    tenantId: 'f0000000-0000-4000-8000-000100000000',
+    number: 187,
+    formattedNumber: 'CERT-2026-00187',
+    serviceId: 'eeeeeeee-1111-1111-1111-111111111111',
+    serviceSessionId: '30303030-1111-1111-1111-111111111111',
+    customerId: '55555555-5555-5555-5555-555555555555',
+    serviceLocationId: '88888888-8888-8888-8888-888888888888',
+    technicalDirectorId: '99999999-9999-9999-9999-999999999999',
+    technicianId: '22222222-2222-2222-2222-222222222222',
+    status: 'SIGNED',
+    snapshot: {
+      company: {
+        legalName: 'Fumibug S.R.L.',
+        cuit: '30-71234567-8',
+        habilitationNumber: 'DISPO-12345',
+        address: 'Av. Siempre Viva 742',
+        phone: '+54 11 5555-0000',
+        logoUrl: null,
+      },
+      service: {
+        serviceCode: 'SVC-000123',
+        serviceTypeKey: 'desinsectacion',
+        serviceTypeName: 'Desinsectación',
+        scheduledDate: '2026-08-28',
+        performedAt: '2026-08-28T13:45:00.000Z',
+        method: 'SPRAY',
+        targetPests: ['cucarachas'],
+        treatedSurfaceSqm: 120,
+        durationMinutes: 45,
+        observations: null,
+      },
+      customer: { legalName: 'Comidas del Sur S.A.', documentId: null },
+      location: { displayAddress: 'Av. Corrientes 1234, CABA', notes: null },
+      technician: { fullName: 'Diego Operario', sanitaryLicense: 'LS-4821' },
+      technicalDirector: {
+        fullName: 'Dra. Ana Directora',
+        licenseNumber: 'DT-8891',
+        licenseExpiry: '2026-12-31',
+      },
+      appliedProducts: [
+        {
+          productName: 'Cipermetrina 25% EC',
+          activeIngredient: 'Cipermetrina',
+          concentration: '25%',
+          regulatoryAuthority: 'SENASA',
+          regulatoryNumber: 'SENASA-12345',
+          batchCode: 'L2026-08',
+          dilution: '20 ml/L',
+          quantity: '8 L',
+          reentryHours: 4,
+        },
+      ],
+    },
+    pdfStoragePath: 'tenants/f0000000-0000-4000-8000-000100000000/certificates/CERT-2026-00187.pdf',
+    verificationToken: 'a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5',
+    issuedAt: '2026-08-28T14:00:00.000Z',
+    signedAt: '2026-08-28T15:00:00.000Z',
+    voidedAt: null,
+    voidReason: null,
+    replacesCertificateId: null,
+    createdAt: '2026-08-28T14:00:00.000Z',
+    updatedAt: '2026-08-28T15:00:00.000Z',
     ...overrides,
   };
 }
@@ -434,6 +524,7 @@ export const ENDPOINTS = {
     path: 'users/:id',
     summary: 'Edita datos de un usuario (requiere If-Match). No cambia email/username ni rol.',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateUserRequestSchema,
     response: UserWithMembershipSchema,
     example: {
@@ -671,6 +762,7 @@ export const ENDPOINTS = {
     path: 'customers/:id',
     summary: 'Edita un cliente (requiere If-Match). Reemplaza la lista de contactos si se envía.',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateCustomerRequestSchema,
     response: CustomerWithContactsSchema,
     example: {
@@ -854,6 +946,7 @@ export const ENDPOINTS = {
     path: 'locations/:id',
     summary: 'Edita una ubicación (requiere If-Match).',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateLocationRequestSchema,
     response: ServiceLocationSchema,
     example: {
@@ -970,6 +1063,7 @@ export const ENDPOINTS = {
     path: 'service-types/:id',
     summary: 'Edita un tipo de servicio (requiere If-Match). No cambia key.',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateServiceTypeRequestSchema,
     response: ServiceTypeSchema,
     example: {
@@ -1029,6 +1123,7 @@ export const ENDPOINTS = {
     path: 'zones/:id',
     summary: 'Edita una zona (requiere If-Match).',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateZoneRequestSchema,
     response: ZoneSchema,
     example: {
@@ -1102,6 +1197,7 @@ export const ENDPOINTS = {
     path: 'price-lists/:id',
     summary: 'Edita una lista de precios (requiere If-Match). Reemplaza items si se envían.',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdatePriceListRequestSchema,
     response: PriceListWithItemsSchema,
     example: {
@@ -1162,6 +1258,7 @@ export const ENDPOINTS = {
     path: 'services/:id',
     summary: 'Edita un servicio (requiere If-Match). No cambia cliente ni estado.',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateServiceRequestSchema,
     response: ServiceSchema,
     example: exampleService({ version: 2 }),
@@ -1321,6 +1418,7 @@ export const ENDPOINTS = {
     path: 'routes/:id',
     summary: 'Edita una ruta (requiere If-Match).',
     requiresAuth: true,
+    ifMatch: true,
     request: UpdateRouteRequestSchema,
     response: RouteWithStopsSchema,
     example: exampleRoute({ version: 2, notes: 'Sale más temprano por lluvia.' }),
@@ -2415,6 +2513,126 @@ export const ENDPOINTS = {
       approvedBy: null,
       approvedAt: null,
       selfApproved: false,
+    },
+  }),
+
+  // --- Certificados (docs/spec/03-modulos.md §C.21, R33-R38; ADR 0010) ---
+
+  listCertificates: endpoint({
+    id: 'listCertificates',
+    method: 'GET',
+    path: 'certificates',
+    summary: 'Lista de certificados del tenant, paginada por cursor con filtros.',
+    requiresAuth: true,
+    query: CertificateListQuerySchema,
+    response: z.array(CertificateSchema),
+    example: [exampleCertificate()],
+  }),
+
+  createCertificate: endpoint({
+    id: 'createCertificate',
+    method: 'POST',
+    path: 'certificates',
+    summary: 'Emite un certificado sobre un servicio COMPLETED y validado (R33).',
+    requiresAuth: true,
+    request: CreateCertificateRequestSchema,
+    response: CertificateSchema,
+    example: exampleCertificate({ status: 'ISSUED', signedAt: null, updatedAt: '2026-08-28T14:00:00.000Z' }),
+  }),
+
+  createCertificateBatch: endpoint({
+    id: 'createCertificateBatch',
+    method: 'POST',
+    path: 'certificates/batch',
+    summary: 'Emisión en lote: crea tantos como pueda y devuelve los que fallaron.',
+    requiresAuth: true,
+    request: CreateCertificateBatchRequestSchema,
+    response: CertificateBatchResultSchema,
+    example: {
+      created: [exampleCertificate({ status: 'ISSUED', signedAt: null })],
+      failed: [],
+    },
+  }),
+
+  signCertificate: endpoint({
+    id: 'signCertificate',
+    method: 'POST',
+    path: 'certificates/:id/sign',
+    summary: 'Firma el certificado — solo el Director Técnico con matrícula vigente a la fecha del servicio (R36).',
+    requiresAuth: true,
+    response: CertificateSchema,
+    example: exampleCertificate(),
+  }),
+
+  voidCertificate: endpoint({
+    id: 'voidCertificate',
+    method: 'POST',
+    path: 'certificates/:id/void',
+    summary: 'Anula un certificado firmado — es inmutable, se corrige anulando y emitiendo uno nuevo (R37).',
+    requiresAuth: true,
+    request: VoidCertificateRequestSchema,
+    response: CertificateSchema,
+    example: exampleCertificate({
+      status: 'VOIDED',
+      voidedAt: '2026-08-29T10:00:00.000Z',
+      voidReason: 'Error en la dirección del cliente.',
+      updatedAt: '2026-08-29T10:00:00.000Z',
+    }),
+  }),
+
+  getCertificatePdf: endpoint({
+    id: 'getCertificatePdf',
+    method: 'GET',
+    path: 'certificates/:id/pdf',
+    summary: 'URL firmada (TTL 5 min) del PDF del certificado.',
+    requiresAuth: true,
+    response: CertificatePdfUrlSchema,
+    example: {
+      url: 'https://storage.fumibug.internal/signed/cert-00187.pdf?X-Amz-Expires=300',
+    },
+  }),
+
+  sendCertificate: endpoint({
+    id: 'sendCertificate',
+    method: 'POST',
+    path: 'certificates/:id/send',
+    summary: 'Envía el certificado por email y/o WhatsApp.',
+    requiresAuth: true,
+    request: SendCertificateRequestSchema,
+    response: SendCertificateResultSchema,
+    example: { ok: true },
+  }),
+
+  getCertificateVerify: endpoint({
+    id: 'getCertificateVerify',
+    method: 'GET',
+    path: 'public/verify/:token',
+    summary: 'Verificación pública sin auth (rate-limited): número, fecha, cliente y estado — nada más.',
+    requiresAuth: false,
+    response: CertificateVerifyResultSchema,
+    example: {
+      formattedNumber: 'CERT-2026-00187',
+      issuedAt: '2026-08-28T14:00:00.000Z',
+      customerName: 'Comidas del Sur S.A.',
+      status: 'SIGNED',
+    },
+  }),
+
+  // --- Reportes (docs/spec/19-mvp-roadmap.md, §P; ADR 0010) ---
+
+  getReport: endpoint({
+    id: 'getReport',
+    method: 'GET',
+    path: 'reports',
+    summary: 'Reporte tipado por `type` (8 tipos del roadmap), con rangos de fecha opcionales.',
+    requiresAuth: true,
+    query: ReportQuerySchema,
+    response: ReportResponseSchema,
+    example: {
+      rows: [
+        { type: 'services_by_status', status: 'COMPLETED', count: 142 },
+        { type: 'services_by_status', status: 'SCHEDULED', count: 38 },
+      ],
     },
   }),
 } as const;

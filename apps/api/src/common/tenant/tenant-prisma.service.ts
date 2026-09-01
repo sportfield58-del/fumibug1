@@ -91,4 +91,14 @@ export class TenantPrismaService implements OnModuleInit, OnModuleDestroy {
     }
     return tx;
   }
+
+  /**
+   * Cliente base SIN scoping de tenant, para rutas públicas (@Public, sin JWT) donde no
+   * hay request transaction. SOLO para lecturas by-token de datos expresamente públicos
+   * (ej. verificación de un certificado por verificationToken). Nunca para mutar ni para
+   * resolver en contextos autenticados.
+   */
+  baseClient(): PrismaClient {
+    return this.base;
+  }
 }

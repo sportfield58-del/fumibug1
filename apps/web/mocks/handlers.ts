@@ -2424,4 +2424,462 @@ export const handlers = [
     }
   }),
   ),
+  http.get('/v1/certificates', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": [
+      {
+        "id": "10101010-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "tenantId": "f0000000-0000-4000-8000-000100000000",
+        "number": 187,
+        "formattedNumber": "CERT-2026-00187",
+        "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+        "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+        "customerId": "55555555-5555-5555-5555-555555555555",
+        "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+        "technicalDirectorId": "99999999-9999-9999-9999-999999999999",
+        "technicianId": "22222222-2222-2222-2222-222222222222",
+        "status": "SIGNED",
+        "snapshot": {
+          "company": {
+            "legalName": "Fumibug S.R.L.",
+            "cuit": "30-71234567-8",
+            "habilitationNumber": "DISPO-12345",
+            "address": "Av. Siempre Viva 742",
+            "phone": "+54 11 5555-0000",
+            "logoUrl": null
+          },
+          "service": {
+            "serviceCode": "SVC-000123",
+            "serviceTypeKey": "desinsectacion",
+            "serviceTypeName": "Desinsectación",
+            "scheduledDate": "2026-08-28",
+            "performedAt": "2026-08-28T13:45:00.000Z",
+            "method": "SPRAY",
+            "targetPests": [
+              "cucarachas"
+            ],
+            "treatedSurfaceSqm": 120,
+            "durationMinutes": 45,
+            "observations": null
+          },
+          "customer": {
+            "legalName": "Comidas del Sur S.A.",
+            "documentId": null
+          },
+          "location": {
+            "displayAddress": "Av. Corrientes 1234, CABA",
+            "notes": null
+          },
+          "technician": {
+            "fullName": "Diego Operario",
+            "sanitaryLicense": "LS-4821"
+          },
+          "technicalDirector": {
+            "fullName": "Dra. Ana Directora",
+            "licenseNumber": "DT-8891",
+            "licenseExpiry": "2026-12-31"
+          },
+          "appliedProducts": [
+            {
+              "productName": "Cipermetrina 25% EC",
+              "activeIngredient": "Cipermetrina",
+              "concentration": "25%",
+              "regulatoryAuthority": "SENASA",
+              "regulatoryNumber": "SENASA-12345",
+              "batchCode": "L2026-08",
+              "dilution": "20 ml/L",
+              "quantity": "8 L",
+              "reentryHours": 4
+            }
+          ]
+        },
+        "pdfStoragePath": "tenants/f0000000-0000-4000-8000-000100000000/certificates/CERT-2026-00187.pdf",
+        "verificationToken": "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+        "issuedAt": "2026-08-28T14:00:00.000Z",
+        "signedAt": "2026-08-28T15:00:00.000Z",
+        "voidedAt": null,
+        "voidReason": null,
+        "replacesCertificateId": null,
+        "createdAt": "2026-08-28T14:00:00.000Z",
+        "updatedAt": "2026-08-28T15:00:00.000Z"
+      }
+    ]
+  }),
+  ),
+  http.post('/v1/certificates', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "10101010-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "number": 187,
+      "formattedNumber": "CERT-2026-00187",
+      "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+      "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+      "customerId": "55555555-5555-5555-5555-555555555555",
+      "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+      "technicalDirectorId": "99999999-9999-9999-9999-999999999999",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "status": "ISSUED",
+      "snapshot": {
+        "company": {
+          "legalName": "Fumibug S.R.L.",
+          "cuit": "30-71234567-8",
+          "habilitationNumber": "DISPO-12345",
+          "address": "Av. Siempre Viva 742",
+          "phone": "+54 11 5555-0000",
+          "logoUrl": null
+        },
+        "service": {
+          "serviceCode": "SVC-000123",
+          "serviceTypeKey": "desinsectacion",
+          "serviceTypeName": "Desinsectación",
+          "scheduledDate": "2026-08-28",
+          "performedAt": "2026-08-28T13:45:00.000Z",
+          "method": "SPRAY",
+          "targetPests": [
+            "cucarachas"
+          ],
+          "treatedSurfaceSqm": 120,
+          "durationMinutes": 45,
+          "observations": null
+        },
+        "customer": {
+          "legalName": "Comidas del Sur S.A.",
+          "documentId": null
+        },
+        "location": {
+          "displayAddress": "Av. Corrientes 1234, CABA",
+          "notes": null
+        },
+        "technician": {
+          "fullName": "Diego Operario",
+          "sanitaryLicense": "LS-4821"
+        },
+        "technicalDirector": {
+          "fullName": "Dra. Ana Directora",
+          "licenseNumber": "DT-8891",
+          "licenseExpiry": "2026-12-31"
+        },
+        "appliedProducts": [
+          {
+            "productName": "Cipermetrina 25% EC",
+            "activeIngredient": "Cipermetrina",
+            "concentration": "25%",
+            "regulatoryAuthority": "SENASA",
+            "regulatoryNumber": "SENASA-12345",
+            "batchCode": "L2026-08",
+            "dilution": "20 ml/L",
+            "quantity": "8 L",
+            "reentryHours": 4
+          }
+        ]
+      },
+      "pdfStoragePath": "tenants/f0000000-0000-4000-8000-000100000000/certificates/CERT-2026-00187.pdf",
+      "verificationToken": "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+      "issuedAt": "2026-08-28T14:00:00.000Z",
+      "signedAt": null,
+      "voidedAt": null,
+      "voidReason": null,
+      "replacesCertificateId": null,
+      "createdAt": "2026-08-28T14:00:00.000Z",
+      "updatedAt": "2026-08-28T14:00:00.000Z"
+    }
+  }),
+  ),
+  http.post('/v1/certificates/batch', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "created": [
+        {
+          "id": "10101010-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+          "tenantId": "f0000000-0000-4000-8000-000100000000",
+          "number": 187,
+          "formattedNumber": "CERT-2026-00187",
+          "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+          "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+          "customerId": "55555555-5555-5555-5555-555555555555",
+          "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+          "technicalDirectorId": "99999999-9999-9999-9999-999999999999",
+          "technicianId": "22222222-2222-2222-2222-222222222222",
+          "status": "ISSUED",
+          "snapshot": {
+            "company": {
+              "legalName": "Fumibug S.R.L.",
+              "cuit": "30-71234567-8",
+              "habilitationNumber": "DISPO-12345",
+              "address": "Av. Siempre Viva 742",
+              "phone": "+54 11 5555-0000",
+              "logoUrl": null
+            },
+            "service": {
+              "serviceCode": "SVC-000123",
+              "serviceTypeKey": "desinsectacion",
+              "serviceTypeName": "Desinsectación",
+              "scheduledDate": "2026-08-28",
+              "performedAt": "2026-08-28T13:45:00.000Z",
+              "method": "SPRAY",
+              "targetPests": [
+                "cucarachas"
+              ],
+              "treatedSurfaceSqm": 120,
+              "durationMinutes": 45,
+              "observations": null
+            },
+            "customer": {
+              "legalName": "Comidas del Sur S.A.",
+              "documentId": null
+            },
+            "location": {
+              "displayAddress": "Av. Corrientes 1234, CABA",
+              "notes": null
+            },
+            "technician": {
+              "fullName": "Diego Operario",
+              "sanitaryLicense": "LS-4821"
+            },
+            "technicalDirector": {
+              "fullName": "Dra. Ana Directora",
+              "licenseNumber": "DT-8891",
+              "licenseExpiry": "2026-12-31"
+            },
+            "appliedProducts": [
+              {
+                "productName": "Cipermetrina 25% EC",
+                "activeIngredient": "Cipermetrina",
+                "concentration": "25%",
+                "regulatoryAuthority": "SENASA",
+                "regulatoryNumber": "SENASA-12345",
+                "batchCode": "L2026-08",
+                "dilution": "20 ml/L",
+                "quantity": "8 L",
+                "reentryHours": 4
+              }
+            ]
+          },
+          "pdfStoragePath": "tenants/f0000000-0000-4000-8000-000100000000/certificates/CERT-2026-00187.pdf",
+          "verificationToken": "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+          "issuedAt": "2026-08-28T14:00:00.000Z",
+          "signedAt": null,
+          "voidedAt": null,
+          "voidReason": null,
+          "replacesCertificateId": null,
+          "createdAt": "2026-08-28T14:00:00.000Z",
+          "updatedAt": "2026-08-28T15:00:00.000Z"
+        }
+      ],
+      "failed": []
+    }
+  }),
+  ),
+  http.post('/v1/certificates/:id/sign', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "10101010-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "number": 187,
+      "formattedNumber": "CERT-2026-00187",
+      "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+      "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+      "customerId": "55555555-5555-5555-5555-555555555555",
+      "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+      "technicalDirectorId": "99999999-9999-9999-9999-999999999999",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "status": "SIGNED",
+      "snapshot": {
+        "company": {
+          "legalName": "Fumibug S.R.L.",
+          "cuit": "30-71234567-8",
+          "habilitationNumber": "DISPO-12345",
+          "address": "Av. Siempre Viva 742",
+          "phone": "+54 11 5555-0000",
+          "logoUrl": null
+        },
+        "service": {
+          "serviceCode": "SVC-000123",
+          "serviceTypeKey": "desinsectacion",
+          "serviceTypeName": "Desinsectación",
+          "scheduledDate": "2026-08-28",
+          "performedAt": "2026-08-28T13:45:00.000Z",
+          "method": "SPRAY",
+          "targetPests": [
+            "cucarachas"
+          ],
+          "treatedSurfaceSqm": 120,
+          "durationMinutes": 45,
+          "observations": null
+        },
+        "customer": {
+          "legalName": "Comidas del Sur S.A.",
+          "documentId": null
+        },
+        "location": {
+          "displayAddress": "Av. Corrientes 1234, CABA",
+          "notes": null
+        },
+        "technician": {
+          "fullName": "Diego Operario",
+          "sanitaryLicense": "LS-4821"
+        },
+        "technicalDirector": {
+          "fullName": "Dra. Ana Directora",
+          "licenseNumber": "DT-8891",
+          "licenseExpiry": "2026-12-31"
+        },
+        "appliedProducts": [
+          {
+            "productName": "Cipermetrina 25% EC",
+            "activeIngredient": "Cipermetrina",
+            "concentration": "25%",
+            "regulatoryAuthority": "SENASA",
+            "regulatoryNumber": "SENASA-12345",
+            "batchCode": "L2026-08",
+            "dilution": "20 ml/L",
+            "quantity": "8 L",
+            "reentryHours": 4
+          }
+        ]
+      },
+      "pdfStoragePath": "tenants/f0000000-0000-4000-8000-000100000000/certificates/CERT-2026-00187.pdf",
+      "verificationToken": "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+      "issuedAt": "2026-08-28T14:00:00.000Z",
+      "signedAt": "2026-08-28T15:00:00.000Z",
+      "voidedAt": null,
+      "voidReason": null,
+      "replacesCertificateId": null,
+      "createdAt": "2026-08-28T14:00:00.000Z",
+      "updatedAt": "2026-08-28T15:00:00.000Z"
+    }
+  }),
+  ),
+  http.post('/v1/certificates/:id/void', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "id": "10101010-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "tenantId": "f0000000-0000-4000-8000-000100000000",
+      "number": 187,
+      "formattedNumber": "CERT-2026-00187",
+      "serviceId": "eeeeeeee-1111-1111-1111-111111111111",
+      "serviceSessionId": "30303030-1111-1111-1111-111111111111",
+      "customerId": "55555555-5555-5555-5555-555555555555",
+      "serviceLocationId": "88888888-8888-8888-8888-888888888888",
+      "technicalDirectorId": "99999999-9999-9999-9999-999999999999",
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "status": "VOIDED",
+      "snapshot": {
+        "company": {
+          "legalName": "Fumibug S.R.L.",
+          "cuit": "30-71234567-8",
+          "habilitationNumber": "DISPO-12345",
+          "address": "Av. Siempre Viva 742",
+          "phone": "+54 11 5555-0000",
+          "logoUrl": null
+        },
+        "service": {
+          "serviceCode": "SVC-000123",
+          "serviceTypeKey": "desinsectacion",
+          "serviceTypeName": "Desinsectación",
+          "scheduledDate": "2026-08-28",
+          "performedAt": "2026-08-28T13:45:00.000Z",
+          "method": "SPRAY",
+          "targetPests": [
+            "cucarachas"
+          ],
+          "treatedSurfaceSqm": 120,
+          "durationMinutes": 45,
+          "observations": null
+        },
+        "customer": {
+          "legalName": "Comidas del Sur S.A.",
+          "documentId": null
+        },
+        "location": {
+          "displayAddress": "Av. Corrientes 1234, CABA",
+          "notes": null
+        },
+        "technician": {
+          "fullName": "Diego Operario",
+          "sanitaryLicense": "LS-4821"
+        },
+        "technicalDirector": {
+          "fullName": "Dra. Ana Directora",
+          "licenseNumber": "DT-8891",
+          "licenseExpiry": "2026-12-31"
+        },
+        "appliedProducts": [
+          {
+            "productName": "Cipermetrina 25% EC",
+            "activeIngredient": "Cipermetrina",
+            "concentration": "25%",
+            "regulatoryAuthority": "SENASA",
+            "regulatoryNumber": "SENASA-12345",
+            "batchCode": "L2026-08",
+            "dilution": "20 ml/L",
+            "quantity": "8 L",
+            "reentryHours": 4
+          }
+        ]
+      },
+      "pdfStoragePath": "tenants/f0000000-0000-4000-8000-000100000000/certificates/CERT-2026-00187.pdf",
+      "verificationToken": "a1a1a1a1-b2b2-c3c3-d4d4-e5e5e5e5e5e5",
+      "issuedAt": "2026-08-28T14:00:00.000Z",
+      "signedAt": "2026-08-28T15:00:00.000Z",
+      "voidedAt": "2026-08-29T10:00:00.000Z",
+      "voidReason": "Error en la dirección del cliente.",
+      "replacesCertificateId": null,
+      "createdAt": "2026-08-28T14:00:00.000Z",
+      "updatedAt": "2026-08-29T10:00:00.000Z"
+    }
+  }),
+  ),
+  http.get('/v1/certificates/:id/pdf', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "url": "https://storage.fumibug.internal/signed/cert-00187.pdf?X-Amz-Expires=300"
+    }
+  }),
+  ),
+  http.post('/v1/certificates/:id/send', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "ok": true
+    }
+  }),
+  ),
+  http.get('/v1/public/verify/:token', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "formattedNumber": "CERT-2026-00187",
+      "issuedAt": "2026-08-28T14:00:00.000Z",
+      "customerName": "Comidas del Sur S.A.",
+      "status": "SIGNED"
+    }
+  }),
+  ),
+  http.get('/v1/reports', () =>
+    HttpResponse.json({
+    "success": true,
+    "data": {
+      "rows": [
+        {
+          "type": "services_by_status",
+          "status": "COMPLETED",
+          "count": 142
+        },
+        {
+          "type": "services_by_status",
+          "status": "SCHEDULED",
+          "count": 38
+        }
+      ]
+    }
+  }),
+  ),
 ];

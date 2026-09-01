@@ -173,8 +173,11 @@ function buildClient(): string {
         `body: ReturnType<NonNullable<typeof endpoints.${def.id}.request>['parse']>`,
       );
     }
+    if (def.ifMatch) {
+      argFields.push(`etag: string`);
+    }
 
-    const argsOptional = params.length === 0 && !hasBody; // query solo (o nada) → todo opcional
+    const argsOptional = !def.ifMatch && params.length === 0 && !hasBody; // query solo (o nada) → todo opcional
     const argsDecl = argFields.length > 0 ? `args${argsOptional ? '?' : ''}: { ${argFields.join('; ')} }` : '';
 
     let pathExpr: string;
@@ -187,12 +190,17 @@ function buildClient(): string {
       pathExpr = `${pathExpr} + toQueryString(args?.query)`;
     }
 
-    const bodyArg = hasBody ? ', args.body' : '';
+    let callArgs = pathExpr;
+    if (hasBody) callArgs += ', args.body';
+    if (def.ifMatch) {
+      if (!hasBody) callArgs += ', undefined';
+      callArgs += `, { 'If-Match': args.etag }`;
+    }
 
     fns.push(
       `/** ${def.method} /v1/${def.path} — ${def.summary} */\n` +
         `export function ${functionName(def)}(${argsDecl}): Promise<ApiResponse<typeof endpoints.${def.id}.example>> {\n` +
-        `  return request('${def.method}', ${pathExpr}${bodyArg});\n` +
+        `  return request('${def.method}', ${callArgs});\n` +
         `}`,
     );
   }
@@ -226,13 +234,14 @@ function buildClient(): string {
     `  const qs = params.toString();\n` +
     `  return qs ? \`?\${qs}\` : '';\n` +
     `}\n\n` +
-    `async function request<T>(method: string, path: string, body?: unknown): Promise<ApiResponse<T>> {\n` +
+    `async function request<T>(method: string, path: string, body?: unknown, headers?: Record<string, string>): Promise<ApiResponse<T>> {\n` +
     `  const token = config.getAccessToken?.();\n` +
     `  const res = await fetch(\`\${config.baseUrl}/\${path}\`, {\n` +
     `    method,\n` +
     `    headers: {\n` +
     `      'Content-Type': 'application/json',\n` +
     `      ...(token ? { Authorization: \`Bearer \${token}\` } : {}),\n` +
+    `      ...(headers ?? {}),\n` +
     `    },\n` +
     `    ...(body !== undefined ? { body: JSON.stringify(body) } : {}),\n` +
     `  });\n` +

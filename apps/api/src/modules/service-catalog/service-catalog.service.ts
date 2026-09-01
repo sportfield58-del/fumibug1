@@ -293,7 +293,10 @@ export class ServiceCatalogService {
         serviceTypeId: item.serviceTypeId,
         establishmentType: item.establishmentType ?? null,
         priceCents: BigInt(item.priceCents),
-        pricePerSqmCents: item.pricePerSqmCents != null ? BigInt(item.pricePerSqmCents) : null,
+        pricePerSqmCents:
+          item.pricePerSqmCents !== undefined && item.pricePerSqmCents !== null
+            ? BigInt(item.pricePerSqmCents)
+            : null,
       },
     });
   }
