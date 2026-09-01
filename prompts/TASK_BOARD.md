@@ -310,3 +310,21 @@ Verificado: contracts build ✓, api typecheck/lint ✓, web typecheck/lint ✓,
 (incluye tenant-isolation, sin rutas nuevas que registrar) ✓, build de producción de web ✓.
 Deploy confirmado: Railway y Vercel en verde sobre el commit de merge (`11c177f`), bundle nuevo
 de `/admin/operarios` (`page-a7f85be060dfd012.js`) sirviendo en Vercel.
+
+## Bug reportado por el humano (2026-09-01) — /admin/usuarios y /admin/operarios "No se pudo cargar todo." — RESUELTO
+
+Causa: el contrato define `listRoles` (GET /roles) desde hace varios PRs pero **nunca se
+implementó el controller/service en el backend** — no existía ningún `RolesController` en
+`apps/api`. `/admin/usuarios` (ya en producción) y `/admin/operarios` (recién deployado,
+ver arriba) llaman `getListUsers` + `getListRoles` en paralelo (`Promise.all`) y muestran
+"No se pudo cargar todo." apenas una de las dos falla — con `/roles` en 404 en todo
+entorno, ambas pantallas estaban rotas.
+
+Fix (PR #67): `UsersService.listRoles()` + `RolesController` nuevo en `modules/users/`
+(path `/roles`, gateado con `user.read`, mismo permiso que ya exigían ambas pantallas).
+Test unitario agregado. Sin ruta con `:param` — no requiere entrada en
+`cross-tenant-registry.ts`.
+
+Verificado: typecheck/lint API ✓, 104 unit + 93 e2e (tenant-isolation incluido) ✓. Deploy
+confirmado en Railway: `GET /v1/roles` pasó de 404 a 401 `UNAUTHENTICATED` (la ruta existe
+y exige auth, como corresponde) sobre el commit de merge `9f63f41`.
