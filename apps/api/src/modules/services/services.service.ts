@@ -70,6 +70,7 @@ export class ServicesService {
         serviceLocation: { select: { addressLine: true, lat: true, lng: true } },
         serviceType: { select: { name: true } },
         routeStops: {
+          where: { status: { not: 'CANCELLED' }, route: { status: { not: 'CANCELLED' } } },
           orderBy: { createdAt: 'desc' },
           take: 1,
           include: { route: { select: { technician: { select: { id: true, fullName: true, username: true } } } } },
@@ -143,6 +144,7 @@ export class ServicesService {
         serviceLocation: { select: { addressLine: true, lat: true, lng: true } },
         serviceType: { select: { name: true } },
         routeStops: {
+          where: { status: { not: 'CANCELLED' }, route: { status: { not: 'CANCELLED' } } },
           orderBy: { createdAt: 'desc' },
           take: 1,
           include: { route: { select: { technician: { select: { id: true, fullName: true, username: true } } } } },
