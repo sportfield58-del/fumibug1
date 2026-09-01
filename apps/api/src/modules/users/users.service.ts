@@ -7,6 +7,7 @@ import type {
   ResetPinResponse,
   ForceLogoutResponse,
   PaginationMeta,
+  RoleWithPermissions,
   UserListQuery,
   UserWithMembership,
 } from '@fumibug/contracts';
@@ -82,6 +83,35 @@ export class UsersService {
     const membership = await this.findMembershipInTenant(id);
     if (!membership) throw httpApiError('NOT_FOUND', 'Usuario no encontrado.', 404);
     return toUserWithMembership(membership);
+  }
+
+  /**
+   * GET /roles — los roles del tenant con su matriz de permisos resuelta. Usado por las
+   * pantallas de gestión de usuarios/operarios para el selector de rol al dar de alta y
+   * para mostrar el nombre del rol; no hay alta/edición de rol custom todavía (eso es
+   * `role.manage`, sin UI) así que esto es de solo lectura.
+   */
+  async listRoles(): Promise<RoleWithPermissions[]> {
+    const tx = this.db.current();
+    const roles = await tx.role.findMany({
+      orderBy: { name: 'asc' },
+      include: { rolePermissions: { select: { roleId: true, permissionKey: true, scope: true } } },
+    });
+    return roles.map((r) => ({
+      id: r.id,
+      tenantId: r.tenantId,
+      key: r.key,
+      name: r.name,
+      isSystem: r.isSystem,
+      description: r.description,
+      createdAt: r.createdAt.toISOString(),
+      updatedAt: r.updatedAt.toISOString(),
+      permissions: r.rolePermissions.map((p) => ({
+        roleId: p.roleId,
+        permissionKey: p.permissionKey as RoleWithPermissions['permissions'][number]['permissionKey'],
+        scope: p.scope as RoleWithPermissions['permissions'][number]['scope'],
+      })),
+    }));
   }
 
   async create(input: CreateUserRequest, actor: RequestUser): Promise<CreateUserResponse> {

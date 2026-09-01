@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UsersController } from './users.controller';
+import { RolesController } from './roles.controller';
 import { UsersService } from './users.service';
 import { SupabaseAuthAdminClient } from './supabase-auth-admin.client';
 
@@ -9,7 +10,7 @@ import { SupabaseAuthAdminClient } from './supabase-auth-admin.client';
  * toca Supabase Admin salvo este.
  */
 @Module({
-  controllers: [UsersController],
+  controllers: [UsersController, RolesController],
   providers: [UsersService, SupabaseAuthAdminClient],
   exports: [UsersService],
 })

@@ -65,6 +65,7 @@ function buildService(overrides: {
   const userCreate = jest.fn();
   const userUpdate = jest.fn();
   const roleFindUnique = jest.fn();
+  const roleFindMany = jest.fn();
   const profileUpsert = jest.fn();
   const profileUpdate = jest.fn();
   const supabaseCreateUser = jest.fn().mockResolvedValue(undefined);
@@ -81,7 +82,7 @@ function buildService(overrides: {
       update: membershipUpdate,
     },
     user: { create: userCreate, update: userUpdate },
-    role: { findUnique: roleFindUnique },
+    role: { findUnique: roleFindUnique, findMany: roleFindMany },
     technicianProfile: { upsert: profileUpsert, update: profileUpdate },
   };
 
@@ -101,6 +102,7 @@ function buildService(overrides: {
     membershipFindMany,
     membershipCount,
     roleFindUnique,
+    roleFindMany,
     userCreate,
     userUpdate,
     membershipUpdate,
@@ -259,6 +261,32 @@ describe('UsersService.setActive', () => {
     expect(membershipUpdate).toHaveBeenCalledWith(
       expect.objectContaining({ data: { status: 'SUSPENDED' } }),
     );
+  });
+});
+
+describe('UsersService.listRoles', () => {
+  it('devuelve los roles del tenant con su matriz de permisos resuelta', async () => {
+    const { service, roleFindMany } = buildService();
+    roleFindMany.mockResolvedValue([
+      {
+        id: RID,
+        tenantId: TID,
+        key: 'technician',
+        name: 'Operario',
+        isSystem: true,
+        description: 'Ejecuta servicios en campo.',
+        createdAt: NOW,
+        updatedAt: NOW,
+        rolePermissions: [{ roleId: RID, permissionKey: 'service.read.own', scope: 'own' }],
+      },
+    ]);
+    const roles = await service.listRoles();
+    expect(roles).toHaveLength(1);
+    expect(roles[0]).toMatchObject({
+      id: RID,
+      key: 'technician',
+      permissions: [{ roleId: RID, permissionKey: 'service.read.own', scope: 'own' }],
+    });
   });
 });
 
