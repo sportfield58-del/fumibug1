@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, User, MapPin, Wrench } from 'lucide-react'
+import { ArrowLeft, Calendar, Clock, AlertTriangle, CheckCircle, XCircle, User, HardHat, MapPin, Wrench } from 'lucide-react'
 import { Button, Badge, Skeleton, Input, Label, Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@fumibug/ui'
 import { getGetService, postRescheduleService, postCancelService } from '@/../../lib/api/client'
 import type { CancellationReason } from '@fumibug/contracts'
@@ -92,6 +92,8 @@ export default function ServicioDetailPage(): JSX.Element {
     updatedAt: string
     customerName?: string | null
     serviceTypeName?: string | null
+    technicianId?: string | null
+    technicianName?: string | null
     location?: { addressLine: string; lat: number | null; lng: number | null } | null
   }
 
@@ -160,6 +162,13 @@ export default function ServicioDetailPage(): JSX.Element {
           <div>
             <p className="text-caption text-fg-muted">Cliente</p>
             <p className="text-body font-medium text-fg">{svc.customerName ?? 'Sin cliente'}</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3">
+          <HardHat className="h-5 w-5 shrink-0 text-fg-subtle mt-0.5" />
+          <div>
+            <p className="text-caption text-fg-muted">Operario</p>
+            <p className="text-body font-medium text-fg">{svc.technicianName ?? 'Sin operario asignado'}</p>
           </div>
         </div>
         <div className="flex items-start gap-3">

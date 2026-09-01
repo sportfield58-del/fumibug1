@@ -78,7 +78,7 @@ export const handlers = [
         "updatedAt": "2026-08-20T12:00:00.000Z",
         "membershipStatus": "ACTIVE",
         "roleId": "33333333-3333-3333-3333-333333333333",
-        "roleKey": "operator",
+        "roleKey": "technician",
         "roleName": "Operario",
         "technicianProfile": {
           "userId": "22222222-2222-2222-2222-222222222222",
@@ -114,7 +114,7 @@ export const handlers = [
         "updatedAt": "2026-08-27T12:00:00.000Z",
         "membershipStatus": "ACTIVE",
         "roleId": "33333333-3333-3333-3333-333333333333",
-        "roleKey": "operator",
+        "roleKey": "technician",
         "roleName": "Operario",
         "technicianProfile": {
           "userId": "44444444-4444-4444-4444-444444444444",
@@ -150,7 +150,7 @@ export const handlers = [
       "updatedAt": "2026-08-20T12:00:00.000Z",
       "membershipStatus": "ACTIVE",
       "roleId": "33333333-3333-3333-3333-333333333333",
-      "roleKey": "operator",
+      "roleKey": "technician",
       "roleName": "Operario",
       "technicianProfile": {
         "userId": "22222222-2222-2222-2222-222222222222",
@@ -184,7 +184,7 @@ export const handlers = [
       "updatedAt": "2026-08-27T12:05:00.000Z",
       "membershipStatus": "ACTIVE",
       "roleId": "33333333-3333-3333-3333-333333333333",
-      "roleKey": "operator",
+      "roleKey": "technician",
       "roleName": "Operario",
       "technicianProfile": {
         "userId": "22222222-2222-2222-2222-222222222222",
@@ -270,7 +270,7 @@ export const handlers = [
       {
         "id": "33333333-3333-3333-3333-333333333333",
         "tenantId": "f0000000-0000-4000-8000-000100000000",
-        "key": "operator",
+        "key": "technician",
         "name": "Operario",
         "isSystem": true,
         "description": "Ejecuta servicios en campo.",
@@ -780,6 +780,8 @@ export const handlers = [
         "notesForTechnician": "Perro guardián — avisar en portería.",
         "cancellationReason": null,
         "cancelledBillable": null,
+        "technicianId": "22222222-2222-2222-2222-222222222222",
+        "technicianName": "Diego Operario",
         "version": 1,
         "createdAt": "2026-08-27T12:00:00.000Z",
         "updatedAt": "2026-08-27T12:00:00.000Z"
@@ -819,6 +821,8 @@ export const handlers = [
       "notesForTechnician": "Perro guardián — avisar en portería.",
       "cancellationReason": null,
       "cancelledBillable": null,
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "technicianName": "Diego Operario",
       "version": 1,
       "createdAt": "2026-08-27T12:00:00.000Z",
       "updatedAt": "2026-08-27T12:00:00.000Z"
@@ -857,6 +861,8 @@ export const handlers = [
       "notesForTechnician": "Perro guardián — avisar en portería.",
       "cancellationReason": null,
       "cancelledBillable": null,
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "technicianName": "Diego Operario",
       "version": 1,
       "createdAt": "2026-08-27T12:00:00.000Z",
       "updatedAt": "2026-08-27T12:00:00.000Z"
@@ -895,6 +901,8 @@ export const handlers = [
       "notesForTechnician": "Perro guardián — avisar en portería.",
       "cancellationReason": null,
       "cancelledBillable": null,
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "technicianName": "Diego Operario",
       "version": 2,
       "createdAt": "2026-08-27T12:00:00.000Z",
       "updatedAt": "2026-08-27T12:00:00.000Z"
@@ -933,6 +941,8 @@ export const handlers = [
       "notesForTechnician": "Perro guardián — avisar en portería.",
       "cancellationReason": "CUSTOMER_REQUESTED",
       "cancelledBillable": false,
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "technicianName": "Diego Operario",
       "version": 2,
       "createdAt": "2026-08-27T12:00:00.000Z",
       "updatedAt": "2026-08-27T12:00:00.000Z"
@@ -971,6 +981,8 @@ export const handlers = [
       "notesForTechnician": "Perro guardián — avisar en portería.",
       "cancellationReason": null,
       "cancelledBillable": null,
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "technicianName": "Diego Operario",
       "version": 2,
       "createdAt": "2026-08-27T12:00:00.000Z",
       "updatedAt": "2026-08-27T12:00:00.000Z"
@@ -1009,6 +1021,8 @@ export const handlers = [
       "notesForTechnician": "Perro guardián — avisar en portería.",
       "cancellationReason": null,
       "cancelledBillable": null,
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "technicianName": "Diego Operario",
       "version": 3,
       "createdAt": "2026-08-27T12:00:00.000Z",
       "updatedAt": "2026-08-27T12:00:00.000Z"
@@ -1047,6 +1061,8 @@ export const handlers = [
       "notesForTechnician": "Perro guardián — avisar en portería.",
       "cancellationReason": null,
       "cancelledBillable": null,
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "technicianName": "Diego Operario",
       "version": 3,
       "createdAt": "2026-08-27T12:00:00.000Z",
       "updatedAt": "2026-08-27T12:00:00.000Z"
@@ -1085,6 +1101,8 @@ export const handlers = [
       "notesForTechnician": "Perro guardián — avisar en portería.",
       "cancellationReason": null,
       "cancelledBillable": null,
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "technicianName": "Diego Operario",
       "version": 4,
       "createdAt": "2026-08-27T12:00:00.000Z",
       "updatedAt": "2026-08-27T12:00:00.000Z"
@@ -1123,6 +1141,8 @@ export const handlers = [
       "notesForTechnician": "Perro guardián — avisar en portería.",
       "cancellationReason": null,
       "cancelledBillable": null,
+      "technicianId": "22222222-2222-2222-2222-222222222222",
+      "technicianName": "Diego Operario",
       "version": 1,
       "createdAt": "2026-08-27T12:00:00.000Z",
       "updatedAt": "2026-08-27T12:00:00.000Z"

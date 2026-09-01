@@ -69,6 +69,12 @@ export class ServicesService {
         customer: { select: { legalName: true, tradeName: true } },
         serviceLocation: { select: { addressLine: true, lat: true, lng: true } },
         serviceType: { select: { name: true } },
+        routeStops: {
+          where: { status: { not: 'CANCELLED' }, route: { status: { not: 'CANCELLED' } } },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          include: { route: { select: { technician: { select: { id: true, fullName: true, username: true } } } } },
+        },
       },
     });
 
@@ -137,6 +143,12 @@ export class ServicesService {
         customer: { select: { legalName: true, tradeName: true } },
         serviceLocation: { select: { addressLine: true, lat: true, lng: true } },
         serviceType: { select: { name: true } },
+        routeStops: {
+          where: { status: { not: 'CANCELLED' }, route: { status: { not: 'CANCELLED' } } },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          include: { route: { select: { technician: { select: { id: true, fullName: true, username: true } } } } },
+        },
       },
     });
     if (!row) throw httpApiError('NOT_FOUND', 'Servicio no encontrado.', 404);
@@ -394,6 +406,9 @@ interface ServiceRow {
   customer?: { legalName: string; tradeName: string | null };
   serviceLocation?: { addressLine: string; lat: unknown; lng: unknown };
   serviceType?: { name: string };
+  routeStops?: Array<{
+    route: { technician: { id: string; fullName: string | null; username: string | null } | null } | null;
+  }>;
 }
 
 function toService(r: ServiceRow): Service {
@@ -429,6 +444,11 @@ function toService(r: ServiceRow): Service {
     updatedAt: r.updatedAt.toISOString(),
     customerName: r.customer ? (r.customer.tradeName ?? r.customer.legalName) : null,
     serviceTypeName: r.serviceType?.name ?? null,
+    technicianId: r.routeStops?.[0]?.route?.technician?.id ?? null,
+    technicianName:
+      r.routeStops?.[0]?.route?.technician?.fullName ??
+      r.routeStops?.[0]?.route?.technician?.username ??
+      null,
     location: r.serviceLocation
       ? {
           addressLine: r.serviceLocation.addressLine,
